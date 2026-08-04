@@ -320,7 +320,7 @@ auth.onAuthStateChanged(user=>{
             lastLogin:Date.now()
 
         });
-
+        showMyProfile();
 
         setOnline();
 
@@ -771,30 +771,7 @@ function loadPublic(){
 
 
 }
-auth.onAuthStateChanged(user=>{
 
-    if(!user){
-        auth.signInAnonymously();
-        return;
-    }
-
-    // якщо користувача ще немає у users
-    db.ref("users/"+USER_ID).update({
-
-        name: USER_NAME,
-        avatar: USER_AVATAR,
-        lastLogin: Date.now()
-
-    });
-
-    // оновлюємо статус
-    setOnline();
-
-    // відкриваємо загальний чат
-    openPublic();
-    showMyProfile();
-
-});
 function setOnline(){
 
     db.ref("usersLocation/"+USER_ID).update({
