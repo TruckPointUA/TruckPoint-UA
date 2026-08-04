@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Коментарі - TruckPoint UA</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+background:#edf3ff;
+}
+
+header{
+background:linear-gradient(135deg,#0057ff,#00a2ff);
+color:#fff;
+padding:20px;
+text-align:center;
+border-radius:0 0 25px 25px;
+box-shadow:0 5px 15px #0003;
+}
+
+.container{
+max-width:700px;
+margin:auto;
+padding:15px;
+}
+
+.card{
+background:#fff;
+border-radius:18px;
+padding:15px;
+margin-top:15px;
+box-shadow:0 5px 15px #0002;
+}
+
+h2{
+margin-bottom:15px;
+}
+
+input,textarea,select{
+
+width:100%;
+padding:12px;
+margin-top:10px;
+border:1px solid #ccc;
+border-radius:10px;
+font-size:15px;
+
+}
+
+textarea{
+resize:vertical;
+min-height:120px;
+}
+
+button{
+
+width:100%;
+padding:14px;
+margin-top:15px;
+border:none;
+border-radius:12px;
+background:#0066ff;
+color:white;
+font-size:16px;
+font-weight:600;
+cursor:pointer;
+
+}
+
+button:hover{
+background:#0052cc;
+}
+
+.comment{
+
+background:white;
+border-radius:15px;
+padding:15px;
+margin-top:15px;
+box-shadow:0 4px 12px #0002;
+
+}
+
+.comment .name{
+
+font-weight:bold;
+color:#0057ff;
+
+}
+
+.comment .date{
+
+font-size:12px;
+color:#666;
+margin-top:5px;
+
+}
+
+.comment .text{
+
+margin-top:10px;
+white-space:pre-wrap;
+
+}
+
+.back{
+
+margin-top:20px;
+background:#666;
+
+}
+
+.back:hover{
+background:#444;
+}
+
+.actions{
+margin-top:12px;
+display:flex;
+gap:10px;
+}
+
+.likeBtn,
+.deleteBtn{
+
+border:none;
+padding:8px 14px;
+border-radius:8px;
+cursor:pointer;
+font-size:14px;
+
+}
+
+.likeBtn{
+background:#ff4d6d;
+color:white;
+}
+
+.deleteBtn{
+background:#666;
+color:white;
+}
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<h1>💬 Коментарі</h1>
+
+</header>
+
+<div class="container">
+
+<div class="card">
+
+<h2>Новий коментар</h2>
+
+<input
+id="userName"
+type="text"
+placeholder="Ваше ім'я"
+readonly>
+
+<select id="rating">
+
+<option value="5">⭐⭐⭐⭐⭐ Відмінно</option>
+<option value="4">⭐⭐⭐⭐ Добре</option>
+<option value="3">⭐⭐⭐ Нормально</option>
+<option value="2">⭐⭐ Погано</option>
+<option value="1">⭐ Дуже погано</option>
+
+</select>
+
+<textarea
+id="comment"
+placeholder="Напишіть свій коментар..."></textarea>
+
+<button onclick="saveComment()">
+💾 Додати коментар
+</button>
+
+<button class="back"
+onclick="location.href='Головна.html'">
+⬅ Назад
+</button>
+
+</div>
+
+<h2 style="margin-top:30px;">
+💬 Всі коментарі (<span id="commentsCount">0</span>)
+</h2>
+
+<div id="comments"></div>
+
+</div>
+<script>
+
+const firebaseConfig = {
+    apiKey: "AIzaSyAzOpcu7kdg0y8xwqD0oKk4eMfFSK946n4",
+    authDomain: "truckpoint-ua.firebaseapp.com",
+    databaseURL: "https://truckpoint-ua-default-rtdb.firebaseio.com",
+    projectId: "truckpoint-ua",
+    storageBucket: "truckpoint-ua.firebasestorage.app",
+    messagingSenderId: "992372126132",
+    appId: "1:992372126132:web:3378b6b1794066132d42e1"
+};
+
+if(!firebase.apps.length){
+    firebase.initializeApp(firebaseConfig);
+    console.log("Firebase OK");
+
+firebase.database().ref("comments").get().then(snapshot => {
+    console.log("Comments:", snapshot.val());
+})
+}
+
+// Перевірка авторизації
+    firebase.auth().onAuthStateChanged(user => {
+
+    console.log("USER:", user);
+
+    if (!user) {
+        location.href = "index.html";
+        return;
+    }
+
+    if(!user){
+        location.href="index.html";
+        return;
+    }
+
+    // Отримуємо ім'я користувача
+    firebase.database().ref("users/"+user.uid).once("value").then(snapshot=>{
+
+        let name="Користувач";
+
+        if(snapshot.exists() && snapshot.val().name){
+            name=snapshot.val().name;
+        }else if(localStorage.getItem("userName")){
+            name=localStorage.getItem("userName");
+        }
+
+        document.getElementById("userName").value=name;
+
+    });
+
+});
+
+// Додавання коментаря
+function saveComment(){
+
+    const user=firebase.auth().currentUser;
+
+    if(!user){
+        alert("Увійдіть у систему.");
+        return;
+    }
+
+    const name=document.getElementById("userName").value;
+    const text=document.getElementById("comment").value.trim();
+    const rating=document.getElementById("rating").value;
+
+    if(text==""){
+        alert("Напишіть коментар.");
+        return;
+    }
+
+firebase.database().ref("comments").push({
+
+    uid: user.uid,
+    name: name,
+    rating: rating,
+    text: text,
+    date: new Date().toLocaleString("uk-UA"),
+    likes: 0
+
+}).then(() => {
+
+    document.getElementById("comment").value = "";
+
+});
+
+}
+
+// Завантаження коментарів
+firebase.database().ref("comments").on("value", snapshot => {
+
+    console.log("Snapshot exists:", snapshot.exists());
+
+    const data = snapshot.val();
+    console.log(data);
+
+    if (!data) {
+        document.getElementById("comments").innerHTML =
+            "<p>Коментарів поки немає.</p>";
+        document.getElementById("commentsCount").textContent = "0";
+        return;
+    }
+
+    const arr = Object.entries(data);
+    arr.reverse();
+
+    document.getElementById("commentsCount").textContent = arr.length;
+    const list = document.getElementById("comments");
+list.innerHTML = "";
+
+const currentUser = firebase.auth().currentUser;
+
+arr.forEach(([id, item]) => {
+
+    let stars = "";
+    for (let i = 0; i < Number(item.rating); i++) {
+        stars += "⭐";
+    }
+
+    const likes = item.likes || 0;
+
+    const div = document.createElement("div");
+    div.className = "comment";
+
+    let deleteButton = "";
+
+    if (currentUser && currentUser.uid === item.uid) {
+        deleteButton = `
+            <button class="deleteBtn"
+            onclick="deleteComment('${id}')">
+            🗑️ Видалити
+            </button>`;
+    }
+
+    div.innerHTML = `
+        <div class="name">👤 ${item.name}</div>
+
+        <div class="date">📅 ${item.date}</div>
+
+        <div>${stars}</div>
+
+        <div class="text">${item.text}</div>
+
+        <div class="actions">
+            <button class="likeBtn"
+            onclick="likeComment('${id}')">
+            👍 ${likes}
+            </button>
+
+            ${deleteButton}
+        </div>
+    `;
+
+    list.appendChild(div);
+
+});
+
+    document.getElementById("commentsCount").textContent = arr.length;
+
+})
+function likeComment(id){
+
+    const ref = firebase.database().ref("comments/" + id + "/likes");
+
+    ref.transaction(function(current){
+        return (current || 0) + 1;
+    });
+
+}
+
+function deleteComment(id){
+
+    if(confirm("Видалити коментар?")){
+
+        firebase.database().ref("comments/"+id).remove();
+
+    }
+
+}
+
+
+</script>
+</body>
+</html>

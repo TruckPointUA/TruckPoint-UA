@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>TruckPoint UA</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    background:#0d1117;
+    color:#fff;
+}
+
+header{
+    height:70vh;
+    background:
+    linear-gradient(rgba(0,0,0,.45), rgba(0,0,0,.65)),
+    url("логотип_дорога.jpg");
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    padding:20px;
+}
+
+.hero{
+    max-width:800px;
+}
+
+.logo{
+    font-size:55px;
+    font-weight:700;
+    color:#00bfff;
+    margin-bottom:15px;
+}
+
+.hero h2{
+    font-size:34px;
+    margin-bottom:15px;
+}
+
+.hero p{
+    font-size:18px;
+    color:#ddd;
+}
+
+.login{
+    width:100%;
+    max-width:500px;
+    margin:50px auto;
+    background:#161b22;
+    padding:35px;
+    border-radius:20px;
+}
+
+.login h2{
+    text-align:center;
+    margin-bottom:25px;
+}
+
+input{
+    width:100%;
+    padding:15px;
+    margin-bottom:15px;
+    border:none;
+    border-radius:12px;
+    font-size:16px;
+}
+
+button{
+    width:100%;
+    padding:16px;
+    border:none;
+    border-radius:12px;
+    background:#0099ff;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+    transition:.3s;
+}
+
+button:hover{
+    background:#0077cc;
+}
+
+footer{
+    margin-top:60px;
+    background:#0b0f14;
+    padding:30px;
+    text-align:center;
+    color:#999;
+}
+
+@media(max-width:700px){
+
+header{
+    height:55vh;
+}
+
+.logo{
+    font-size:38px;
+}
+
+.hero h2{
+    font-size:26px;
+}
+
+.hero p{
+    font-size:16px;
+}
+
+.login{
+    margin:30px 15px;
+    width:auto;
+}
+
+}
+#toast{
+    position:fixed;
+    left:50%;
+    bottom:30px;
+    transform:translateX(-50%) translateY(100px);
+    min-width:260px;
+    max-width:90%;
+    padding:16px 22px;
+    border-radius:16px;
+    color:#fff;
+    font-size:15px;
+    font-weight:600;
+    text-align:center;
+    background:#1f2937;
+    box-shadow:0 10px 30px rgba(0,0,0,.35);
+    opacity:0;
+    transition:.35s;
+    z-index:99999;
+}
+
+#toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+}
+
+#toast.success{
+    background:linear-gradient(135deg,#10b981,#059669);
+}
+
+#toast.error{
+    background:linear-gradient(135deg,#ef4444,#dc2626);
+}
+
+#toast.info{
+    background:linear-gradient(135deg,#2563eb,#1d4ed8);
+}
+</style>
+
+</head>
+<body>
+
+<header>
+
+<div class="hero">
+
+<div class="logo">TruckPoint UA</div>
+
+<h2>Все необхідне для далекобійника</h2>
+
+<p>
+Зручна карта стоянок, промислових зон, мийок, магазинів та інших корисних місць.
+</p>
+
+</div>
+
+</header>
+
+<div class="login">
+
+<h2 style="text-align:center;margin-bottom:25px;">
+📝 Реєстрація TruckPoint UA
+</h2>
+
+
+<input id="name" type="text" placeholder="Ім'я">
+
+<input id="surname" type="text" placeholder="Прізвище">
+
+<input id="phone" type="tel" placeholder="Телефон">
+
+<input id="email" type="email" placeholder="Email">
+
+<input id="password" type="password" placeholder="Пароль">
+
+
+<button onclick="register()">
+📝 Зареєструватися
+</button>
+
+
+<p style="text-align:center;margin-top:20px;">
+Вже маєте акаунт?
+<br>
+<a href="index.html" style="color:#00bfff;">
+🔑 Увійти
+</a>
+</p>
+
+
+</div>
+
+</div>
+
+</div>
+
+<footer>
+
+<h3>TruckPoint UA</h3>
+
+<p>Створено для далекобійників України та Європи</p>
+
+<p>© 2026 TruckPoint UA</p>
+
+</footer>
+<div id="toast"></div>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAzOpcu7kdg0y8xwqD0oKk4eMfFSK946n4",
+  authDomain: "truckpoint-ua.firebaseapp.com",
+  databaseURL: "https://truckpoint-ua-default-rtdb.firebaseio.com",
+  projectId: "truckpoint-ua",
+  storageBucket: "truckpoint-ua.firebasestorage.app",
+  messagingSenderId: "992372126132",
+  appId: "1:992372126132:web:3378b6b1794066132d42e1",
+  measurementId: "G-EWEJWHZBGF"
+};
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.database();
+
+async function register(){
+
+    const name = document.getElementById("name").value.trim();
+    const surname = document.getElementById("surname").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    if (!name) {
+        alert("Введіть ім'я.");
+        return;
+    }
+
+    if (!email || !password) {
+        alert("Введіть Email та пароль.");
+        return;
+    }
+
+    try{
+
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+
+        const uid = userCredential.user.uid;
+
+
+  console.log("Починаю запис у users...");
+
+await db.ref("users/" + uid).set({
+    name: name,
+    surname: surname,
+    phone: phone,
+    email: email,
+    createdAt: firebase.database.ServerValue.TIMESTAMP,
+    admin: false
+});
+
+const check = await db.ref("users/" + uid).once("value");
+console.log("Запис після створення:", check.val());
+
+console.log("Запис users успішний");
+
+        localStorage.setItem("userName", name);
+        localStorage.setItem("userSurname", surname);
+
+        alert("Ласкаво просимо до TruckPoint UA!");
+
+        window.location.replace("Головна.html");
+
+
+} catch(err){
+
+    console.error(err);
+    alert(err.code + "\n" + err.message);
+
+}
+
+}
+
+
+function logout(){
+
+    auth.signOut().then(()=>{
+
+        window.location.replace("index.html");
+
+    });
+
+}
+
+function showToast(text, type = "info"){
+
+    const toast = document.getElementById("toast");
+
+    toast.className = "";
+    toast.classList.add(type);
+    toast.classList.add("show");
+
+    toast.innerHTML = text;
+
+    clearTimeout(window.toastTimer);
+
+    window.toastTimer = setTimeout(()=>{
+        toast.classList.remove("show");
+    },3000);
+
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1791 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#0d6efd">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<title>Учасники Онлайн</title>
+
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet/dist/leaflet.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+<style>
+
+html,
+body{
+height:100%;
+margin:0;
+font-family:Arial;
+overflow:hidden;
+background:#f3f3f3;
+}
+
+#map{
+width:100%;
+height:100%;
+}
+
+button{
+border:none;
+cursor:pointer;
+box-shadow:0 3px 8px rgba(0,0,0,.25);
+transition:0.15s ease;
+transform:scale(1);
+}
+
+
+/* ефект натискання */
+button:active{
+
+transform:scale(0.92);
+
+box-shadow:
+0 1px 3px rgba(0,0,0,.35);
+
+}
+
+#onlineBtn{
+
+position:fixed;
+
+right:15px;
+
+bottom:20px;
+
+width:58px;
+
+height:58px;
+
+border-radius:50%;
+
+background:#28a745;
+
+color:white;
+
+font-size:26px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+box-shadow:0 4px 12px rgba(0,0,0,.35);
+
+z-index:5000;
+
+}
+
+#layerBtn{
+left:15px;
+bottom:20px;
+background:#0d6efd;
+}
+
+#onlineBtn{
+right:15px;
+bottom:150px;
+background:#28a745;
+}
+
+#locateBtn{
+right:15px;
+bottom:80px;
+background:#17a2b8;
+}
+
+
+#title{
+position:fixed;
+top:10px;
+left:50%;
+transform:translateX(-50%);
+background:white;
+padding:10px 18px;
+border-radius:25px;
+font-size:17px;
+font-weight:700;
+text-align:center;
+white-space:nowrap;
+box-shadow:0 3px 10px rgba(0,0,0,.25);
+z-index:5000;
+}
+@media(max-width:700px){
+
+#title{
+
+font-size:14px;
+
+padding:7px 14px;
+
+}
+
+
+}
+html,
+body,
+#map{
+
+width:100%;
+height:100%;
+margin:0;
+padding:0;
+
+}
+
+.leaflet-top.leaflet-right{
+top:10px;
+right:10px;
+}
+
+.online-counter{
+background:white;
+padding:10px 16px;
+border-radius:25px;
+font-size:17px;
+font-weight:700;
+text-align:center;
+box-shadow:0 3px 10px rgba(0,0,0,.25);
+}
+.userLabel{
+    background:rgba(255,255,255,0.95);
+    border:none;
+    border-radius:14px;
+    padding:3px 10px;
+    font-size:12px;
+    font-weight:bold;
+    color:#222;
+    box-shadow:0 2px 6px rgba(0,0,0,.25);
+}
+
+.userLabel:before{
+    display:none;
+}
+
+
+
+#friendsSheet{
+
+position:fixed;
+left:0;
+right:0;
+bottom:0;
+
+background:white;
+
+border-radius:24px 24px 0 0;
+
+box-shadow:0 -8px 30px rgba(0,0,0,.25);
+
+z-index:99999;
+
+height:220px;
+
+transform:translateY(185px);
+
+transition:transform .3s ease;
+
+touch-action:none;
+
+}
+
+
+#friendsSheet.open{
+
+transform:translateY(0);
+
+}
+
+
+#sheetHandle{
+
+height:40px;
+
+display:flex;
+justify-content:center;
+align-items:center;
+cursor:grab;
+    user-select:none;
+}
+
+
+#sheetHandle::before{
+cursor:grabbing;
+content:"";
+
+width:60px;
+height:6px;
+
+background:#aaa;
+
+border-radius:20px;
+
+}
+
+#sheetHandle::before{
+content:"";
+width:60px;
+height:6px;
+background:#bbb;
+border-radius:20px;
+}
+.sheetBtn{
+
+display:flex;
+align-items:center;
+transition:0.15s ease;
+gap:15px;
+
+padding:18px 22px;
+
+font-size:17px;
+font-weight:600;
+
+color:#222;
+
+transition:.2s;
+
+border-bottom:1px solid #f0f0f0;
+
+}
+
+.sheetBtn:last-child{
+border-bottom:none;
+}
+
+.sheetBtn:hover{
+background:#f7f9fc;
+}
+
+.sheetBtn:active{
+background:#eef4ff;
+background:#dbeafe;
+
+transform:scale(0.97);
+}
+
+#friendModal{
+
+display:none;
+
+position:fixed;
+
+left:20px;
+right:20px;
+top:50%;
+
+transform:translateY(-50%);
+
+background:white;
+
+border-radius:20px;
+
+padding:25px;
+
+box-shadow:0 10px 40px rgba(0,0,0,.35);
+
+z-index:100000;
+
+font-family:Poppins;
+
+}
+
+
+#friendModal h3{
+
+margin-top:0;
+text-align:center;
+
+}
+
+
+.friendInput{
+
+width:100%;
+
+padding:12px;
+
+border-radius:12px;
+
+border:1px solid #ddd;
+
+font-size:16px;
+
+box-sizing:border-box;
+
+}
+
+
+.friendButton{
+
+width:100%;
+
+margin-top:12px;
+
+padding:14px;
+
+border-radius:15px;
+
+background:#0d6efd;
+
+color:white;
+
+font-size:16px;
+
+font-weight:600;
+
+}
+
+.friendButton:active,
+.friendMapBtn:active,
+.acceptBtn:active{
+
+transform:scale(0.93);
+
+opacity:0.8;
+
+}
+#onlineBtn:active,
+#layerBtn:active{
+
+transform:scale(0.88);
+
+}
+
+
+#closeFriend{
+
+background:#eee;
+
+color:#222;
+
+}
+
+#requestCount{
+
+background:#0d6efd;
+
+color:white;
+
+border-radius:20px;
+
+padding:3px 8px;
+
+font-size:12px;
+
+margin-left:auto;
+
+}
+#requestsModal{
+
+display:none;
+
+position:fixed;
+
+left:20px;
+right:20px;
+
+top:50%;
+
+transform:translateY(-50%);
+
+background:white;
+
+padding:25px;
+
+border-radius:20px;
+
+z-index:100001;
+
+box-shadow:0 10px 40px rgba(0,0,0,.35);
+
+font-family:Poppins;
+
+}
+
+
+.requestItem{
+
+padding:15px;
+
+border-bottom:1px solid #ddd;
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+}
+
+
+.acceptBtn{
+
+background:#28a745;
+
+color:white;
+
+padding:8px 12px;
+
+border-radius:12px;
+
+}
+
+#friendsModal{
+
+display:none;
+
+position:fixed;
+
+left:20px;
+right:20px;
+
+top:50%;
+
+transform:translateY(-50%);
+
+background:white;
+
+padding:25px;
+
+border-radius:22px;
+
+z-index:100001;
+
+box-shadow:0 10px 40px rgba(0,0,0,.35);
+
+font-family:Poppins;
+
+}
+
+
+.friendItem{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:14px;
+    border-bottom:1px solid #eee;
+}
+
+
+.friendStatus{
+
+font-size:13px;
+
+color:#666;
+
+}
+
+
+.friendMapBtn{
+
+background:#0d6efd;
+
+color:white;
+
+border-radius:12px;
+
+padding:8px 12px;
+
+}
+</style>
+
+</head>
+
+<body>
+
+
+<div id="map"></div>
+
+<button id="layerBtn">
+🗺️
+</button>
+
+<button id="onlineBtn">
+🟢
+</button>
+<div id="friendsSheet">
+
+    <div id="sheetHandle"></div>
+
+   <div class="sheetBtn" id="addFriendBtn">
+    ➕ Додати друга
+</div>
+
+    <div class="sheetBtn" id="requestsBtn">
+    📥 Запити
+    <span id="requestCount"></span>
+</div>
+
+    <div class="sheetBtn" id="friendsBtn">
+    👥 Мої друзі
+</div>
+
+    <div class="sheetBtn">
+        ⚙️ Налаштування
+    </div>
+
+</div>
+<div id="friendModal">
+
+<h3>👥 Додати друга</h3>
+
+<p style="text-align:center">
+Ваш код для друзів:
+</p>
+<p style="text-align:center">
+Введіть код друга:
+</p>
+
+<input 
+class="friendInput" 
+id="friendCodeInput"
+placeholder="TRUCK-XXXXXX">
+
+<button 
+class="friendButton" 
+id="sendFriendRequest">
+📨 Надіслати запит
+</button>
+<input class="friendInput" id="myFriendCode" readonly>
+
+<button class="friendButton" id="shareFriend">
+📤 Надіслати через месенджери
+</button>
+
+<button class="friendButton" id="closeFriend">
+Закрити
+</button>
+
+</div>
+
+
+<div id="requestsModal">
+
+<h3>📥 Запити друзів</h3>
+
+<div id="requestsList">
+Немає нових запитів
+</div>
+
+<button class="friendButton" id="closeRequests">
+Закрити
+</button>
+
+</div>
+
+
+<div id="friendsModal">
+
+<h3>👥 Мої друзі</h3>
+
+<div id="friendsList">
+Немає друзів
+</div>
+
+<button class="friendButton" id="closeFriends">
+Закрити
+</button>
+
+</div>
+
+<script>
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyAzOpcu7kdg0y8xwqD0oKk4eMfFSK946n4",
+
+authDomain: "truckpoint-ua.firebaseapp.com",
+
+databaseURL: "https://truckpoint-ua-default-rtdb.firebaseio.com",
+
+projectId: "truckpoint-ua",
+
+storageBucket: "truckpoint-ua.firebasestorage.app",
+
+messagingSenderId: "992372126132",
+
+appId: "1:992372126132:web:3378b6b1794066132d42e1"
+
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const auth = firebase.auth();
+let currentUserName = "Водій";
+
+
+
+let USER_ID = null;
+
+let showLocation =
+localStorage.getItem("showLocation") !== "false";
+
+const map=L.map("map").setView([49.0,31.0],6);
+
+map.zoomControl.remove();
+
+const googleMap=L.tileLayer(
+
+"https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
+
+{
+
+maxZoom:20
+
+}
+
+).addTo(map);
+
+const googleHybrid=L.tileLayer(
+
+"https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
+
+{
+
+maxZoom:20
+
+}
+
+);
+
+let currentLayer=googleMap;
+
+document.getElementById("layerBtn").onclick=()=>{
+
+map.removeLayer(currentLayer);
+
+if(currentLayer===googleMap){
+
+currentLayer=googleHybrid;
+
+map.addLayer(currentLayer);
+
+document.getElementById("layerBtn").innerHTML="🛰️";
+
+}else{
+
+currentLayer=googleMap;
+
+map.addLayer(currentLayer);
+
+document.getElementById("layerBtn").innerHTML="🗺️";
+
+}
+
+};
+
+const truckIcon=L.divIcon({
+
+className:"",
+
+html:`
+
+<div style="
+
+font-size:28px;
+
+filter:drop-shadow(0 0 5px black);
+
+">
+
+🚛
+
+</div>
+
+`,
+
+iconSize:[30,30],
+
+iconAnchor:[15,15]
+
+});
+
+const userMarkers = {};
+const usersLayer = L.layerGroup().addTo(map);
+let myFriends = {};
+
+function loadMyFriends(){
+
+db.ref("friends/"+USER_ID).on("value",snap=>{
+
+    myFriends = {};
+
+    snap.forEach(friend=>{
+
+        myFriends[friend.key]=true;
+
+    });
+
+
+    loadUsers();
+
+});
+
+}
+
+function loadUsers(){
+
+db.ref("usersLocation").on("value",snap=>{
+
+    const activeUsers = {};
+
+snap.forEach(child=>{
+
+const id = child.key;
+const user = child.val();
+
+
+// показуємо тільки себе і друзів
+
+if(
+id !== USER_ID &&
+!myFriends[id]
+){
+    return;
+}
+
+        if(!user.showLocation){
+
+    if(userMarkers[id]){
+        usersLayer.removeLayer(userMarkers[id]);
+        delete userMarkers[id];
+    }
+
+    return;
+}
+
+        activeUsers[id] = true;
+
+       const status = user.online
+    ? "🟢 Онлайн"
+    : "🔴 Офлайн";
+
+        if(userMarkers[id]){
+
+            userMarkers[id].setLatLng([user.lat,user.lng]);
+
+            userMarkers[id].setTooltipContent(user.name);
+
+            userMarkers[id].setPopupContent(`
+            <div style="text-align:center">
+            <b>${user.name}</b><br><br>
+            ${status}<br>
+            🕒 ${new Date(user.lastUpdate).toLocaleString("uk-UA")}
+            </div>
+            `);
+
+        }else{
+if (
+    typeof user.lat !== "number" ||
+    typeof user.lng !== "number"
+) {
+    console.log("Некоректний запис:", id, user);
+    return;
+}
+            const marker = L.marker(
+                [user.lat,user.lng],
+                {icon:truckIcon}
+            );
+
+            marker.bindTooltip(user.name,{
+                permanent:true,
+                direction:"top",
+                offset:[0,-18],
+                className:"userLabel"
+            });
+
+            marker.bindPopup(`
+            <div style="text-align:center">
+            <b>${user.name}</b><br><br>
+            ${status}<br>
+            🕒 ${new Date(user.lastUpdate).toLocaleString("uk-UA")}
+            </div>
+            `);
+
+            marker.addTo(usersLayer);
+
+            userMarkers[id]=marker;
+        }
+
+    });
+
+    Object.keys(userMarkers).forEach(id=>{
+
+        if(!activeUsers[id]){
+
+            usersLayer.removeLayer(userMarkers[id]);
+
+            delete userMarkers[id];
+
+        }
+
+    });
+
+});
+
+}
+
+loadUsers();
+
+let myMarker=null;
+
+// тут вже НЕМАЄ sendLocation()
+
+
+auth.onAuthStateChanged(async (user) => {
+
+    if (!user) {
+        window.location.href = "index.html";
+        return;
+    }
+
+    USER_ID = user.uid;
+
+    loadMyFriends();
+
+    listenFriendRequests();
+
+   const snap = await db.ref("users/" + user.uid).once("value");
+const profile = snap.val();
+
+if (profile) {
+    currentUserName =
+        ((profile.name || "") + " " + (profile.surname || "")).trim();
+
+    if (!currentUserName) {
+        currentUserName = "Водій";
+    }
+} else {
+    currentUserName = "Водій";
+}
+    const lastLat = Number(localStorage.getItem("lastLat"));
+const lastLng = Number(localStorage.getItem("lastLng"));
+
+
+if (showLocation && navigator.geolocation) {
+
+    navigator.geolocation.getCurrentPosition(
+        sendLocation,
+        () => {},
+        {
+            enableHighAccuracy: true,
+            maximumAge: 30000,
+            timeout: 5000
+        }
+    );
+
+    navigator.geolocation.watchPosition(
+        sendLocation,
+        () => alert("Не вдалося отримати геолокацію."),
+        {
+            enableHighAccuracy: true,
+            maximumAge: 5000,
+            timeout: 10000
+        }
+    );
+
+}
+
+
+});
+
+
+document.getElementById("onlineBtn").onclick = () => {
+
+    showLocation = !showLocation;
+
+    localStorage.setItem("showLocation", showLocation);
+
+    document.getElementById("onlineBtn").innerHTML =
+        showLocation ? "🟢" : "🔴";
+
+    db.ref("usersLocation/" + USER_ID).update({
+        showLocation: showLocation
+    });
+
+};
+
+document.getElementById("onlineBtn").innerHTML =
+showLocation ? "🟢" : "🔴";
+
+/* ---------- Лічильник користувачів ---------- */
+
+const onlineControl = L.control({position:"topright"});
+
+onlineControl.onAdd=function(){
+
+this._div = L.DomUtil.create("div","online-counter");
+
+this._div.style.background="white";
+this._div.style.padding="8px 12px";
+this._div.style.borderRadius="10px";
+this._div.style.fontWeight="bold";
+this._div.style.boxShadow="0 2px 8px rgba(0,0,0,.25)";
+this._div.innerHTML="🚛 Онлайн: 0";
+
+return this._div;
+
+};
+
+onlineControl.addTo(map);
+
+
+
+function updateOnlineCounter(){
+
+db.ref("usersLocation").once("value").then(snap=>{
+
+let count=0;
+
+snap.forEach(user=>{
+
+const d=user.val();
+
+if(d.online && d.showLocation){
+
+if(Date.now()-d.lastUpdate<120000){
+
+count++;
+
+}
+
+}
+
+});
+
+onlineControl._div.innerHTML="🚛 Онлайн: "+count;
+
+});
+
+}
+
+setInterval(updateOnlineCounter,5000);
+
+updateOnlineCounter();
+
+
+
+
+/* ---------- Автоматичне центрування ---------- */
+
+let firstLocate=true;
+
+
+function sendLocation(position){
+
+    const lat = position.coords.latitude;
+    const lng = position.coords.longitude;
+
+    localStorage.setItem("lastLat", lat);
+    localStorage.setItem("lastLng", lng);
+
+    if(firstLocate){
+        map.setView([lat, lng], 12);
+        firstLocate = false;
+    }
+
+    if(myMarker){
+        myMarker.setLatLng([lat, lng]);
+    }else{
+        myMarker = L.circleMarker([lat, lng], {
+            radius:8,
+            color:"#fff",
+            fillColor:"#2196f3",
+            fillOpacity:1
+        }).addTo(map);
+    }
+
+
+    // беремо профіль користувача
+    db.ref("users/" + USER_ID).once("value").then(snap => {
+
+        const profile = snap.val() || {};
+
+        const userName = profile.name || 
+                         localStorage.getItem("userName") || 
+                         "Користувач";
+
+        const userAvatar = profile.avatar || 
+                           localStorage.getItem("userAvatar") || 
+                           "";
+
+
+        // записуємо позицію
+        db.ref("usersLocation/" + USER_ID).set({
+
+            uid: USER_ID,
+
+            name: userName,
+
+            avatar: userAvatar,
+
+            lat: lat,
+
+            lng: lng,
+
+            online: true,
+
+            showLocation: showLocation,
+
+            lastUpdate: Date.now()
+
+        });
+
+    });
+
+}
+
+const friendsSheet = document.getElementById("friendsSheet");
+const sheetHandle = document.getElementById("sheetHandle");
+
+let startY = 0;
+let moved = false;
+
+
+// телефон
+sheetHandle.addEventListener("touchstart", function(e){
+
+    startY = e.touches[0].clientY;
+    moved = false;
+
+});
+
+
+sheetHandle.addEventListener("touchmove", function(e){
+
+    let y = e.touches[0].clientY;
+
+    let diff = startY - y;
+
+
+    if(Math.abs(diff)>20){
+        moved=true;
+    }
+
+
+    if(diff > 0){
+
+        friendsSheet.classList.add("open");
+
+    }
+
+    if(diff < -20){
+
+        friendsSheet.classList.remove("open");
+
+    }
+
+});
+
+
+// мишка
+sheetHandle.addEventListener("mousedown",function(e){
+
+    startY=e.clientY;
+    moved=false;
+
+
+});
+
+
+document.addEventListener("mousemove",function(e){
+
+    if(startY===0) return;
+
+
+    let diff=startY-e.clientY;
+
+
+    if(diff>20){
+
+        friendsSheet.classList.add("open");
+
+    }
+
+
+    if(diff<-20){
+
+        friendsSheet.classList.remove("open");
+
+    }
+
+});
+
+
+document.addEventListener("mouseup",function(){
+
+    startY=0;
+
+});
+
+const addFriendBtn =
+document.getElementById("addFriendBtn");
+
+
+const friendModal =
+document.getElementById("friendModal");
+
+
+addFriendBtn.onclick=function(){
+
+friendModal.style.display="block";
+
+friendsSheet.classList.remove("open");
+
+
+let code = localStorage.getItem("friendCode");
+
+
+if(!code){
+
+code =
+"TRUCK-" +
+Math.random()
+.toString(36)
+.substring(2,8)
+.toUpperCase();
+
+
+localStorage.setItem(
+"friendCode",
+code
+);
+
+
+// ✅ запис коду у Firebase
+db.ref("friendCodes/"+code).set({
+
+    uid: USER_ID,
+    name: currentUserName
+
+});
+
+
+}
+
+
+// якщо код вже був — просто оновлюємо Firebase
+else {
+
+db.ref("friendCodes/"+code).set({
+
+    uid: USER_ID,
+    name: currentUserName
+
+});
+
+}
+
+
+document.getElementById("myFriendCode").value=code;
+
+
+};
+
+
+// 📤 Надіслати через месенджери
+
+document.getElementById("shareFriend")
+.onclick=function(){
+
+
+let code =
+document.getElementById("myFriendCode").value;
+
+
+let text =
+"🚛 Додай мене в TruckPoint UA\n\n" +
+"Мій код друга: " + code;
+
+
+let url =
+"https://wa.me/?text=" +
+encodeURIComponent(text);
+
+
+// якщо телефон підтримує меню поширення
+
+if(navigator.share){
+
+navigator.share({
+
+title:"TruckPoint UA",
+
+text:text
+
+});
+
+}
+else{
+
+window.open(url,"_blank");
+
+}
+
+
+};
+
+
+
+document.getElementById("closeFriend")
+.onclick=function(){
+
+friendModal.style.display="none";
+
+};
+
+const requestsBtn =
+document.getElementById("requestsBtn");
+
+
+const requestsModal =
+document.getElementById("requestsModal");
+
+
+const requestsList =
+document.getElementById("requestsList");
+
+
+
+// відкриття запитів
+
+requestsBtn.onclick=function(){
+
+requestsModal.style.display="block";
+
+friendsSheet.classList.remove("open");
+
+
+loadRequests();
+
+};
+
+
+
+
+// завантаження запитів
+
+function loadRequests(){
+
+
+db.ref("friendRequests/"+USER_ID)
+.on("value",snap=>{
+
+
+requestsList.innerHTML="";
+
+
+if(!snap.exists()){
+
+requestsList.innerHTML=
+"Немає нових запитів";
+
+return;
+
+}
+
+
+
+snap.forEach(item=>{
+
+
+let req=item.val();
+
+let uid=item.key;
+
+
+
+let div=document.createElement("div");
+
+
+div.className="requestItem";
+
+
+div.innerHTML=`
+
+<span>
+👤 ${req.name}
+</span>
+
+
+<button class="acceptBtn">
+
+✅ Прийняти
+
+</button>
+
+`;
+
+
+
+div.querySelector("button")
+.onclick=function(){
+
+acceptFriend(uid,req.name);
+
+};
+
+
+
+requestsList.appendChild(div);
+
+
+
+});
+
+
+});
+
+
+}
+
+
+
+// прийняти друга
+
+function acceptFriend(uid,name){
+
+
+db.ref("friends/"+USER_ID+"/"+uid)
+.set(true);
+
+
+db.ref("friends/"+uid+"/"+USER_ID)
+.set(true);
+
+
+
+db.ref("friendRequests/"+USER_ID+"/"+uid)
+.remove();
+
+
+alert(
+"✅ "+name+" доданий у друзі"
+);
+
+
+}
+
+function listenFriendRequests(){
+
+db.ref("friendRequests/"+USER_ID)
+.on("value",snap=>{
+
+
+let count = snap.numChildren();
+
+
+document.getElementById("requestCount").innerHTML =
+count ? count : "";
+
+
+if(count > 0){
+
+console.log("Нових запитів:", count);
+
+}
+
+});
+
+}
+
+
+
+db.ref("friends/"+USER_ID)
+.on("value",snap=>{
+
+
+friendsList.innerHTML="";
+
+
+if(!snap.exists()){
+
+friendsList.innerHTML=
+"Немає друзів";
+
+return;
+
+}
+
+
+
+snap.forEach(friend=>{
+
+
+let uid=friend.key;
+
+
+
+db.ref("usersLocation/"+uid)
+.once("value")
+.then(userSnap=>{
+
+
+let user=userSnap.val();
+const avatar =
+    user.avatar || "avatars/avatar1.png";
+
+
+
+if(!user){
+
+return;
+
+}
+
+
+
+let div=document.createElement("div");
+
+
+div.className="friendItem";
+
+
+div.innerHTML=`
+
+<div style="display:flex;align-items:center;gap:12px">
+
+<img src="${avatar}"
+style="
+width:50px;
+height:50px;
+border-radius:50%;
+object-fit:cover;
+border:2px solid #0d6efd;
+">
+
+<div>
+
+<b>${user.name}</b>
+
+<br>
+
+<span class="friendStatus">
+${user.online ? "🟢 Онлайн" : "🔴 Офлайн"}
+</span>
+
+</div>
+
+</div>
+
+
+<button class="friendMapBtn">
+
+📍
+
+</button>
+
+`;
+
+
+
+div.querySelector("button")
+.onclick=function(){
+
+
+if(user.lat && user.lng){
+
+
+map.setView(
+[user.lat,user.lng],
+15
+);
+
+
+if(userMarkers[uid]){
+
+userMarkers[uid]
+.openPopup();
+
+}
+
+
+}
+
+
+};
+
+
+
+friendsList.appendChild(div);
+
+
+
+});
+
+
+});
+
+
+
+});
+
+
+document.getElementById("closeFriends")
+.onclick=function(){
+
+friendsModal.style.display="none";
+
+};const friendsBtn =
+document.getElementById("friendsBtn");
+
+
+const friendsModal =
+document.getElementById("friendsModal");
+
+
+const friendsList =
+document.getElementById("friendsList");
+
+
+
+friendsBtn.onclick=function(){
+
+friendsModal.style.display="block";
+
+friendsSheet.classList.remove("open");
+
+loadFriends();
+
+};
+
+
+
+
+
+function loadFriends(){
+
+db.ref("friends/"+USER_ID)
+.on("value",snap=>{
+
+friendsList.innerHTML="";
+
+
+if(!snap.exists()){
+
+friendsList.innerHTML="Немає друзів";
+
+return;
+
+}
+
+
+snap.forEach(friend=>{
+
+let uid = friend.key;
+
+
+db.ref("usersLocation/"+uid)
+.once("value")
+.then(userSnap=>{
+
+
+let user = userSnap.val();
+
+
+if(!user){
+    return;
+}
+
+
+let avatar = user.avatar || "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+
+
+let div=document.createElement("div");
+
+div.className="friendItem";
+
+
+div.innerHTML=`
+
+<div style="display:flex;align-items:center;gap:12px">
+
+<img src="${avatar}"
+style="
+width:50px;
+height:50px;
+border-radius:50%;
+object-fit:cover;
+border:2px solid #0d6efd;
+">
+
+<div>
+
+<b>${user.name || "Водій"}</b>
+
+<br>
+
+<span class="friendStatus">
+${user.online ? "🟢 Онлайн" : "🔴 Офлайн"}
+</span>
+
+</div>
+
+</div>
+
+
+<div>
+
+<button class="friendMapBtn">
+📍
+</button>
+
+<button class="friendMapBtn" style="background:#dc3545">
+❌
+</button>
+
+</div>
+
+`;
+
+
+// кнопка карта
+div.querySelectorAll("button")[0].onclick=function(){
+
+if(user.lat && user.lng){
+
+map.setView(
+[user.lat,user.lng],
+15
+);
+
+
+if(userMarkers[uid]){
+    userMarkers[uid].openPopup();
+}
+
+}
+
+};
+
+
+// видалення друга
+div.querySelectorAll("button")[1].onclick=function(){
+
+if(confirm("Видалити "+user.name+"?")){
+
+db.ref("friends/"+USER_ID+"/"+uid).remove();
+
+db.ref("friends/"+uid+"/"+USER_ID).remove();
+
+}
+
+};
+
+
+friendsList.appendChild(div);
+
+
+});
+
+
+});
+
+
+});
+
+
+}
+
+
+
+
+document.getElementById("closeFriends")
+.onclick=function(){
+
+friendsModal.style.display="none";
+
+};
+
+document.getElementById("closeRequests")
+.onclick=function(){
+
+requestsModal.style.display="none";
+
+};
+
+document.getElementById("sendFriendRequest")
+.onclick=function(){
+
+let code =
+document.getElementById("friendCodeInput").value.trim();
+
+
+if(!code){
+
+alert("Введіть код друга");
+
+return;
+
+}
+
+
+// шукаємо власника коду
+
+db.ref("friendCodes/"+code)
+.once("value")
+.then(snap=>{
+
+
+if(!snap.exists()){
+
+alert("❌ Код не знайдено");
+
+return;
+
+}
+
+
+let friend = snap.val();
+
+
+// не можна додати самого себе
+
+if(friend.uid === USER_ID){
+
+alert("Це ваш власний код");
+
+return;
+
+}
+
+
+// створюємо запит
+
+db.ref(
+"friendRequests/"+friend.uid+"/"+USER_ID
+)
+.set({
+
+name: currentUserName,
+
+uid: USER_ID,
+
+date: Date.now()
+
+});
+
+
+alert(
+"✅ Запит надіслано "+friend.name
+);
+
+
+});
+
+};
+</script>
+</body>
+</html>
