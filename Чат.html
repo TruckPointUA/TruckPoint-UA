@@ -702,14 +702,6 @@ ${m.edited ? " ✏️":""}
 </div>
 
 
-<div>
-
-<button onclick="event.stopPropagation();likeMessage('${id}')">
-
-❤️
-
-</button>
-
 
 <span id="like_${id}">
 0
@@ -825,22 +817,6 @@ function loadPublic(){
         </div>
 
 
-        <div>
-
-        <button 
-        onclick="event.stopPropagation();likeMessage('${id}')">
-        ❤️
-        </button>
-
-
-        <span id="like_${id}">
-        0
-        </span>
-
-        </div>
-
-
-    </div>
 
     `;
 
@@ -894,26 +870,6 @@ function setOffline(){
 
 window.addEventListener("beforeunload", setOffline);
 
-function likeMessage(id){
-
-db.ref(
-"likes/"+id+"/"+USER_ID
-)
-.set(true);
-
-}
-function loadLikes(id,element){
-
-db.ref("likes/"+id)
-.on("value",snap=>{
-
-let count=snap.numChildren();
-
-element.innerHTML="❤️ "+count;
-
-});
-
-}
 </script>
 
 </body>
