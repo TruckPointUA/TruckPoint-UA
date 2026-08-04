@@ -396,7 +396,13 @@ TruckPoint UA
 <div class="card" onclick="logout()">
 <div class="icon">🚪</div>
 <div class="title">Вийти</div>
+
 </div>
+<div class="card" onclick="showWelcome()">
+    <div class="icon">❓</div>
+    <div class="title">Довідка</div>
+</div>
+
 
 
 </div>
@@ -505,6 +511,7 @@ style="width:100%;margin-top:20px;padding:12px;border:none;border-radius:10px;ba
     </div>
 
 </div>
+
 <script>
 
 const firebaseConfig = {
@@ -2256,8 +2263,125 @@ window.addEventListener("popstate", function(e){
 
 
 });
+
+// ==========================
+// ВІКНО ПРИВІТАННЯ
+// ==========================
+
+function showWelcome(){
+
+    if(localStorage.getItem("hideWelcome") === "true"){
+        return;
+    }
+
+    document.getElementById("welcomeModal").style.display = "flex";
+}
+
+function closeWelcome(){
+
+    if(document.getElementById("dontShowWelcome").checked){
+        localStorage.setItem("hideWelcome","true");
+    }
+
+    document.getElementById("welcomeModal").style.display = "none";
+}
+
+window.addEventListener("load",()=>{
+
+    setTimeout(showWelcome,600);
+
+});
 </script>
 
+
+
+<div id="welcomeModal" style="
+display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.65);
+z-index:999999;
+justify-content:center;
+align-items:center;
+padding:20px;">
+
+<div style="
+background:#fff;
+max-width:500px;
+width:100%;
+border-radius:22px;
+padding:25px;
+box-shadow:0 20px 50px rgba(0,0,0,.35);
+overflow:auto;
+max-height:90vh;">
+
+<h2 style="text-align:center;color:#0d6efd;margin-bottom:15px;">
+👋 Ласкаво просимо до TruckPoint UA
+</h2>
+
+<p style="margin-bottom:15px;">
+TruckPoint UA — це спільнота водіїв, де можна швидко знайти корисні місця та спілкуватися з іншими користувачами.
+</p>
+
+<h3>🚛 Основні можливості</h3>
+
+<ul style="padding-left:20px;line-height:1.8;margin-top:10px;">
+
+<li>🗺️ Точки зацікавленості на карті</li>
+
+<li>☕ Місця для відпочинку</li>
+
+<li>📡 Друзі на карті в режимі онлайн</li>
+
+<li>👥 Додавання друзів</li>
+
+<li>💬 Коментарі та відгуки</li>
+
+<li>🖼️ Власний профіль та аватар</li>
+
+<li>⚠️ Актуальні заборони руху</li>
+
+</ul>
+
+<div style="margin-top:20px;padding:15px;background:#eef6ff;border-radius:12px;">
+
+<b>ℹ️ Порада</b><br>
+Для роботи функції "Друзі на мапі" дозвольте доступ до геолокації.
+
+</div>
+
+<label style="
+display:flex;
+align-items:center;
+gap:10px;
+margin-top:20px;
+cursor:pointer;">
+
+<input id="dontShowWelcome" type="checkbox">
+
+Більше не показувати
+
+</label>
+
+<button onclick="closeWelcome()"
+style="
+margin-top:20px;
+width:100%;
+padding:14px;
+border:none;
+border-radius:12px;
+background:#0d6efd;
+color:white;
+font-size:16px;
+font-weight:bold;">
+
+Почати користуватися
+
+</button>
+
+</div>
+
+</div>
 
 </body>
 </html>
