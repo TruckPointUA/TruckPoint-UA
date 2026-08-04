@@ -507,7 +507,6 @@ style="width:100%;margin-top:20px;padding:12px;border:none;border-radius:10px;ba
 </div>
 <script>
 
-
 const firebaseConfig = {
 
 apiKey: "AIzaSyAzOpcu7kdg0y8xwqD0oKk4eMfFSK946n4",
@@ -529,352 +528,1015 @@ appId: "1:992372126132:web:3378b6b1794066132d42e1"
 
 if(!firebase.apps.length){
 
-firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(firebaseConfig);
 
 }
 
 
 const auth = firebase.auth();
-const db = firebase.database();
-let USER_ID = "";
-let geoAsked = localStorage.getItem("geoAsked") === "true";
-firebase.auth().onAuthStateChanged(user => {
 
-    if (!user) {
+const db = firebase.database();
+
+
+let USER_ID = "";
+
+let watchId = null;
+
+let currentUserName = "Користувач";
+
+let currentAvatar = "avatars/avatar1.png";
+
+let geoAsked = localStorage.getItem("geoAsked") === "true";
+
+let onlineTimer = null;
+
+
+
+// ==========================
+// АВТОРИЗАЦІЯ
+// ==========================
+
+
+auth.onAuthStateChanged(user=>{
+
+
+    if(!user){
+
         window.location.replace("index.html");
+
         return;
+
     }
+
 
     USER_ID = user.uid;
 
-    askLocationPermissionOnce();
+
+
+    db.ref("users/"+USER_ID).once("value")
+    .then(snapshot=>{
+
+
+        const data = snapshot.val() || {};
+
+
+
+        if(data.name && data.surname){
+
+            currentUserName =
+            data.name+" "+data.surname;
+
+        }
+        else if(data.name){
+
+            currentUserName=data.name;
+
+        }
+        else if(localStorage.getItem("userName")){
+
+            currentUserName =
+            localStorage.getItem("userName");
+
+        }
+        else if(user.displayName){
+
+            currentUserName=user.displayName;
+
+        }
+
+
+
+        currentAvatar =
+        data.avatar ||
+        localStorage.getItem("userAvatar") ||
+        "avatars/avatar1.png";
+
+
+
+        localStorage.setItem(
+            "userName",
+            currentUserName
+        );
+
+
+        localStorage.setItem(
+            "userAvatar",
+            currentAvatar
+        );
+
+
+
+        askLocationPermissionOnce();
+
+
+
+        startOnline();
+
+
+
+        updateHeader();
+
+
+
+    });
+
 
 });
 
 
-    // далі твій код...
-
-let selectedAvatar = "";
 
 
 
-db.ref("users/" + user.uid).once("value").then(snapshot=>{
+// ==========================
+// ГЕОЛОКАЦІЯ + ONLINE
+// ==========================
 
 
-let name = "Користувач";
+function startOnline(){
 
 
-if(snapshot.exists()){
+    if(!navigator.geolocation){
 
-    const data = snapshot.val();
-    selectedAvatar = data.avatar || "avatars/avatar1.png";
+        console.log("GPS недоступний");
 
-
-    if(data.name && data.surname){
-
-        name = data.name + " " + data.surname;
-
-    }
-    else if(data.name){
-
-        name = data.name;
+        return;
 
     }
 
-}
-
-else if(localStorage.getItem("userName")){
-
-    name = localStorage.getItem("userName");
-
-}
-else if(user.displayName){
-
-    name = user.displayName;
-
-}
 
 
-// ---------- Онлайн + геолокація ----------
-
-const USER_ID = firebase.auth().currentUser.uid;
-
-const showLocation =
+    const showLocation =
     localStorage.getItem("showLocation") !== "false";
 
-const connectedRef = db.ref(".info/connected");
 
-connectedRef.on("value", (snap) => {
 
-    if (!snap.val()) return;
+    if(!showLocation){
 
-    // При втраті з'єднання або закритті браузера
-    db.ref("usersLocation/" + USER_ID)
-        .onDisconnect()
+        return;
+
+    }
+
+
+
+    db.ref("usersLocation/"+USER_ID)
+    .onDisconnect()
+    .update({
+
+        online:false,
+
+        lastUpdate:
+        firebase.database.ServerValue.TIMESTAMP
+
+    });
+
+
+
+
+
+    navigator.geolocation.getCurrentPosition(
+
+        pos=>{
+
+
+            saveLocation(pos);
+
+
+
+        },
+
+
+        err=>{
+
+            console.log(
+            "GPS error",
+            err.message
+            );
+
+        },
+
+
+        {
+
+            enableHighAccuracy:true,
+
+            timeout:10000,
+
+            maximumAge:5000
+
+        }
+
+    );
+
+
+
+
+
+    watchId =
+    navigator.geolocation.watchPosition(
+
+        pos=>{
+
+
+            saveLocation(pos);
+
+
+        },
+
+
+        err=>{
+
+
+            console.log(
+            "GPS watch error",
+            err.message
+            );
+
+
+        },
+
+
+        {
+
+            enableHighAccuracy:true,
+
+            maximumAge:5000,
+
+            timeout:10000
+
+        }
+
+    );
+
+
+
+
+
+    if(onlineTimer){
+
+        clearInterval(onlineTimer);
+
+    }
+
+
+
+    onlineTimer=setInterval(()=>{
+
+
+        db.ref("usersLocation/"+USER_ID)
         .update({
-            online: false,
-            lastUpdate: firebase.database.ServerValue.TIMESTAMP
-        });
 
-    if (!showLocation || !navigator.geolocation) return;
+            online:true,
 
-    // Одразу отримуємо координати
-    navigator.geolocation.getCurrentPosition((position) => {
-
-        db.ref("usersLocation/" + USER_ID).set({
-
-            name: name,
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-            online: true,
-            showLocation: true,
-            lastUpdate: Date.now()
+            lastUpdate:Date.now()
 
         });
 
-    });
-
-    // Постійне оновлення координат
-    let watchId = navigator.geolocation.watchPosition((position) => {
-
-        db.ref("usersLocation/" + USER_ID).update({
-
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-            online: true,
-            showLocation: true,
-            lastUpdate: Date.now()
-
-        });
-
-    }, console.error, {
-
-        enableHighAccuracy: true,
-        maximumAge: 5000,
-        timeout: 10000
-
-    });
-    // Підтримувати статус онлайн, навіть якщо користувач не рухається
-setInterval(() => {
-
-    db.ref("usersLocation/" + USER_ID).update({
-        online: true,
-        lastUpdate: Date.now()
-    });
-
-}, 30000);
-
-});
 
 
+    },30000);
 
-// шапка
 
-function updateHeader() {
-
-    db.ref("users").once("value").then(usersSnap => {
-
-        const usersCount = usersSnap.numChildren();
-
-        db.ref("usersLocation").once("value").then(locationSnap => {
-
-            let onlineCount = 0;
-
-            locationSnap.forEach(child => {
-
-                const d = child.val();
-
-                if (
-                    d.online === true &&
-                    d.showLocation === true &&
-                    Date.now() - (d.lastUpdate || 0) < 120000
-                ) {
-                    onlineCount++;
-                }
-
-            });
-
- const avatar =
-selectedAvatar || "avatars/avatar1.png";
-
-document.getElementById("userInfo").innerHTML = `
-<div style="display:flex;align-items:center;justify-content:center;gap:10px">
-
-<img src="${avatar}"
-style="width:50px;height:50px;border-radius:50%;object-fit:cover">
-
-<div>
-<b>${name}</b><br>
-👥 ${usersCount} | 🟢 ${onlineCount}
-</div>
-
-</div>`;
-
-        });
-
-    });
 
 }
 
 
-updateHeader();
-
-setInterval(updateHeader,10000);
 
 
-});
+
+
+
+function saveLocation(position){
+
+
+
+    db.ref("usersLocation/"+USER_ID)
+    .update({
+
+
+        name:
+        currentUserName,
+
+
+        avatar:
+        currentAvatar,
+
+
+        lat:
+        position.coords.latitude,
+
+
+        lng:
+        position.coords.longitude,
+
+
+        online:true,
+
+
+        showLocation:true,
+
+
+        lastUpdate:
+        Date.now()
+
+
+    });
+
+
+}
+
+
+
+
+
+
+// ==========================
+// ШАПКА
+// ==========================
+
+
+function updateHeader(){
+
+
+    Promise.all([
+
+
+        db.ref("users").once("value"),
+
+
+        db.ref("usersLocation").once("value")
+
+
+    ])
+    .then(([usersSnap,locationSnap])=>{
+
+
+        let usersCount =
+        usersSnap.numChildren();
+
+
+
+        let onlineCount=0;
+
+
+
+        locationSnap.forEach(child=>{
+
+
+            const d=child.val();
+
+
+
+            if(
+
+                d.online===true &&
+
+                d.showLocation===true &&
+
+                Date.now() -
+                (d.lastUpdate || 0)
+                <120000
+
+            ){
+
+                onlineCount++;
+
+            }
+
+
+        });
+
+
+
+
+
+        const box =
+        document.getElementById("userInfo");
+
+
+
+        if(box){
+
+
+            box.innerHTML=`
+
+            <div style="
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:10px">
+
+
+            <img src="${currentAvatar}"
+            onerror="this.src='avatars/avatar1.png'"
+            style="
+            width:50px;
+            height:50px;
+            border-radius:50%;
+            object-fit:cover">
+
+
+            <div>
+
+            <b>${currentUserName}</b>
+            <br>
+
+            👥 ${usersCount}
+            |
+            🟢 ${onlineCount}
+
+            </div>
+
+
+            </div>
+
+            `;
+
+
+        }
+
+
+    });
+
+
+}
+
+
+
+
+setInterval(()=>{
+
+
+    if(USER_ID){
+
+        updateHeader();
+
+    }
+
+
+},10000);
+
+
+
+
+
+
+// ==========================
+// ВИХІД
+// ==========================
+
+
+function logout(){
+
+
+    if(!USER_ID) return;
+
+
+
+    db.ref("usersLocation/"+USER_ID)
+    .update({
+
+        online:false,
+
+        lastUpdate:Date.now()
+
+    })
+    .finally(()=>{
+
+
+        if(watchId!==null){
+
+            navigator.geolocation.clearWatch(watchId);
+
+        }
+
+
+
+        if(onlineTimer){
+
+            clearInterval(onlineTimer);
+
+        }
+
+
+
+        auth.signOut();
+
+
+
+    });
+
+
+}
+
+
+
+
+
+
+
+// ==========================
+// ЗАПИТ GPS ОДИН РАЗ
+// ==========================
+
+
+function askLocationPermissionOnce(){
+
+
+    if(geoAsked){
+
+        return;
+
+    }
+
+
+
+    if(!navigator.geolocation){
+
+        return;
+
+    }
+
+
+
+    navigator.geolocation.getCurrentPosition(
+
+
+        ()=>{
+
+
+            localStorage.setItem(
+            "geoAsked",
+            "true"
+            );
+
+
+            geoAsked=true;
+
+
+        },
+
+
+        ()=>{
+
+
+            localStorage.setItem(
+            "geoAsked",
+            "true"
+            );
+
+
+            geoAsked=true;
+
+
+        },
+
+
+        {
+
+            enableHighAccuracy:true,
+
+            timeout:5000
+
+        }
+
+
+    );
+
+
+}
+// ==========================
+// НАЛАШТУВАННЯ ПРОФІЛЮ
+// ==========================
+
+
+let selectedAvatar = currentAvatar;
+
 
 
 function openSettings(){
 
-    const user = firebase.auth().currentUser;
+
+    const user =
+    firebase.auth().currentUser;
+
 
     if(!user) return;
 
-    db.ref("users/"+user.uid).once("value").then(snap=>{
 
-        const d = snap.val() || {};
-        selectedAvatar = d.avatar || "";
 
-if(selectedAvatar){
+    db.ref("users/"+user.uid)
+    .once("value")
+    .then(snapshot=>{
 
-    document.getElementById("avatarPreview").src =
-        selectedAvatar;
 
-}
+        const d =
+        snapshot.val() || {};
 
-        document.getElementById("newName").value =
-            d.name || "";
 
-        document.getElementById("newSurname").value =
-            d.surname || "";
 
         selectedAvatar =
-d.avatar || "";
-            localStorage.setItem("userAvatar", selectedAvatar);
-            if(selectedAvatar){
-    document.getElementById("avatarPreview").src=selectedAvatar;
-}
+        d.avatar ||
+        "avatars/avatar1.png";
 
-       document.getElementById("avatarPreview").src = selectedAvatar;
 
-        document.getElementById("settingsModal").style.display="flex";
+
+        const avatar =
+        document.getElementById("avatarPreview");
+
+
+        if(avatar){
+
+            avatar.src=selectedAvatar;
+
+        }
+
+
+
+        document.getElementById("newName").value =
+        d.name || "";
+
+
+
+        document.getElementById("newSurname").value =
+        d.surname || "";
+
+
+
+        document.getElementById("settingsModal")
+        .style.display="flex";
+
 
     });
 
+
 }
+
+
+
 
 function closeSettings(){
 
-    document.getElementById("settingsModal").style.display="none";
+
+    const modal =
+    document.getElementById("settingsModal");
+
+
+    if(modal){
+
+        modal.style.display="none";
+
+    }
+
 
 }
-function logout() {
 
-    const USER_ID = firebase.auth().currentUser.uid;
 
-    db.ref("usersLocation/" + USER_ID).update({
 
-        online: false,
-        lastUpdate: Date.now()
 
-    }).finally(() => {
-if (watchId) {
 
-    navigator.geolocation.clearWatch(watchId);
 
-}
-        auth.signOut();
+// ==========================
+// ВИБІР АВАТАРКИ
+// ==========================
 
-    });
-
-}
 
 
 function chooseAvatar(){
 
-    const grid=document.getElementById("avatarsGrid");
+
+    const grid =
+    document.getElementById("avatarsGrid");
+
+
+    if(!grid) return;
+
+
 
     grid.innerHTML="";
 
+
+
     for(let i=1;i<=10;i++){
 
-        const img=document.createElement("img");
 
-        img.src="avatars/avatar"+i+".png";
+
+        const img =
+        document.createElement("img");
+
+
+
+        img.src =
+        "avatars/avatar"+i+".png";
+
+
 
         img.style.width="70px";
+
         img.style.height="70px";
+
         img.style.borderRadius="50%";
+
         img.style.cursor="pointer";
-        img.style.border="3px solid transparent";
 
-   img.onclick=function(){
+        img.style.objectFit="cover";
 
-    selectedAvatar="avatars/avatar"+i+".png";
 
-    document.getElementById("avatarPreview").src=selectedAvatar;
 
-    closeAvatarPicker();
+        img.onclick=function(){
 
-};
+
+
+            selectedAvatar =
+            "avatars/avatar"+i+".png";
+
+
+
+            document.getElementById(
+            "avatarPreview"
+            ).src=selectedAvatar;
+
+
+
+            closeAvatarPicker();
+
+
+        };
+
+
 
         grid.appendChild(img);
 
+
     }
 
-    document.getElementById("avatarSelect").style.display="flex";
+
+
+    document.getElementById(
+    "avatarSelect"
+    ).style.display="flex";
+
 
 }
+
+
+
+
 
 function closeAvatarPicker(){
 
-    document.getElementById("avatarSelect").style.display="none";
+
+    const box =
+    document.getElementById("avatarSelect");
+
+
+    if(box){
+
+        box.style.display="none";
+
+    }
+
 
 }
 
-function saveProfile(){
 
-    const user=firebase.auth().currentUser;
 
-    if(!user) return;
 
-    const name=document.getElementById("newName").value.trim();
 
-    const surname=document.getElementById("newSurname").value.trim();
 
-    if(name.length<2){
+// ==========================
+// ЗАВАНТАЖЕННЯ СВОЄЇ АВАТАРКИ
+// ==========================
 
-        alert("Введіть ім'я");
+
+
+function uploadAvatar(){
+
+
+    const file =
+    document.getElementById("avatarFile")
+    .files[0];
+
+
+
+    if(!file){
 
         return;
 
     }
 
-    db.ref("users/"+user.uid).update({
+
+
+    const reader =
+    new FileReader();
+
+
+
+    reader.onload=function(e){
+
+
+
+        const img =
+        new Image();
+
+
+
+        img.onload=function(){
+
+
+
+            const canvas =
+            document.createElement("canvas");
+
+
+
+            const size=200;
+
+
+
+            canvas.width=size;
+
+            canvas.height=size;
+
+
+
+            const ctx =
+            canvas.getContext("2d");
+
+
+
+            ctx.drawImage(
+                img,
+                0,
+                0,
+                size,
+                size
+            );
+
+
+
+            selectedAvatar =
+            canvas.toDataURL(
+                "image/jpeg",
+                0.8
+            );
+
+
+
+            document.getElementById(
+            "avatarPreview"
+            ).src=selectedAvatar;
+
+
+
+        };
+
+
+
+        img.src=e.target.result;
+
+
+
+    };
+
+
+
+    reader.readAsDataURL(file);
+
+
+}
+
+
+
+
+
+
+
+
+// ==========================
+// ЗБЕРЕГТИ ПРОФІЛЬ
+// ==========================
+
+
+
+function saveProfile(){
+
+
+
+    const user =
+    firebase.auth().currentUser;
+
+
+
+    if(!user) return;
+
+
+
+
+
+    const name =
+    document.getElementById("newName")
+    .value.trim();
+
+
+
+    const surname =
+    document.getElementById("newSurname")
+    .value.trim();
+
+
+
+
+
+    if(name.length < 2){
+
+
+        alert("Введіть ім'я");
+
+
+        return;
+
+    }
+
+
+
+
+
+    const fullName =
+    (name+" "+surname).trim();
+
+
+
+
+
+    db.ref("users/"+user.uid)
+    .update({
+
 
         name:name,
+
+
         surname:surname,
+
+
         avatar:selectedAvatar
 
-    }).then(()=>{
 
-        localStorage.setItem("userName",name);
-        localStorage.setItem("userSurname",surname);
-        localStorage.setItem("userAvatar",selectedAvatar);
-        document.getElementById("avatarPreview").src = selectedAvatar;
 
-        const USER_ID=localStorage.getItem("USER_ID");
+    })
+    .then(()=>{
 
-        if(USER_ID){
 
-            db.ref("usersLocation/"+USER_ID).update({
 
-                name:name+" "+surname
+        currentUserName =
+        fullName;
 
-            });
 
-        }
+
+        currentAvatar =
+        selectedAvatar;
+
+
+
+        localStorage.setItem(
+        "userName",
+        fullName
+        );
+
+
+
+        localStorage.setItem(
+        "userAvatar",
+        selectedAvatar
+        );
+
+
+
+
+
+        // оновити себе на карті
+
+
+        db.ref(
+        "usersLocation/"+user.uid
+        )
+        .update({
+
+
+            name:fullName,
+
+
+            avatar:selectedAvatar
+
+
+        });
+
+
+
+
+
+
+        // оновити код друга
+
 
         db.ref("friendCodes")
         .orderByChild("uid")
@@ -882,330 +1544,724 @@ function saveProfile(){
         .once("value")
         .then(snapshot=>{
 
+
             snapshot.forEach(child=>{
+
 
                 child.ref.update({
 
-                    name:name+" "+surname
+
+                    name:fullName,
+
+
+                    avatar:selectedAvatar
+
 
                 });
 
+
             });
 
+
         });
+
+
+
+
 
         closeSettings();
 
+
         updateHeader();
+
 
     });
 
-}
-
-
-function uploadAvatar(){
-
-    const file = document.getElementById("avatarFile").files[0];
-
-    if(!file) return;
-
-    const reader = new FileReader();
-
-    reader.onload = function(e){
-
-        const img = new Image();
-
-        img.onload = function(){
-
-            const canvas = document.createElement("canvas");
-
-            const size = 200;
-
-            canvas.width = size;
-            canvas.height = size;
-
-            const ctx = canvas.getContext("2d");
-
-            ctx.drawImage(img,0,0,size,size);
-
-            selectedAvatar =
-                canvas.toDataURL("image/jpeg",0.8);
-                console.log(selectedAvatar);
-
-            document.getElementById("avatarPreview").src =
-                selectedAvatar;
-
-        };
-
-        img.src = e.target.result;
-
-    };
-
-    reader.readAsDataURL(file);
 
 }
-
+// ==========================
 // УСІ КОРИСТУВАЧІ
+// ==========================
 
 
 let allUsers = [];
+
 let friends = {};
+
 let pending = {};
 
+
+
+
+
+
 function openUsersModal(){
-    document.getElementById("usersModal").style.display = "flex";
+
+    const modal =
+    document.getElementById("usersModal");
+
+
+    if(modal){
+
+        modal.style.display="flex";
+
+    }
+
+
+    // додаємо історію для кнопки Назад телефону
+    history.pushState(
+        {
+            usersModal:true
+        },
+        ""
+    );
+
+
     loadAllUsers();
+
 }
 
+
+
+
 function closeUsersModal(){
-    document.getElementById("usersModal").style.display = "none";
+
+
+    const modal =
+    document.getElementById("usersModal");
+
+
+    if(modal){
+
+        modal.style.display="none";
+
+    }
+
+
 }
+
+
+
+
+
+
 
 function loadAllUsers(){
 
-    const me = firebase.auth().currentUser;
+
+
+    const me =
+    firebase.auth().currentUser;
+
+
+
     if(!me) return;
 
+
+
+
+
     Promise.all([
-        db.ref("friends/"+me.uid).once("value"),
-        db.ref("friendRequests/"+me.uid).once("value"),
-        db.ref("users").once("value"),
-        db.ref("usersLocation").once("value")
-    ]).then(([friendsSnap, requestsSnap, usersSnap, locationSnap])=>{
 
-        friends = friendsSnap.val() || {};
-        pending = requestsSnap.val() || {};
 
-        const online = {};
+        db.ref("friends/"+me.uid)
+        .once("value"),
 
-        locationSnap.forEach(c=>{
-            online[c.key]=c.val();
+
+        db.ref("friendRequests/"+me.uid)
+        .once("value"),
+
+
+        db.ref("users")
+        .once("value"),
+
+
+        db.ref("usersLocation")
+        .once("value")
+
+
+
+    ])
+    .then(([friendsSnap,requestsSnap,usersSnap,locationSnap])=>{
+
+
+
+        friends =
+        friendsSnap.val() || {};
+
+
+
+        pending =
+        requestsSnap.val() || {};
+
+
+
+        let online={};
+
+
+
+        locationSnap.forEach(child=>{
+
+
+            online[child.key]=child.val();
+
+
         });
+
+
+
+
 
         allUsers=[];
 
+
+
+
+
         usersSnap.forEach(child=>{
 
-            if(child.key===me.uid) return;
 
-            const d = child.val() || {};
+            if(child.key===me.uid){
+
+                return;
+
+            }
+
+
+
+
+
+            const d =
+            child.val() || {};
+
+
 
             allUsers.push({
-                uid: child.key,
-                name: ((d.name||"")+" "+(d.surname||"")).trim(),
-                avatar: d.avatar || "avatars/avatar1.png",
-                online: online[child.key]?.online === true
+
+
+
+                uid:child.key,
+
+
+
+                name:
+                ((d.name||"")+" "+(d.surname||""))
+                .trim() ||
+                "Користувач",
+
+
+
+                avatar:
+                d.avatar ||
+                "avatars/avatar1.png",
+
+
+
+                online:
+                online[child.key]?.online===true
+
+
+
             });
+
+
 
         });
 
+
+
+
+
         renderUsers();
+
+
 
     });
 
+
 }
+
+
+
+
+
+
+
 
 function renderUsers(){
 
-    const list=document.getElementById("usersList");
+
+
+    const list =
+    document.getElementById("usersList");
+
+
+
+    if(!list) return;
+
+
 
     list.innerHTML="";
 
-    allUsers.sort((a,b)=>a.name.localeCompare(b.name));
+
+
+
+
+    allUsers.sort((a,b)=>{
+
+
+        return a.name.localeCompare(b.name);
+
+
+    });
+
+
+
+
+
 
     allUsers.forEach(user=>{
 
-        const div=document.createElement("div");
+
+
+        const div =
+        document.createElement("div");
+
+
+
         div.className="userItem";
 
-        let btn="";
+
+
+
+
+        let button="";
+
+
+
 
         if(friends[user.uid]){
 
-            btn='<button class="addFriend" disabled>✔ Друг</button>';
 
-        }else if(pending[user.uid]){
 
-            btn='<button class="addFriend" disabled>⏳ Запит</button>';
+            button=`
 
-        }else{
+            <button class="addFriend" disabled>
 
-            btn=`
-            <button class="addFriend"
-            onclick="addFriend('${user.uid}','${user.name}')">
-            ➕ Додати
-            </button>`;
+            ✔ Друг
+
+            </button>
+
+            `;
+
+
+
         }
 
-      div.innerHTML = `
-<div class="userLeft"
-onclick="showUserProfile('${user.uid}')"
-style="cursor:pointer">
+        else if(pending[user.uid]){
 
-    <img
-        src="${user.avatar}"
-        onerror="this.src='avatars/avatar1.png'">
 
-    <div>
 
-        <div class="userName">
-            ${user.name}
+            button=`
+
+            <button class="addFriend" disabled>
+
+            ⏳ Запит
+
+            </button>
+
+            `;
+
+
+
+        }
+
+        else{
+
+
+
+            button=`
+
+            <button class="addFriend"
+            onclick="addFriend('${user.uid}','${user.name}')">
+
+            ➕ Додати
+
+            </button>
+
+            `;
+
+
+        }
+
+
+
+
+
+        div.innerHTML=`
+
+        <div class="userLeft"
+        onclick="showUserProfile('${user.uid}')"
+        style="cursor:pointer">
+
+
+            <img src="${user.avatar}"
+            onerror="this.src='avatars/avatar1.png'">
+
+
+            <div>
+
+
+                <div class="userName">
+
+                ${user.name}
+
+                </div>
+
+
+                <div class="userStatus">
+
+                ${user.online ?
+                "🟢 Онлайн":
+                "⚪ Офлайн"}
+
+                </div>
+
+
+            </div>
+
+
         </div>
 
-        <div class="userStatus">
-            ${user.online ? "🟢 Онлайн" : "⚪ Офлайн"}
-        </div>
 
-    </div>
+        ${button}
 
-</div>
 
-${btn}
-`;
+        `;
+
+
+
+
 
         list.appendChild(div);
 
+
+
     });
+
+
 
 }
 
-function addFriend(friendUid,friendName){
 
-    const me=firebase.auth().currentUser;
+
+
+
+
+
+
+// ==========================
+// ДОДАТИ ДРУГА
+// ==========================
+
+
+
+function addFriend(uid,name){
+
+
+
+    const me =
+    firebase.auth().currentUser;
+
+
 
     if(!me) return;
 
-    const currentName=
-        (
-            (localStorage.getItem("userName")||"")+
-            " "+
-            (localStorage.getItem("userSurname")||"")
-        ).trim();
 
-    const currentAvatar=
-        localStorage.getItem("userAvatar") ||
-        "avatars/avatar1.png";
 
-    db.ref("friendRequests/"+friendUid+"/"+me.uid).set({
+
+
+    const myName =
+    localStorage.getItem("userName") ||
+    currentUserName;
+
+
+
+
+    const myAvatar =
+    localStorage.getItem("userAvatar") ||
+    currentAvatar;
+
+
+
+
+
+    db.ref(
+    "friendRequests/"
+    +uid+
+    "/"+
+    me.uid
+    )
+    .set({
+
+
 
         uid:me.uid,
-        name:currentName,
-        avatar:currentAvatar,
+
+
+        name:myName,
+
+
+        avatar:myAvatar,
+
+
         time:Date.now()
 
-    }).then(()=>{
 
-        pending[friendUid]=true;
+
+    })
+    .then(()=>{
+
+
+        pending[uid]=true;
+
 
         renderUsers();
 
+
     });
 
+
+
 }
+
+
+
+
+
+
+
+// ==========================
+// ПОШУК
+// ==========================
+
+
 
 function filterUsers(){
 
-    const text=document.getElementById("userSearch")
-    .value.toLowerCase();
 
-    document.querySelectorAll(".userItem").forEach(card=>{
 
-        const name=card.querySelector(".userName")
-        .innerText.toLowerCase();
+    const input =
+    document.getElementById("userSearch");
 
-        card.style.display=
+
+
+    if(!input) return;
+
+
+
+    const text =
+    input.value.toLowerCase();
+
+
+
+
+
+    document.querySelectorAll(".userItem")
+    .forEach(card=>{
+
+
+
+        const name =
+        card.querySelector(".userName")
+        .innerText
+        .toLowerCase();
+
+
+
+
+        card.style.display =
         name.includes(text)
-        ?"flex":"none";
+        ?
+        "flex"
+        :
+        "none";
+
+
 
     });
 
+
+
 }
 
-document.getElementById("usersModal").onclick=function(e){
 
-    if(e.target===this){
 
-        closeUsersModal();
 
-    }
 
-};
+
+
+
+// ==========================
+// ПРОФІЛЬ КОРИСТУВАЧА
+// ==========================
+
+
 
 function showUserProfile(uid){
 
-    db.ref("users/"+uid).once("value").then(s=>{
 
-        const d=s.val()||{};
+
+    db.ref("users/"+uid)
+    .once("value")
+    .then(snapshot=>{
+
+
+
+        const d =
+        snapshot.val() || {};
+
+
 
         alert(
-            "👤 "+((d.name||"")+" "+(d.surname||"")).trim()+
-            "\n\nТелефон: "+(d.phone||"не вказано")
+
+
+        "👤 "+
+        ((d.name||"")+" "+(d.surname||""))
+        .trim()
+
+
+        +
+
+        "\n\n📞 Телефон: "
+        +
+
+        (d.phone || "не вказано")
+
+
         );
+
 
     });
 
+
+
 }
 
-setInterval(()=>{
 
-    if(document.getElementById("usersModal").style.display==="flex"){
 
-        loadAllUsers();
+
+
+
+
+
+// ==========================
+// ЗАКРИТТЯ ВІКНА
+// ==========================
+
+
+
+const usersModal =
+document.getElementById("usersModal");
+
+
+
+if(usersModal){
+
+
+usersModal.onclick=function(e){
+
+
+    if(e.target===this){
+
+
+        closeUsersModal();
+
 
     }
 
+
+};
+
+
+}
+
+
+
+
+
+
+
+
+// ==========================
+// АВТООНОВЛЕННЯ СПИСКУ
+// ==========================
+
+
+
+setInterval(()=>{
+
+
+
+    const modal =
+    document.getElementById("usersModal");
+
+
+
+    if(
+    modal &&
+    modal.style.display==="flex"
+    ){
+
+
+        loadAllUsers();
+
+
+    }
+
+
+
 },10000);
 
-{
 
-    db.ref("users/"+uid).once("value").then(s=>{
 
-        const d=s.val()||{};
+// ==========================
+// КНОПКА НАЗАД ANDROID
+// ==========================
 
-        alert(
 
-"👤 "+(d.name||"")+" "+(d.surname||"")+
+window.addEventListener("popstate", function(e){
 
-"\n\nТелефон: "+(d.phone||"не вказано")
 
+    const modal =
+    document.getElementById("usersModal");
+
+
+
+    if(
+        modal &&
+        modal.style.display==="flex"
+    ){
+
+
+        // закриваємо список користувачів
+
+        closeUsersModal();
+
+
+        // повертаємося на головну сторінку
+
+        history.pushState(
+            null,
+            "",
+            location.href
         );
 
-    });
 
-}
+    }
 
-function askLocationPermissionOnce() {
 
-    if (geoAsked) return;
-
-    if (!navigator.geolocation) return;
-
-    navigator.geolocation.getCurrentPosition(
-
-        function () {
-
-            localStorage.setItem("geoAsked", "true");
-            geoAsked = true;
-
-        },
-
-        function () {
-
-            // навіть якщо користувач відмовив,
-            // більше не питаємо на кожному переході
-            localStorage.setItem("geoAsked", "true");
-            geoAsked = true;
-
-        },
-
-        {
-            enableHighAccuracy: true,
-            timeout: 5000
-        }
-
-    );
-
-}
+});
 </script>
 
 
