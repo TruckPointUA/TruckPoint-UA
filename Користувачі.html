@@ -519,9 +519,6 @@ padding:8px 12px;
 
     <div id="sheetHandle"></div>
 
-   <div class="sheetBtn" id="addFriendBtn">
-    ➕ Додати друга
-</div>
 
     <div class="sheetBtn" id="requestsBtn">
     📥 Запити
@@ -535,38 +532,6 @@ padding:8px 12px;
     <div class="sheetBtn">
         ⚙️ Налаштування
     </div>
-
-</div>
-<div id="friendModal">
-
-<h3>👥 Додати друга</h3>
-
-<p style="text-align:center">
-Ваш код для друзів:
-</p>
-<p style="text-align:center">
-Введіть код друга:
-</p>
-
-<input 
-class="friendInput" 
-id="friendCodeInput"
-placeholder="TRUCK-XXXXXX">
-
-<button 
-class="friendButton" 
-id="sendFriendRequest">
-📨 Надіслати запит
-</button>
-<input class="friendInput" id="myFriendCode" readonly>
-
-<button class="friendButton" id="shareFriend">
-📤 Надіслати через месенджери
-</button>
-
-<button class="friendButton" id="closeFriend">
-Закрити
-</button>
 
 </div>
 
@@ -1142,121 +1107,6 @@ document.addEventListener("mouseup",function(){
 
 });
 
-const addFriendBtn =
-document.getElementById("addFriendBtn");
-
-
-const friendModal =
-document.getElementById("friendModal");
-
-
-addFriendBtn.onclick=function(){
-
-friendModal.style.display="block";
-
-friendsSheet.classList.remove("open");
-
-
-let code = localStorage.getItem("friendCode");
-
-
-if(!code){
-
-code =
-"TRUCK-" +
-Math.random()
-.toString(36)
-.substring(2,8)
-.toUpperCase();
-
-
-localStorage.setItem(
-"friendCode",
-code
-);
-
-
-// ✅ запис коду у Firebase
-db.ref("friendCodes/"+code).set({
-
-    uid: USER_ID,
-    name: currentUserName
-
-});
-
-
-}
-
-
-// якщо код вже був — просто оновлюємо Firebase
-else {
-
-db.ref("friendCodes/"+code).set({
-
-    uid: USER_ID,
-    name: currentUserName
-
-});
-
-}
-
-
-document.getElementById("myFriendCode").value=code;
-
-
-};
-
-
-// 📤 Надіслати через месенджери
-
-document.getElementById("shareFriend")
-.onclick=function(){
-
-
-let code =
-document.getElementById("myFriendCode").value;
-
-
-let text =
-"🚛 Додай мене в TruckPoint UA\n\n" +
-"Мій код друга: " + code;
-
-
-let url =
-"https://wa.me/?text=" +
-encodeURIComponent(text);
-
-
-// якщо телефон підтримує меню поширення
-
-if(navigator.share){
-
-navigator.share({
-
-title:"TruckPoint UA",
-
-text:text
-
-});
-
-}
-else{
-
-window.open(url,"_blank");
-
-}
-
-
-};
-
-
-
-document.getElementById("closeFriend")
-.onclick=function(){
-
-friendModal.style.display="none";
-
-};
 
 const requestsBtn =
 document.getElementById("requestsBtn");
@@ -1740,76 +1590,6 @@ requestsModal.style.display="none";
 
 };
 
-document.getElementById("sendFriendRequest")
-.onclick=function(){
-
-let code =
-document.getElementById("friendCodeInput").value.trim();
-
-
-if(!code){
-
-alert("Введіть код друга");
-
-return;
-
-}
-
-
-// шукаємо власника коду
-
-db.ref("friendCodes/"+code)
-.once("value")
-.then(snap=>{
-
-
-if(!snap.exists()){
-
-alert("❌ Код не знайдено");
-
-return;
-
-}
-
-
-let friend = snap.val();
-
-
-// не можна додати самого себе
-
-if(friend.uid === USER_ID){
-
-alert("Це ваш власний код");
-
-return;
-
-}
-
-
-// створюємо запит
-
-db.ref(
-"friendRequests/"+friend.uid+"/"+USER_ID
-)
-.set({
-
-name: currentUserName,
-
-uid: USER_ID,
-
-date: Date.now()
-
-});
-
-
-alert(
-"✅ Запит надіслано "+friend.name
-);
-
-
-});
-
-};
 </script>
 </body>
 </html>
