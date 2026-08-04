@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Розваги водія - TruckPoint UA</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+background:#edf3ff;
+min-height:100vh;
+}
+
+
+.container{
+padding:15px;
+max-width:600px;
+margin:auto;
+}
+
+
+.grid{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:12px;
+margin-top:15px;
+}
+
+
+.card{
+background:white;
+border-radius:18px;
+height:130px;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+box-shadow:0 6px 15px #0002;
+cursor:pointer;
+transition:.2s;
+}
+
+
+.card:active{
+transform:scale(.96);
+}
+
+
+.icon{
+font-size:40px;
+}
+
+
+.title{
+margin-top:8px;
+font-size:16px;
+font-weight:600;
+text-align:center;
+}
+
+
+/* Телефон */
+@media(max-width:480px){
+
+.grid{
+grid-template-columns:1fr;
+}
+
+.card{
+background:white;
+border-radius:18px;
+height:130px;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+box-shadow:0 6px 15px #0002;
+cursor:pointer;
+transition:.2s;
+
+-webkit-tap-highlight-color:transparent;
+
+/* Заборонити виділення тексту */
+user-select:none;
+-webkit-user-select:none;
+-moz-user-select:none;
+-ms-user-select:none;
+}
+.icon{
+width:60px;
+font-size:35px;
+}
+
+.title{
+margin-top:0;
+}
+
+}
+.card,
+.card *{
+    user-select:none;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+}
+
+*{
+    -webkit-tap-highlight-color:transparent;
+    -webkit-touch-callout:none;
+}
+
+</style>
+
+</head>
+
+<body>
+
+
+<div class="container">
+
+<div class="grid">
+
+
+<div class="card" onclick="location.href='Музика.html'">
+<div class="icon">🎧</div>
+<div class="title">Музика</div>
+</div>
+
+
+<div class="card" onclick="location.href='films.html'">
+<div class="icon">🎬</div>
+<div class="title">Фільми</div>
+</div>
+
+
+<div class="card" onclick="window.location.href='https://ukrradio.com/ua?utm_source=chatgpt.com'">
+<div class="icon">📻</div>
+<div class="title">Радіо</div>
+</div>
+
+</div>
+
+</div>
+
+
+</body>
+</html>
