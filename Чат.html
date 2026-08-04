@@ -177,6 +177,11 @@ box-shadow:0 2px 8px rgba(0,0,0,.08);
 font-size:13px;
 color:#666;
 }
+.name{
+font-size:12px;
+font-weight:bold;
+margin-bottom:5px;
+}
 </style>
 
 </head>
@@ -461,55 +466,42 @@ function openPublic(){
 
     users.style.display="none";
 
-    chatTitle.innerHTML="Загальний чат";
+    chatTitle.innerHTML=
+    `
+    🌍 Загальний чат
+    `;
 
     loadPublic();
 
 }
 function sendMessage(){
 
-    let textMsg=text.value.trim();
+    let textMsg = text.value.trim();
 
-    if(!textMsg)return;
-
-    let path=
-    privateUser
-    ?"privateMessages/"+chatKey()
-    :"messages/public";
-
-    let msgRef=db.ref(path).push({
-
-    uid:USER_ID,
-
-    name:USER_NAME,
-
-    text:textMsg,
-
-    time:Date.now(),
-
-    read:false
-
-});
+    if(!textMsg) return;
 
 
-// якщо приватне повідомлення
-if(privateUser){
+    let path = privateUser
+    ? "privateMessages/"+chatKey()
+    : "messages/public";
 
-db.ref(path).push({
 
-uid:USER_ID,
+    db.ref(path).push({
 
-name:USER_NAME,
+        uid: USER_ID,
 
-text:textMsg,
+        name: USER_NAME,
 
-time:Date.now(),
+        text: textMsg,
 
-edited:false
+        time: Date.now(),
 
-});
+        edited:false,
 
-}
+        read:false
+
+    });
+
 
     text.value="";
 
@@ -544,15 +536,20 @@ function chatKey(){
 function openPrivate(uid,name){
 
     privateUser={
-
         uid:uid,
         name:name
-
     };
+
 
     users.style.display="none";
 
-    chatTitle.innerHTML=name;
+
+
+    chatTitle.innerHTML=
+    `
+    💬 Приватний чат
+    `;
+
 
     loadPrivate();
 
@@ -778,19 +775,22 @@ m.time > Date.now()-5000
 
             const mine=m.uid===USER_ID;
 
-            chat.innerHTML+=`
+   chat.innerHTML+=`
 
-            <div class="msg ${mine?"me":"other"}"
+<div class="msg ${mine?"me":"other"}"
 onclick='messageMenu("${id}",${JSON.stringify(m)},"privateMessages/${chatKey()}")'>
 
-                ${mine?"":`
-                <div class="name">
+<div class="name"
+style="
+font-size:12px;
+font-weight:bold;
+margin-bottom:5px;
+opacity:.8;
+">
+${mine ? "Ви" : m.name}
+</div>
 
-                ${m.name}
-
-                </div>`}
-
-                <div>
+<div>
 ${m.text}
 ${m.edited ? " ✏️":""}
 </div>
