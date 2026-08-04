@@ -499,6 +499,11 @@ border-radius:12px;
 padding:8px 12px;
 
 }
+
+.sheetBtn{
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
 </style>
 
 </head>
@@ -1104,6 +1109,12 @@ document.addEventListener("mouseup",function(){
 
 });
 
+document.addEventListener("touchend",function(){
+
+startY=0;
+
+});
+
 
 const requestsBtn =
 document.getElementById("requestsBtn");
@@ -1120,16 +1131,17 @@ document.getElementById("requestsList");
 
 // відкриття запитів
 
-requestsBtn.onclick=function(){
+requestsBtn.addEventListener("touchend", function(e){
+
+e.preventDefault();
 
 requestsModal.style.display="block";
 
 friendsSheet.classList.remove("open");
 
-
 loadRequests();
 
-};
+});
 
 
 
@@ -1416,7 +1428,9 @@ document.getElementById("friendsList");
 
 
 
-friendsBtn.onclick=function(){
+friendsBtn.addEventListener("touchend", function(e){
+
+e.preventDefault();
 
 friendsModal.style.display="block";
 
@@ -1424,7 +1438,7 @@ friendsSheet.classList.remove("open");
 
 loadFriends();
 
-};
+});
 
 
 
