@@ -697,10 +697,26 @@ m.time > Date.now()-5000
                 </div>`}
 
                 <div>
+${m.text}
+${m.edited ? " ✏️":""}
+</div>
 
-                ${m.text}
 
-                </div>
+<div>
+
+<button onclick="event.stopPropagation();likeMessage('${id}')">
+
+❤️
+
+</button>
+
+
+<span id="like_${id}">
+0
+
+</span>
+
+</div>
 
                 <div class="time">
 
@@ -790,64 +806,60 @@ function loadPublic(){
 
         snap.forEach(x=>{
 
-            const m=x.val();
+    const id=x.key;
+
+    const m=x.val();
+
+    const mine=m.uid===USER_ID;
 
 
-            const mine=m.uid===USER_ID;
+    chat.innerHTML+=`
+
+    <div class="msg ${mine?"me":"other"}"
+    onclick='messageMenu("${id}",${JSON.stringify(m)},"messages/public")'>
 
 
-            // нове повідомлення від іншого
-           if(
-    !mine &&
-    document.hidden &&
-    m.time > Date.now()-5000 &&
-    m.time!=lastPublicMessage
-){
+        <div>
+        ${m.text}
+        ${m.edited ? " ✏️":""}
+        </div>
 
-    lastPublicMessage=m.time;
 
-    showNotification(
-        m.name,
-        m.text
-    );
+        <div>
+
+        <button 
+        onclick="event.stopPropagation();likeMessage('${id}')">
+        ❤️
+        </button>
+
+
+        <span id="like_${id}">
+        0
+        </span>
+
+        </div>
+
+
+    </div>
+
+    `;
+
+
+    // ОЦЕ САМЕ МІСЦЕ
+ setTimeout(()=>{
+
+let el=document.getElementById("like_"+id);
+
+if(el){
+
+loadLikes(id,el);
 
 }
 
-
-            chat.innerHTML+=`
-
-            <div class="msg ${mine?"me":"other"}">
+},100);
 
 
-                ${mine?"":`
-                <div class="name">
-                ${m.name}
-                </div>
-                `}
-
-
-                <div>
-                ${m.text}
-                </div>
-
-
-                <div class="time">
-
-                ${new Date(m.time)
-                .toLocaleTimeString([],{
-                    hour:"2-digit",
-                    minute:"2-digit"
-                })}
-
-                </div>
-
-
-            </div>
-
-            `;
-
-
-        });
+});
 
 
         chat.scrollTop=chat.scrollHeight;
@@ -882,7 +894,26 @@ function setOffline(){
 
 window.addEventListener("beforeunload", setOffline);
 
+function likeMessage(id){
 
+db.ref(
+"likes/"+id+"/"+USER_ID
+)
+.set(true);
+
+}
+function loadLikes(id,element){
+
+db.ref("likes/"+id)
+.on("value",snap=>{
+
+let count=snap.numChildren();
+
+element.innerHTML="❤️ "+count;
+
+});
+
+}
 </script>
 
 </body>
