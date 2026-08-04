@@ -148,6 +148,7 @@ padding:12px;
 margin:10px 0;
 border-radius:18px;
 word-break:break-word;
+cursor:pointer;
 }
 
 .me{
@@ -233,8 +234,24 @@ object-fit:cover;
     title="Усі користувачі">
         🌍
     </button>
-    <button class="menuBtn" onclick="enableNotifications()" title="Сповіщення">
-🔔
+    <button class="menuBtn" onclick="showNotifications()" title="Вхідні">
+
+📩
+<span id="notifyCount"
+style="
+position:absolute;
+background:red;
+color:white;
+font-size:11px;
+border-radius:50%;
+padding:2px 6px;
+margin-top:-25px;
+margin-left:15px;
+display:none;
+">
+0
+</span>
+
 </button>
 
 </div>
@@ -284,6 +301,7 @@ let USER_NAME = "Користувач";
 let USER_AVATAR = "avatars/avatar1.png";
 
 let privateUser = null;
+let unreadCount = 0;
 auth.onAuthStateChanged(user=>{
 
     if(!user){
@@ -326,6 +344,8 @@ auth.onAuthStateChanged(user=>{
         showMyProfile();
 
         setOnline();
+
+        listenNotifications();
 
         openPublic();
 
@@ -386,6 +406,55 @@ function showMyProfile(){
     USER_NAME;
 
 }
+function listenNotifications(){
+
+
+db.ref("notifications/"+USER_ID)
+
+.limitToLast(50)
+
+.on("value",snap=>{
+
+
+unreadCount=0;
+
+
+snap.forEach(x=>{
+
+let n=x.val();
+
+
+if(!n.read){
+
+unreadCount++;
+
+}
+
+
+});
+
+
+let badge=document.getElementById("notifyCount");
+
+
+if(unreadCount>0){
+
+badge.style.display="block";
+
+badge.innerHTML=unreadCount;
+
+}else{
+
+badge.style.display="none";
+
+}
+
+
+});
+
+
+}
+
 function openPublic(){
 
     privateUser=null;
@@ -408,17 +477,39 @@ function sendMessage(){
     ?"privateMessages/"+chatKey()
     :"messages/public";
 
-    db.ref(path).push({
+    let msgRef=db.ref(path).push({
 
-        uid:USER_ID,
+    uid:USER_ID,
 
-        name:USER_NAME,
+    name:USER_NAME,
 
-        text:textMsg,
+    text:textMsg,
 
-        time:Date.now()
+    time:Date.now(),
 
-    });
+    read:false
+
+});
+
+
+// якщо приватне повідомлення
+if(privateUser){
+
+db.ref(path).push({
+
+uid:USER_ID,
+
+name:USER_NAME,
+
+text:textMsg,
+
+time:Date.now(),
+
+edited:false
+
+});
+
+}
 
     text.value="";
 
@@ -670,6 +761,8 @@ function loadPrivate(){
 
         snap.forEach(x=>{
 
+            const id=x.key;
+
             const m=x.val();
             if(
 m.uid!==USER_ID &&
@@ -687,7 +780,8 @@ m.time > Date.now()-5000
 
             chat.innerHTML+=`
 
-            <div class="msg ${mine?"me":"other"}">
+            <div class="msg ${mine?"me":"other"}"
+onclick='messageMenu("${id}",${JSON.stringify(m)},"privateMessages/${chatKey()}")'>
 
                 ${mine?"":`
                 <div class="name">
@@ -701,12 +795,6 @@ ${m.text}
 ${m.edited ? " ✏️":""}
 </div>
 
-
-
-<span id="like_${id}">
-0
-
-</span>
 
 </div>
 
@@ -786,7 +874,64 @@ function listenStatus(uid){
 }
 let lastPublicMessage="";
 
+function messageMenu(id,m,path){
 
+    // тільки свої повідомлення
+    if(m.uid !== USER_ID){
+        return;
+    }
+
+
+    let choice = prompt(
+`Оберіть дію:
+
+1 ✏️ Редагувати
+2 🗑️ Видалити`
+);
+
+
+    if(choice==="1"){
+
+        let newText = prompt(
+            "Відредагуйте повідомлення:",
+            m.text
+        );
+
+
+        if(newText && newText.trim()){
+
+
+            db.ref(path+"/"+id)
+            .update({
+
+                text:newText.trim(),
+
+                edited:true
+
+            });
+
+
+        }
+
+    }
+
+
+
+    if(choice==="2"){
+
+
+        if(confirm("Видалити повідомлення?")){
+
+
+            db.ref(path+"/"+id)
+            .remove();
+
+
+        }
+
+    }
+
+}
 function loadPublic(){
 
     db.ref("messages/public")
@@ -805,20 +950,32 @@ function loadPublic(){
     const mine=m.uid===USER_ID;
 
 
-    chat.innerHTML+=`
+chat.innerHTML+=`
 
-    <div class="msg ${mine?"me":"other"}"
-    onclick='messageMenu("${id}",${JSON.stringify(m)},"messages/public")'>
-
-
-        <div>
-        ${m.text}
-        ${m.edited ? " ✏️":""}
-        </div>
+<div class="msg ${mine?"me":"other"}"
+onclick='messageMenu("${id}",${JSON.stringify(m)},"messages/public")'>
 
 
+<div>
+${m.text}
+${m.edited ? " ✏️ відредаговано":""}
+</div>
 
-    `;
+
+<div class="time">
+
+${new Date(m.time)
+.toLocaleTimeString([],{
+hour:"2-digit",
+minute:"2-digit"
+})}
+
+</div>
+
+
+</div>
+
+`;
 
 
     // ОЦЕ САМЕ МІСЦЕ
@@ -869,7 +1026,100 @@ function setOffline(){
 }
 
 window.addEventListener("beforeunload", setOffline);
+function showNotifications(){
 
+
+users.style.display="block";
+
+chat.innerHTML="";
+
+
+users.innerHTML=`
+
+<div class="user">
+
+📩 Вхідні повідомлення
+
+</div>
+
+`;
+
+
+
+db.ref("notifications/"+USER_ID)
+
+.limitToLast(50)
+
+.once("value")
+
+.then(snap=>{
+
+
+snap.forEach(x=>{
+
+
+let n=x.val();
+
+
+users.innerHTML+=`
+
+<div class="user"
+onclick="openNotification('${x.key}')">
+
+
+<div>
+
+<b>${n.name}</b>
+
+<br>
+
+${n.text}
+
+<br>
+
+<span class="status">
+
+${new Date(n.time)
+.toLocaleString()}
+
+</span>
+
+
+</div>
+
+
+💬
+
+
+</div>
+
+
+`;
+
+
+
+});
+
+
+});
+
+
+
+}
+
+function openNotification(id){
+
+db.ref(
+"notifications/"+USER_ID+"/"+id
+)
+.update({
+
+read:true
+
+});
+
+
+}
 </script>
 
 </body>
