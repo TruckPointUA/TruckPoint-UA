@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Геолокація -->
+  <path fill="#1976FF" d="M256 24C163.2 24 88 99.2 88 192c0 116.6 168 296 168 296s168-179.4 168-296C424 99.2 348.8 24 256 24z"></path>
+
+  <!-- Біле коло -->
+  <circle cx="256" cy="192" r="100" fill="#ffffff"></circle>
+
+  <!-- Літера i -->
+  <circle cx="256" cy="145" r="16" fill="#1976FF"></circle>
+  <rect x="242" y="170" width="28" height="88" rx="10" fill="#1976FF"></rect>
+  <rect x="228" y="245" width="56" height="20" rx="10" fill="#1976FF"></rect>
+</svg>
