@@ -1726,11 +1726,7 @@ function loadAllUsers(){
 
     db.ref("friendRequests/"+me.uid).once("value"),
 
-    db.ref("friendRequests").once("value"),
-
-    db.ref("users").once("value"),
-
-    db.ref("usersLocation").once("value")
+    db.ref("sentRequests/"+me.uid).once("value"),
 
 ])
     .then(([friendsSnap,requestsSnap,allRequestsSnap,usersSnap,locationSnap])=>{
@@ -2029,76 +2025,33 @@ function renderUsers(){
 
 
 
-function addFriend(uid,name){
+function addFriend(uid){
 
-
-
-    const me =
-    firebase.auth().currentUser;
-
-
-
+    const me = firebase.auth().currentUser;
     if(!me) return;
 
+    const myName = localStorage.getItem("userName") || currentUserName;
+    const myAvatar = localStorage.getItem("userAvatar") || currentAvatar;
 
+    const updates = {};
 
+    // Запит для одержувача
+    updates["friendRequests/"+uid+"/"+me.uid] = {
+        uid: me.uid,
+        name: myName,
+        avatar: myAvatar,
+        time: Date.now()
+    };
 
+    // Позначка для відправника
+    updates["sentRequests/"+me.uid+"/"+uid] = true;
 
-    const myName =
-    localStorage.getItem("userName") ||
-    currentUserName;
-
-
-
-
-    const myAvatar =
-    localStorage.getItem("userAvatar") ||
-    currentAvatar;
-
-
-
-
-
-    db.ref(
-    "friendRequests/"
-    +uid+
-    "/"+
-    me.uid
-    )
-    .set({
-
-
-
-        uid:me.uid,
-
-
-        name:myName,
-
-
-        avatar:myAvatar,
-
-
-        time:Date.now()
-
-
-
-    })
-    .then(()=>{
-
-
+    db.ref().update(updates).then(()=>{
         sentRequests[uid]=true;
-renderUsers();
-
-
+        renderUsers();
     });
 
-
-
 }
-
-
-
-
 
 
 
