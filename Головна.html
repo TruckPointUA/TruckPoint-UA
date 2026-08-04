@@ -1041,16 +1041,91 @@ function logout(){
 
 function askLocationPermissionOnce(){
 
-
-    if(geoAsked){
-
+    // якщо вже перевіряли — більше не питаємо
+    if(localStorage.getItem("geoAsked") === "true"){
         return;
-
     }
-
 
 
     if(!navigator.geolocation){
+        return;
+    }
+
+
+    // перевіряємо стан дозволу браузера
+    if(navigator.permissions){
+
+        navigator.permissions.query({
+            name:"geolocation"
+        })
+        .then(result=>{
+
+
+            if(result.state === "granted"){
+
+                localStorage.setItem(
+                    "geoAsked",
+                    "true"
+                );
+
+                geoAsked=true;
+
+                return;
+
+            }
+
+
+            if(result.state === "denied"){
+
+                localStorage.setItem(
+                    "geoAsked",
+                    "true"
+                );
+
+                geoAsked=true;
+
+                return;
+
+            }
+
+
+
+            // тільки один раз викликаємо вікно дозволу
+
+            navigator.geolocation.getCurrentPosition(
+
+                ()=>{
+
+                    localStorage.setItem(
+                        "geoAsked",
+                        "true"
+                    );
+
+                    geoAsked=true;
+
+                },
+
+                ()=>{
+
+                    localStorage.setItem(
+                        "geoAsked",
+                        "true"
+                    );
+
+                    geoAsked=true;
+
+                },
+
+                {
+                    enableHighAccuracy:true,
+                    timeout:5000
+                }
+
+            );
+
+
+        });
+
 
         return;
 
@@ -1058,50 +1133,33 @@ function askLocationPermissionOnce(){
 
 
 
+    // запасний варіант для старих браузерів
+
     navigator.geolocation.getCurrentPosition(
 
-
         ()=>{
 
-
             localStorage.setItem(
-            "geoAsked",
-            "true"
+                "geoAsked",
+                "true"
             );
-
 
             geoAsked=true;
 
-
         },
-
 
         ()=>{
 
-
             localStorage.setItem(
-            "geoAsked",
-            "true"
+                "geoAsked",
+                "true"
             );
 
-
             geoAsked=true;
-
-
-        },
-
-
-        {
-
-            enableHighAccuracy:true,
-
-            timeout:5000
 
         }
 
-
     );
-
 
 }
 // ==========================
