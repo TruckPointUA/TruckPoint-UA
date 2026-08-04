@@ -1720,38 +1720,18 @@ function loadAllUsers(){
 
 
 
-   Promise.all([
-
+ Promise.all([
     db.ref("friends/"+me.uid).once("value"),
-
     db.ref("friendRequests/"+me.uid).once("value"),
-
     db.ref("sentRequests/"+me.uid).once("value"),
-
+    db.ref("users").once("value"),
+    db.ref("usersLocation").once("value")
 ])
-    .then(([friendsSnap,requestsSnap,allRequestsSnap,usersSnap,locationSnap])=>{
+.then(([friendsSnap, requestsSnap, sentSnap, usersSnap, locationSnap])=>{
 
-
-
-        friends =
-        friendsSnap.val() || {};
-
-
-
-        pending =
-        requestsSnap.val() || {};
-
-        sentRequests = {};
-
-allRequestsSnap.forEach(userNode=>{
-
-    if(userNode.hasChild(me.uid)){
-
-        sentRequests[userNode.key] = true;
-
-    }
-
-});
+    friends = friendsSnap.val() || {};
+    pending = requestsSnap.val() || {};
+    sentRequests = sentSnap.val() || {};
 
 
 
