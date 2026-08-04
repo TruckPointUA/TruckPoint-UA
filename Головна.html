@@ -1101,7 +1101,11 @@ db.ref("friendRequests/"+friendUid+"/"+me.uid).set({
         pending[friendUid]=true;
           renderUsers();
 
-        
+                list.appendChild(div);
+
+    });
+
+}
 
     });
 
@@ -1174,11 +1178,8 @@ document
 
         `;
 
-        list.appendChild(div);
 
-    });
 
-}
 
 function showUserProfile(uid){
 
