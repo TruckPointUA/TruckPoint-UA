@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>TruckPoint UA Messenger</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<style>
+
+.topBar{
+
+height:64px;
+
+background:linear-gradient(135deg,#0ea5e9,#0369a1);
+
+display:flex;
+
+align-items:center;
+
+justify-content:space-between;
+
+padding:0 15px;
+
+color:white;
+
+box-shadow:0 3px 10px rgba(0,0,0,.15);
+
+}
+
+.title{
+
+text-align:center;
+
+flex:1;
+
+font-weight:bold;
+
+}
+
+.title small{
+
+display:block;
+
+font-size:12px;
+
+opacity:.85;
+
+}
+
+.menuBtn{
+
+width:42px;
+height:42px;
+
+border:none;
+
+border-radius:50%;
+
+background:rgba(255,255,255,.18);
+
+color:white;
+
+font-size:20px;
+
+cursor:pointer;
+
+}
+
+#chat{
+
+height:calc(100vh - 135px);
+
+overflow:auto;
+
+padding:12px;
+
+background:#eef6ff;
+
+}
+
+.bottomBar{
+
+position:fixed;
+
+left:0;
+right:0;
+bottom:0;
+
+display:flex;
+
+gap:10px;
+
+padding:10px;
+
+background:white;
+
+box-shadow:0 -3px 10px rgba(0,0,0,.12);
+
+}
+
+.bottomBar input{
+
+flex:1;
+
+height:48px;
+
+border:2px solid #dbeafe;
+
+border-radius:25px;
+
+padding:0 18px;
+
+font-size:15px;
+
+outline:none;
+
+}
+
+.sendBtn{
+
+width:52px;
+
+height:52px;
+
+border:none;
+
+border-radius:50%;
+
+background:linear-gradient(135deg,#0ea5e9,#0369a1);
+
+color:white;
+
+font-size:22px;
+
+cursor:pointer;
+
+}
+
+.msg{
+max-width:75%;
+padding:12px;
+margin:10px 0;
+border-radius:18px;
+word-break:break-word;
+}
+
+.me{
+margin-left:auto;
+background:#0ea5e9;
+color:white;
+}
+
+.other{
+background:white;
+}
+
+.user{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:14px;
+margin:10px;
+background:white;
+border-radius:16px;
+cursor:pointer;
+box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+.status{
+font-size:13px;
+color:#666;
+}
+</style>
+
+</head>
+
+<body>
+ <header class="topBar">
+
+    <button class="menuBtn" onclick="openPublic()">
+        💬
+    </button>
+
+    <div class="title">
+
+        <div>TruckPoint UA</div>
+
+        <small id="chatTitle">
+            Загальний чат
+        </small>
+
+        <div id="myProfile"
+style="
+display:flex;
+align-items:center;
+justify-content:center;
+gap:8px;
+font-size:12px;
+margin-top:5px;
+">
+
+<img id="myAvatar"
+src="avatars/avatar1.png"
+style="
+width:25px;
+height:25px;
+border-radius:50%;
+object-fit:cover;
+">
+
+<span id="myName">
+Користувач
+</span>
+
+</div>
+
+    </div>
+
+    <div style="display:flex;gap:8px">
+
+    <button class="menuBtn" onclick="showFriends()"
+    title="Мої друзі">
+        👥
+    </button>
+
+    <button class="menuBtn" onclick="showUsers()"
+    title="Усі користувачі">
+        🌍
+    </button>
+
+</div>
+
+</header>
+
+<div id="users" style="display:none"></div>
+
+<div id="chat"></div>
+
+<div class="bottomBar">
+
+    <input
+        id="text"
+        autocomplete="off"
+        placeholder="Написати повідомлення...">
+
+    <button
+        class="sendBtn"
+        onclick="sendMessage()">
+
+        ➤
+
+    </button>
+
+</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAzOpcu7kdg0y8xwqD0oKk4eMfFSK946n4",
+  authDomain: "truckpoint-ua.firebaseapp.com",
+  databaseURL: "https://truckpoint-ua-default-rtdb.firebaseio.com",
+  projectId: "truckpoint-ua",
+  storageBucket: "truckpoint-ua.firebasestorage.app",
+  messagingSenderId: "992372126132",
+  appId: "1:992372126132:web:3378b6b1794066132d42e1"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.database();
+const auth = firebase.auth();
+
+// Дані користувача TruckPoint UA
+let USER_ID="";
+let USER_NAME = "Користувач";
+let USER_AVATAR = "avatars/avatar1.png";
+
+let privateUser = null;
+auth.onAuthStateChanged(user=>{
+
+    if(!user){
+
+        auth.signInAnonymously();
+        return;
+
+    }
+
+
+    USER_ID=user.uid;
+
+
+    // завантажуємо профіль користувача
+    db.ref("users/"+USER_ID).once("value")
+    .then(snap=>{
+
+        const profile=snap.val();
+
+
+        if(profile){
+
+            USER_NAME = profile.name || "Користувач";
+
+            USER_AVATAR = profile.avatar || "avatars/avatar1.png";
+
+        }
+
+
+        // оновлюємо час входу
+        db.ref("users/"+USER_ID).update({
+
+            name:USER_NAME,
+
+            avatar:USER_AVATAR,
+
+            lastLogin:Date.now()
+
+        });
+
+
+        setOnline();
+
+        openPublic();
+
+
+    });
+
+
+});
+// Дозвіл на сповіщення
+function enableNotifications(){
+
+    if(!("Notification" in window)){
+        return;
+    }
+
+    if(Notification.permission !== "granted"){
+
+        Notification.requestPermission();
+
+    }
+
+}
+
+enableNotifications();
+function showMyProfile(){
+
+    document.getElementById("myAvatar").src =
+    USER_AVATAR;
+
+
+    document.getElementById("myName").innerHTML =
+    USER_NAME;
+
+}
+function openPublic(){
+
+    privateUser=null;
+
+    users.style.display="none";
+
+    chatTitle.innerHTML="Загальний чат";
+
+    loadPublic();
+
+}
+function sendMessage(){
+
+    let textMsg=text.value.trim();
+
+    if(!textMsg)return;
+
+    let path=
+    privateUser
+    ?"privateMessages/"+chatKey()
+    :"messages/public";
+
+    db.ref(path).push({
+
+        uid:USER_ID,
+
+        name:USER_NAME,
+
+        text:textMsg,
+
+        time:Date.now()
+
+    });
+
+    text.value="";
+
+}
+function showNotification(title,text){
+
+    if(Notification.permission==="granted"){
+
+        new Notification(title,{
+
+            body:text,
+
+            icon:"avatars/avatar1.png"
+
+        });
+
+    }
+
+}
+function chatKey(){
+
+    return [USER_ID, privateUser.uid]
+        .sort()
+        .join("_");
+
+}
+function openPrivate(uid,name){
+
+    privateUser={
+
+        uid:uid,
+        name:name
+
+    };
+
+    users.style.display="none";
+
+    chatTitle.innerHTML=name;
+
+    loadPrivate();
+
+}
+function showUsers(){
+
+    users.style.display = "block";
+    chat.innerHTML = "";
+    users.innerHTML = "";
+
+    db.ref("users").once("value").then(snap=>{
+
+        if(!snap.exists()){
+
+            users.innerHTML = `
+            <div style="padding:40px;text-align:center">
+            Користувачів немає
+            </div>`;
+
+            return;
+        }
+
+        snap.forEach(x=>{
+
+            const uid = x.key;
+
+            if(uid === USER_ID) return;
+
+            const u = x.val() || {};
+
+            users.innerHTML += `
+
+            <div class="user"
+            onclick="openPrivate('${uid}','${u.name || 'Користувач'}')">
+
+                <div style="display:flex;align-items:center;gap:10px">
+
+                    <img
+                    src="${u.avatar || 'avatars/avatar1.png'}"
+                    style="
+                    width:42px;
+                    height:42px;
+                    border-radius:50%;
+                    object-fit:cover;">
+
+                    <div>
+
+                        <b>${u.name || "Користувач"}</b>
+
+                        <br>
+
+                        <span
+                        class="status"
+                        id="status_${uid}">
+                        Завантаження...
+                        </span>
+
+                    </div>
+
+                </div>
+
+                💬
+
+            </div>
+            `;
+
+            listenStatus(uid);
+
+        });
+
+    });
+
+}
+
+function showFriends(){
+
+    users.style.display="block";
+    chat.innerHTML="";
+    users.innerHTML="";
+
+    db.ref("friends/"+USER_ID).once("value").then(friendSnap=>{
+
+        if(!friendSnap.exists()){
+
+            users.innerHTML=`
+            <div style="padding:40px;text-align:center;color:#666">
+                У вас поки немає друзів
+            </div>`;
+            return;
+
+        }
+
+        friendSnap.forEach(friend=>{
+
+            const uid=friend.key;
+
+            db.ref("users/"+uid).once("value").then(userSnap=>{
+
+                if(!userSnap.exists()) return;
+
+                const u=userSnap.val();
+
+                users.innerHTML+=`
+
+                <div class="user"
+                onclick="openPrivate('${uid}','${u.name||"Користувач"}')">
+
+                    <div style="display:flex;align-items:center;gap:10px">
+
+                        <img
+                        src="${u.avatar||'avatars/avatar1.png'}"
+                        style="
+                        width:42px;
+                        height:42px;
+                        border-radius:50%;
+                        object-fit:cover;">
+
+                        <div>
+
+                            <b>${u.name||"Користувач"}</b><br>
+
+                            <span
+                            class="status"
+                            id="status_${uid}">
+                                Завантаження...
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    💬
+
+                </div>
+                `;
+
+                listenStatus(uid);
+
+            });
+
+        });
+
+    });
+
+}
+function loadPrivate(){
+
+    db.ref("privateMessages/"+chatKey())
+
+    .limitToLast(100)
+
+    .on("value",snap=>{
+
+        chat.innerHTML="";
+
+        snap.forEach(x=>{
+
+            const m=x.val();
+            if(
+m.uid!==USER_ID &&
+m.time > Date.now()-5000
+){
+
+    showNotification(
+        m.name,
+        m.text
+    );
+
+}
+
+            const mine=m.uid===USER_ID;
+
+            chat.innerHTML+=`
+
+            <div class="msg ${mine?"me":"other"}">
+
+                ${mine?"":`
+                <div class="name">
+
+                ${m.name}
+
+                </div>`}
+
+                <div>
+
+                ${m.text}
+
+                </div>
+
+                <div class="time">
+
+                ${new Date(m.time)
+
+                .toLocaleTimeString([],{
+
+                    hour:"2-digit",
+
+                    minute:"2-digit"
+
+                })}
+
+                </div>
+
+            </div>
+
+            `;
+
+        });
+
+        chat.scrollTop=chat.scrollHeight;
+
+    });
+
+}
+function listenStatus(uid){
+
+    db.ref("usersLocation/"+uid)
+
+    .on("value",snap=>{
+
+        const el=document.getElementById("status_"+uid);
+
+        if(!el)return;
+
+        const s=snap.val();
+
+        if(!s){
+
+            el.innerHTML="⚪ Офлайн";
+
+            return;
+
+        }
+
+        if(s.online){
+
+            el.innerHTML="🟢 Онлайн";
+
+        }else{
+
+            const mins=Math.floor(
+
+                (Date.now()-(s.lastSeen||0))
+
+                /60000
+
+            );
+
+            if(mins<2){
+
+                el.innerHTML="🕒 Був недавно";
+
+            }else{
+
+                el.innerHTML="⚪ Офлайн";
+
+            }
+
+        }
+
+    });
+
+}
+let lastPublicMessage="";
+
+
+function loadPublic(){
+
+    db.ref("messages/public")
+    .limitToLast(100)
+    .on("value",snap=>{
+
+        chat.innerHTML="";
+
+
+        snap.forEach(x=>{
+
+            const m=x.val();
+
+
+            const mine=m.uid===USER_ID;
+
+
+            // нове повідомлення від іншого
+            if(
+                !mine &&
+                m.time > Date.now()-5000 &&
+                m.time!=lastPublicMessage
+            ){
+
+                lastPublicMessage=m.time;
+
+                showNotification(
+                    m.name,
+                    m.text
+                );
+
+            }
+
+
+            chat.innerHTML+=`
+
+            <div class="msg ${mine?"me":"other"}">
+
+
+                ${mine?"":`
+                <div class="name">
+                ${m.name}
+                </div>
+                `}
+
+
+                <div>
+                ${m.text}
+                </div>
+
+
+                <div class="time">
+
+                ${new Date(m.time)
+                .toLocaleTimeString([],{
+                    hour:"2-digit",
+                    minute:"2-digit"
+                })}
+
+                </div>
+
+
+            </div>
+
+            `;
+
+
+        });
+
+
+        chat.scrollTop=chat.scrollHeight;
+
+
+    });
+
+
+}
+auth.onAuthStateChanged(user=>{
+
+    if(!user){
+        auth.signInAnonymously();
+        return;
+    }
+
+    // якщо користувача ще немає у users
+    db.ref("users/"+USER_ID).update({
+
+        name: USER_NAME,
+        avatar: USER_AVATAR,
+        lastLogin: Date.now()
+
+    });
+
+    // оновлюємо статус
+    setOnline();
+
+    // відкриваємо загальний чат
+    openPublic();
+    showMyProfile();
+
+});
+function setOnline(){
+
+    db.ref("usersLocation/"+USER_ID).update({
+
+        online:true,
+        lastSeen:Date.now()
+
+    });
+
+}
+
+function setOffline(){
+
+    db.ref("usersLocation/"+USER_ID).update({
+
+        online:false,
+        lastSeen:Date.now()
+
+    });
+
+}
+
+window.addEventListener("beforeunload", setOffline);
+
+
+</script>
+
+</body>
+</html>
