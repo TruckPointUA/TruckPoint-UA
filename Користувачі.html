@@ -768,9 +768,17 @@ id !== USER_ID &&
 
         activeUsers[id] = true;
 
-       const status = user.online
+      const offlineAfter = 5 * 60 * 1000; // 5 хвилин
+
+const isOnline =
+    user.showLocation &&
+    (Date.now() - (user.lastUpdate || 0) < offlineAfter);
+
+const status = isOnline
     ? "🟢 Онлайн"
     : "🔴 Офлайн";
+
+const lastSeen = new Date(user.lastUpdate).toLocaleString("uk-UA");
 
         if(userMarkers[id]){
 
@@ -781,8 +789,10 @@ id !== USER_ID &&
             userMarkers[id].setPopupContent(`
             <div style="text-align:center">
             <b>${user.name}</b><br><br>
-            ${status}<br>
-            🕒 ${new Date(user.lastUpdate).toLocaleString("uk-UA")}
+           ${status}<br>
+${isOnline
+    ? `🟢 Зараз онлайн`
+    : `🕒 Був онлайн: ${lastSeen}`}
             </div>
             `);
 
@@ -809,8 +819,10 @@ if (
             marker.bindPopup(`
             <div style="text-align:center">
             <b>${user.name}</b><br><br>
-            ${status}<br>
-            🕒 ${new Date(user.lastUpdate).toLocaleString("uk-UA")}
+       ${status}<br>
+${isOnline
+    ? `🟢 Зараз онлайн`
+    : `🕒 Був онлайн: ${lastSeen}`}
             </div>
             `);
 
@@ -955,7 +967,7 @@ const d=user.val();
 
 if(d.online && d.showLocation){
 
-if(Date.now()-d.lastUpdate<120000){
+if (Date.now() - d.lastUpdate < 5 * 60 * 1000) {
 
 count++;
 
@@ -1473,7 +1485,13 @@ border:2px solid #0d6efd;
 <br>
 
 <span class="friendStatus">
-${user.online ? "🟢 Онлайн" : "🔴 Офлайн"}
+${(Date.now() - (user.lastUpdate || 0) < 5 * 60 * 1000)
+    ? "🟢 Онлайн"
+    : "🕒 Був онлайн: " +
+      new Date(user.lastUpdate).toLocaleTimeString("uk-UA", {
+          hour: "2-digit",
+          minute: "2-digit"
+      })}
 </span>
 
 </div>
@@ -1628,7 +1646,13 @@ border:2px solid #0d6efd;
 <br>
 
 <span class="friendStatus">
-${user.online ? "🟢 Онлайн" : "🔴 Офлайн"}
+${(Date.now() - (user.lastUpdate || 0) < 5 * 60 * 1000)
+    ? "🟢 Онлайн"
+    : "🕒 Був онлайн: " +
+      new Date(user.lastUpdate).toLocaleTimeString("uk-UA", {
+          hour: "2-digit",
+          minute: "2-digit"
+      })}
 </span>
 
 </div>
