@@ -537,31 +537,25 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 let USER_ID = "";
-
+let geoAsked = localStorage.getItem("geoAsked") === "true";
 firebase.auth().onAuthStateChanged(user => {
 
     if (!user) {
-
         window.location.replace("index.html");
         return;
-
     }
 
     USER_ID = user.uid;
 
-    // далі твій код...
+    askLocationPermissionOnce();
+
 });
+
+
+    // далі твій код...
+
 let selectedAvatar = "";
 
-firebase.auth().onAuthStateChanged(user=>{
-
-
-if(!user){
-
-    window.location.replace("index.html");
-    return;
-
-}
 
 
 db.ref("users/" + user.uid).once("value").then(snapshot=>{
@@ -730,8 +724,6 @@ setInterval(updateHeader,10000);
 
 });
 
-
-});
 
 function openSettings(){
 
@@ -953,9 +945,8 @@ function uploadAvatar(){
 
 }
 
-// ================================
 // УСІ КОРИСТУВАЧІ
-// ================================
+
 
 let allUsers = [];
 let friends = {};
@@ -1046,30 +1037,31 @@ function renderUsers(){
             </button>`;
         }
 
-        div.innerHTML=`
+      div.innerHTML = `
+<div class="userLeft"
+onclick="showUserProfile('${user.uid}')"
+style="cursor:pointer">
 
-        <div class="userLeft"
-        onclick="showUserProfile('${user.uid}')"
-        style="cursor:pointer">
+    <img
+        src="${user.avatar}"
+        onerror="this.src='avatars/avatar1.png'">
 
-            <img src="${user.avatar}">
+    <div>
 
-            <div>
-
-                <div class="userName">
-                    ${user.name}
-                </div>
-
-                <div class="userStatus">
-                    ${user.online ? "🟢 Онлайн":"⚪ Офлайн"}
-                </div>
-
-            </div>
-
+        <div class="userName">
+            ${user.name}
         </div>
 
-        ${btn}
-        `;
+        <div class="userStatus">
+            ${user.online ? "🟢 Онлайн" : "⚪ Офлайн"}
+        </div>
+
+    </div>
+
+</div>
+
+${btn}
+`;
 
         list.appendChild(div);
 
@@ -1179,6 +1171,39 @@ setInterval(()=>{
         );
 
     });
+
+}
+
+function askLocationPermissionOnce() {
+
+    if (geoAsked) return;
+
+    if (!navigator.geolocation) return;
+
+    navigator.geolocation.getCurrentPosition(
+
+        function () {
+
+            localStorage.setItem("geoAsked", "true");
+            geoAsked = true;
+
+        },
+
+        function () {
+
+            // навіть якщо користувач відмовив,
+            // більше не питаємо на кожному переході
+            localStorage.setItem("geoAsked", "true");
+            geoAsked = true;
+
+        },
+
+        {
+            enableHighAccuracy: true,
+            timeout: 5000
+        }
+
+    );
 
 }
 </script>
