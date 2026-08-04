@@ -436,7 +436,33 @@ function showUsers(){
 
     users.style.display = "block";
     chat.innerHTML = "";
-    users.innerHTML = "";
+    users.innerHTML=`
+
+<div style="
+padding:15px;
+text-align:center;
+font-size:18px;
+font-weight:bold;
+color:#0369a1;
+background:white;
+margin:10px;
+border-radius:16px;
+box-shadow:0 2px 8px rgba(0,0,0,.08);
+">
+🌍 Усі користувачі
+
+<div style="
+font-size:13px;
+font-weight:normal;
+color:#666;
+margin-top:5px;
+">
+Знайдіть водіїв та почніть приватний чат
+</div>
+
+</div>
+
+`;
 
     db.ref("users").once("value").then(snap=>{
 
@@ -506,7 +532,32 @@ function showFriends(){
 
     users.style.display="block";
     chat.innerHTML="";
-    users.innerHTML="";
+
+    users.innerHTML=`
+
+    <div style="
+        padding:15px;
+        text-align:center;
+        font-size:18px;
+        font-weight:bold;
+        color:#0369a1;
+        background:white;
+        margin:10px;
+        border-radius:16px;
+        box-shadow:0 2px 8px rgba(0,0,0,.08);
+    ">
+        👥 Мої друзі
+        <div style="
+            font-size:13px;
+            font-weight:normal;
+            color:#666;
+            margin-top:5px;
+        ">
+            Тут відображаються ваші друзі для швидкого спілкування
+        </div>
+    </div>
+
+    `;
 
     db.ref("friends/"+USER_ID).once("value").then(friendSnap=>{
 
