@@ -504,6 +504,17 @@ padding:8px 12px;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
 }
+.rejectBtn{
+
+background:#dc3545;
+
+color:white;
+
+padding:8px 12px;
+
+border-radius:12px;
+
+}
 </style>
 
 </head>
@@ -1184,21 +1195,35 @@ let div=document.createElement("div");
 div.className="requestItem";
 
 
-div.innerHTML=`
+div.innerHTML = `
 
-<span>
+<div>
 👤 ${req.name}
-</span>
+</div>
 
+<div style="display:flex;gap:8px">
 
 <button class="acceptBtn">
-
 ✅ Прийняти
-
 </button>
 
-`;
 
+<button class="rejectBtn">
+❌ Відхилити
+</button>
+
+</div>
+
+`;
+// Прийняти
+div.querySelector(".acceptBtn").onclick = function () {
+    acceptFriend(uid, req.name);
+};
+
+// Відхилити
+div.querySelector(".rejectBtn").onclick = function () {
+    rejectFriend(uid, req.name);
+};
 
 
 div.querySelector("button")
@@ -1246,6 +1271,13 @@ alert(
 "✅ "+name+" доданий у друзі"
 );
 
+
+}
+function rejectFriend(uid, name){
+
+    db.ref("friendRequests/" + USER_ID + "/" + uid).remove();
+
+    alert("❌ Запит від " + name + " відхилено");
 
 }
 
