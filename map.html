@@ -1,0 +1,2415 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<title>Карта мийок цистерн</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="my-icon.png">
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-polylinedecorator@1.7.0/dist/leaflet.polylineDecorator.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<style>
+/* Loader */
+#loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(3px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center; /* автоматично центр і по горизонталі, і по вертикалі */
+  z-index: 9999;
+  font-family: sans-serif;
+  font-size: 18px;
+  color: #007bff;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+  text-align: center;
+}
+.loader-spinner {
+  width: 60px;
+  height: 60px;
+  border: 6px solid rgba(0, 123, 255, 0.2);
+  border-top-color: #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+  margin-left: 80px; /* Зсув вправо */
+}
+#loader-text {
+  text-align: center;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.hidden-loader { opacity:0; visibility:hidden; }
+
+/* Map */
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: sans-serif;
+  overflow: hidden;
+}
+
+/* Висота стрічки */
+:root {
+  --ticker-height: 24px;
+}
+
+/* Карта */
+#map {
+  width: 100%;
+  height: calc(100% - var(--ticker-height));
+  margin-top: var(--ticker-height);
+}
+
+/* Верхні елементи зсуваємо вниз */
+.map-counter {
+  margin-top: 10px !important;
+}
+
+#coordSearch {
+  top: 45px !important;
+}
+#layerBtn, #adminBtn, #locateBtn { position: fixed; border:none; cursor:pointer; z-index:4000; font-size:18px; box-shadow:0 2px 6px rgba(0,0,0,0.3); }
+#layerBtn { bottom:15px; left:15px; padding:10px 15px; border-radius:8px; background:#007bff; color:#fff; }
+#adminBtn { bottom:15px; right:15px; width:50px; height:50px; border-radius:50%; background:#28a745; color:#fff; font-size:24px; display:flex; align-items:center; justify-content:center; }
+#locateBtn {
+  bottom: 80px;
+  right: 15px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #17a2b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  z-index: 4000;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+  overflow: hidden;
+}
+#locateBtn:hover {
+  background: #138496;
+  transform: scale(1.1);
+}
+#locateBtn::before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+}
+
+.popup-box { background:#fff; padding:20px; border-radius:8px; text-align:center; width:280px; }
+.popup-box input, .popup-box textarea { width:100%; padding:8px; margin-top:8px; border:1px solid #ccc; border-radius:5px; font-size:14px; }
+.popup-box button { margin-top:10px; padding:8px 15px; background:#007bff; border:none; border-radius:5px; color:#fff; cursor:pointer; }
+.popup-box button:hover { background:#0056b3; }
+.popup-box .cancel { background:#dc3545; }
+
+.map-counter { background:rgba(255,255,255,0.8); padding:5px 10px; border-radius:8px; margin:10px; }
+#loginBox, #addMarkerBox, #editMarkerBox { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:5000; display:none; }
+#coordSearch { display:none; position:fixed; top:10px; left:50%; transform:translateX(-50%); background:rgba(255,255,255,0.9); padding:8px 12px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.3); z-index:4000; }
+#coordSearch input { width:90px; padding:6px; margin:0 5px; border:1px solid #ccc; border-radius:6px; font-size:14px; }
+#coordSearch button { padding:6px 10px; border:none; background:#007bff; color:#fff; border-radius:6px; font-size:14px; cursor:pointer; }
+#coordSearch button:hover { background:#0056b3; }
+#author { position: fixed; bottom: 5px; left:50%; transform:translateX(-50%); background: rgba(255,255,255,0.85); color:#333; padding:4px 10px; border-radius:8px; font-size:10px; z-index:4000; box-shadow:0 2px 4px rgba(0,0,0,0.2); }
+
+.share-btn-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.share-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 25px;
+  font-size: 13px;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  border: none;
+  font-weight: 500;
+}
+
+.share-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: white;
+}
+
+.share-btn.route {
+  background: linear-gradient(135deg, #34a853, #0f9d58);
+}
+.share-btn.route:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 10px rgba(52,168,83,0.4);
+}
+
+.share-btn.share {
+  background: linear-gradient(135deg, #25d366, #128c7e);
+}
+.share-btn.share:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 10px rgba(37,211,102,0.4);
+}
+
+
+#locate-spinner {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 3px solid rgba(255,255,255,0.5);
+  border-top-color: #fff;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(0deg);
+  pointer-events: none;
+  z-index: 1;
+  transition: transform 0.3s;
+}
+
+/* активна анімація */
+#locateBtn.active #locate-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+#reviewAuthor { display:block; }
+#imgFullScreen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+#imgFullScreen img {
+  max-width: 95%;
+  max-height: 95%;
+  border-radius: 8px;
+  cursor: zoom-out;
+}
+    
+
+
+.review-media {
+  border-radius: 6px;
+  transition: transform 0.2s;
+}
+.review-media:hover {
+  transform: scale(1.02);
+}
+
+#reviewsBox {
+  display: none; /* спочатку приховано */
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 6000;
+  display: flex;           /* flex-контейнер */
+  align-items: center;     /* вертикальне центрування */
+  justify-content: center; /* горизонтальне центрування */
+}
+
+
+/* 🔹 Бігуча стрічка */
+#ticker {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 24px;
+  background: linear-gradient(90deg, #7c9dcc, #007bff, #00a2ff);
+  background-size: 300% 300%;
+  animation: gradientMove 4s ease infinite;
+  overflow: hidden;
+  z-index: 4500;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+#ticker-text {
+  white-space: nowrap;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.4px;
+  text-shadow:
+    0 0 5px rgba(255,255,255,0.5),
+    0 0 10px rgba(255,255,255,0.3);
+  padding-left: 100%;
+  animation: tickerMove 60s linear infinite;
+}
+
+/* Пауза при наведенні */
+#ticker:hover #ticker-text {
+  animation-play-state: paused;
+}
+
+@keyframes tickerMove {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+
+
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="loader-spinner"></div>
+  <div id="loader-text">Завантаження точок...</div>
+</div>
+
+<!-- 🔹 Бігуча стрічка -->
+<div id="ticker">
+  <div id="ticker-text">
+✨ Ласкаво просимо на карту мийок цистерн
+🚛 Актуальні точки по всій Україні та Європі
+📍 Будуйте маршрут у один клік
+⭐ Додавайте фото та відгуки
+🤝 Діліться мийками з друзями й водіями
+🛰️ Швидкий пошук вашого місця
+📏 Дані про допустиму висоту відображаються для безпечного планування проїзду
+💙 Гарної дороги та чистих цистерн.
+  </div>
+</div>
+
+
+<div id="map"></div>
+<button id="layerBtn">🗺️</button>
+<button id="adminBtn">🔑</button>
+<!-- Кнопка геолокації -->
+<button id="locateBtn" title="Моє місце">
+  <div id="locate-spinner"></div>
+</button>
+
+<div id="author">© 2025 Автор: Андрій Мочурад</div>
+
+
+<!-- Вхід -->
+<div id="loginBox">
+  <div class="popup-box">
+    <h3>Вхід для автора</h3>
+    <input type="password" id="adminPass" placeholder="Введіть пароль">
+    <button id="loginSubmit">Увійти</button>
+    <p id="loginMsg" style="color:red; font-size:14px;"></p>
+  </div>
+</div>
+
+<!-- Додавання точки -->
+<div id="addMarkerBox">
+  <div class="popup-box">
+    <h3>Додати точку</h3>
+    <input type="text" id="markerTitle" placeholder="Назва">
+    <textarea id="markerDesc" placeholder="Опис"></textarea>
+    <input type="file" id="markerIcon" accept="image/*">
+    <button id="addMarkerConfirm">Додати</button>
+    <button class="cancel" id="addMarkerCancel">Скасувати</button>
+  </div>
+</div>
+
+<!-- Редагування точки -->
+<div id="editMarkerBox">
+  <div class="popup-box">
+    <h3>Редагувати точку</h3>
+    <input type="text" id="editTitle" placeholder="Назва">
+    <textarea id="editDesc" placeholder="Опис"></textarea>
+    <input type="file" id="editIcon" accept="image/*">
+    <button id="editSave">Зберегти</button>
+    <button class="cancel" id="editCancel">Скасувати</button>
+    <button style="background:#6c757d;" id="editDelete">Видалити</button>
+  </div>
+</div>
+
+<!-- Вікно координат -->
+<div id="coordSearch">
+  <input type="number" id="latInput" step="0.0001" placeholder="Широта">
+  <input type="number" id="lngInput" step="0.0001" placeholder="Довгота">
+  <button id="goToCoord">Перейти</button>
+</div>
+
+<!-- Вікно відгуків -->
+<div id="reviewsBox" style="
+  display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6);
+  z-index:6000; align-items:center; justify-content:center;">
+  <div style="background:white; padding:20px; border-radius:10px; width:90%; max-width:400px; text-align:center;">
+    <h3 id="reviewsTitle">Відгуки</h3>
+
+    <div id="reviewsList" style="max-height:200px; overflow-y:auto; text-align:left; border:1px solid #ccc; border-radius:6px; padding:8px; margin-bottom:10px;">
+      <p style="text-align:center; color:#777;">(немає відгуків)</p>
+    </div>
+
+    <input id="reviewAuthor" type="text" placeholder="Ваше ім'я" style="margin-bottom: 6px; padding: 6px; width: 100%; box-sizing: border-box;">
+    <textarea id="newReview" placeholder="Ваш відгук" style="width: 100%; height: 70px; box-sizing: border-box;"></textarea>
+    <input type="file" id="reviewFile" accept="image/*,video/*" style="margin: 6px 0;">
+    <button id="addReviewBtn">Додати</button>
+
+    <button id="closeReviewsBtn" style="
+      margin-top:8px; padding:6px 12px; background:#dc3545; color:white;
+      border:none; border-radius:6px; cursor:pointer;">
+      Закрити
+    </button>
+  </div>
+</div>
+
+<div id="imgFullScreen">
+  <img id="fsImg" src="">
+</div>
+  </div>
+</div>
+
+<script>
+// Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyAUUgaIIozN86glDv5jgT2zhH5Ob1vOt6Y",
+  authDomain: "my-map-project-5c821.firebaseapp.com",
+  databaseURL: "https://my-map-project-5c821-default-rtdb.firebaseio.com",
+  projectId: "my-map-project-5c821",
+  storageBucket: "my-map-project-5c821.firebasestorage.app",
+  messagingSenderId: "848379078205",
+  appId: "1:848379078205:web:e4e796dfc4e9c11f42ec54",
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// === Карта з Google-подібними шарами ===
+
+// Центр карти
+const map = L.map('map').setView([49.0, 31.0], 6);
+const heightLayer = L.layerGroup();
+
+const HEIGHT_MIN_ZOOM = 14;
+// ===== Обмеження висоти =====
+const icon31 = L.icon({
+  iconUrl:'hl3.1_mapdistant.svg',
+  iconSize:[36,50],
+  iconAnchor:[18,50]
+});
+
+
+const icon37 = L.icon({
+  iconUrl:'hl3.7_mapdistant.svg',
+  iconSize:[36,50],
+  iconAnchor:[18,50]
+});
+
+const icon38 = L.icon({
+  iconUrl:'hl3.8_mapdistant.svg',
+  iconSize:[36,50],
+  iconAnchor:[18,50]
+});
+// Точки
+  const height31 = [
+  { lat: 49.821627, lng: 18.597024},
+  { lat: 49.83386, lng: 18.615904 },
+  { lat: 49.832001, lng: 23.717689 }
+  ];
+  const height37 = [
+  { lat: 51.532874, lng: 7.41183 },
+  { lat: 51.344048, lng: 7.508104 },
+  { lat: 51.22594700000001, lng: 6.801358999999999 },
+  { lat: 50.51666300000001, lng: 7.307579 },
+  { lat: 50.509616, lng: 7.315347000000001 },
+  { lat: 50.417471, lng: 7.528439999999999 },
+  { lat: 50.028155, lng: 8.264592 },
+  { lat: 50.106462, lng: 8.549690999999999 },
+  { lat: 50.096701, lng: 8.680021999999999 },
+  { lat: 50.104449, lng: 8.723618999999999 },
+  { lat: 50.20498, lng: 8.914543999999999 },
+  { lat: 50.40565200000001, lng: 7.541041 },
+  { lat: 51.07146800000001, lng: 6.634795 },
+  { lat: 50.696595, lng: 7.139699999999999 },
+  { lat: 50.574975, lng: 7.234225 },
+  { lat: 50.55774, lng: 7.243820000000001 },
+  { lat: 50.230231, lng: 6.451589 },
+  { lat: 49.51835299999999, lng: 8.191731000000001 },
+  { lat: 51.205861, lng: 10.485371 },
+  { lat: 51.01011100000001, lng: 9.821797999999999 },
+  { lat: 50.738624, lng: 10.34176 },
+  { lat: 51.105979, lng: 11.671485 },
+  { lat: 51.03070799999999, lng: 11.523274 },
+  { lat: 50.939316, lng: 11.429585 },
+  { lat: 50.899348, lng: 12.055782 },
+  { lat: 51.488917, lng: 9.245044 },
+  { lat: 51.447147, lng: 9.410318 },
+  { lat: 51.447219, lng: 9.410188 },
+  { lat: 51.470623, lng: 7.65547 },
+  { lat: 51.420551, lng: 7.532114000000001 },
+  { lat: 51.42025099999999, lng: 7.532795000000001 },
+  { lat: 51.201425, lng: 6.830597 },
+  { lat: 51.582443, lng: 6.685401999999999 },
+  { lat: 51.453466, lng: 7.023628000000001 },
+  { lat: 51.453746, lng: 7.022683 },
+  { lat: 51.478345, lng: 6.944842 },
+  { lat: 51.48589, lng: 6.932617 },
+  { lat: 51.312648, lng: 7.092423 },
+  { lat: 51.312442, lng: 7.092255000000001 },
+  { lat: 50.972194, lng: 7.018385 },
+  { lat: 50.95649699999999, lng: 7.012676 },
+  { lat: 51.491217, lng: 7.041009000000001 },
+  { lat: 51.507137, lng: 7.113269 },
+  { lat: 51.538047, lng: 7.10989 },
+  { lat: 51.53697700000001, lng: 7.110153 },
+  { lat: 51.569238, lng: 6.961102 },
+  { lat: 48.496812, lng: 9.174168999999999 },
+  { lat: 51.006889, lng: 8.749072999999999 },
+  { lat: 49.6986, lng: 7.317885 },
+  { lat: 50.029925, lng: 7.095906000000001 },
+  { lat: 50.30828999999999, lng: 7.460502 },
+  { lat: 50.343908, lng: 7.550516000000001 },
+  { lat: 49.400511, lng: 8.019439999999999 },
+  { lat: 49.39959200000001, lng: 8.020637000000001 },
+  { lat: 49.398291, lng: 8.022651 },
+  { lat: 48.801326, lng: 9.789080999999999 },
+  { lat: 49.592175, lng: 10.19529 },
+  { lat: 50.978194, lng: 7.052283 },
+  { lat: 50.98069700000001, lng: 7.065877 },
+  { lat: 55.49147, lng: 11.97117 },
+  { lat: 55.48764000000001, lng: 9.47174 },
+  { lat: 55.27673, lng: 9.299149999999999 },
+  { lat: 55.37575, lng: 12.08035 },
+  { lat: 56.6885, lng: 9.82831 },
+  { lat: 56.12292, lng: 10.16199 },
+  { lat: 55.35067, lng: 10.18106 },
+  { lat: 55.45033, lng: 11.89371 },
+  { lat: 54.74593, lng: 11.78112 },
+  { lat: 57.47244, lng: 10.24558 },
+  { lat: 55.7117, lng: 9.538 },
+  { lat: 54.75969, lng: 11.8698 },
+  { lat: 56.70243, lng: 8.931480000000001 },
+  { lat: 55.41838, lng: 11.56459 },
+  { lat: 55.4795, lng: 8.463279999999999 },
+  { lat: 57.45588, lng: 9.98124 },
+  { lat: 54.80314, lng: 11.88854 },
+  { lat: 55.4643, lng: 8.701219999999999 },
+  { lat: 54.99080000000001, lng: 11.88476 },
+  { lat: 55.50117999999999, lng: 9.739599999999999 },
+  { lat: 55.68399, lng: 9.65469 },
+  { lat: 55.99445000000001, lng: 8.75121 },
+  { lat: 55.42562, lng: 9.28364 },
+  { lat: 44.84414, lng: 7.727050000000001 },
+  { lat: 45.28026, lng: 9.86956 },
+  { lat: 45.26238000000001, lng: 10.07399 },
+  { lat: 45.63718, lng: 11.57676 },
+  { lat: 44.50454, lng: 12.05071 },
+  { lat: 44.20264, lng: 12.08797 },
+  { lat: 45.66563, lng: 12.25781 },
+  { lat: 41.83133, lng: 12.56835 },
+  { lat: 45.81477, lng: 13.44496 },
+  { lat: 42.25093, lng: 13.95115 },
+  { lat: 40.78459, lng: 17.21575 },
+  { lat: 40.96504, lng: 17.26143 },
+  { lat: 48.20356, lng: 17.020074 },
+  { lat: 48.00351, lng: 18.159988 },
+  { lat: 48.370219, lng: 17.587904 },
+  { lat: 47.111887, lng: 11.807899 },
+  { lat: 47.116042, lng: 11.80834 },
+  { lat: 47.12489999999999, lng: 11.813754 },
+  { lat: 47.12642199999999, lng: 11.814727 },
+  { lat: 47.27891499999999, lng: 12.386866 },
+  { lat: 47.278525, lng: 12.387278 },
+  { lat: 47.825309, lng: 13.021407 },
+  { lat: 47.8265, lng: 13.02102 },
+  { lat: 48.296129, lng: 14.299182 },
+  { lat: 48.29530099999999, lng: 14.296846 },
+  { lat: 47.70187399999999, lng: 16.01521 },
+  { lat: 48.003386, lng: 16.242048 },
+  { lat: 48.204439, lng: 15.387133 },
+  { lat: 47.918468, lng: 13.801529 },
+  { lat: 47.918067, lng: 13.802694 },
+  { lat: 47.330087, lng: 15.361863 },
+  { lat: 47.342091, lng: 15.355645 },
+  { lat: 48.23807300000001, lng: 16.374394 },
+  { lat: 47.68224900000001, lng: 17.63679 },
+  { lat: 47.179886, lng: 18.417045 },
+  { lat: 47.516469, lng: 19.209232 },
+  { lat: 47.180401, lng: 18.416619 },
+  { lat: 47.682355, lng: 17.636965 },
+  { lat: 47.38144700000001, lng: 18.923295 },
+  { lat: 47.38131, lng: 18.923246 },
+  { lat: 49.262685, lng: 14.724717 },
+  { lat: 49.742834, lng: 13.386015 },
+  { lat: 49.39798, lng: 17.685449 },
+  { lat: 49.786717, lng: 14.677296 },
+  { lat: 49.786818, lng: 14.677085 },
+  { lat: 49.48331400000001, lng: 17.335284 },
+  { lat: 50.066605, lng: 14.493242 },
+  { lat: 50.670673, lng: 14.104055 },
+  { lat: 50.670728, lng: 14.1038 },
+  { lat: 50.991887, lng: 14.292491 },
+  { lat: 49.385397, lng: 13.296833 },
+  { lat: 50.05047, lng: 12.825418 },
+  { lat: 49.302746, lng: 13.305373 },
+  { lat: 50.069925, lng: 16.611829 },
+  { lat: 49.013119, lng: 16.346546 },
+  { lat: 50.77033300000001, lng: 14.195958 },
+  { lat: 49.174304, lng: 16.615002 },
+  { lat: 48.85750400000001, lng: 17.124522 },
+  { lat: 50.76897, lng: 14.234534 },
+  { lat: 50.671025, lng: 14.138192 },
+  { lat: 50.818298, lng: 14.539665 },
+  { lat: 50.77895900000001, lng: 15.039079 },
+  { lat: 50.778575, lng: 15.039678 },
+  { lat: 50.552009, lng: 15.483192 },
+  { lat: 49.777695, lng: 18.345789 },
+  { lat: 49.896357, lng: 18.142557 },
+  { lat: 49.401181, lng: 13.282583 },
+  { lat: 49.398701, lng: 13.010647 },
+  { lat: 49.87518599999999, lng: 12.724811 },
+  { lat: 50.026398, lng: 12.477535 },
+  { lat: 50.26829499999999, lng: 13.536455 },
+  { lat: 50.51297899999999, lng: 14.261447 },
+  { lat: 50.413256, lng: 14.896659 },
+  { lat: 50.568564, lng: 15.900621 },
+  { lat: 50.164397, lng: 14.762059 },
+  { lat: 50.076387, lng: 14.858269 },
+  { lat: 49.568657, lng: 15.751394 },
+  { lat: 48.817163, lng: 14.283514 },
+  { lat: 49.056664, lng: 15.805819 },
+  { lat: 49.21045999999999, lng: 16.642806 },
+  { lat: 48.962076, lng: 16.606242 },
+  { lat: 48.88124200000001, lng: 17.508984 },
+  { lat: 41.43245, lng: 1.78498 },
+  { lat: 41.43275, lng: 1.78489 },
+  { lat: 41.67402, lng: 1.27529 },
+  { lat: 41.4051, lng: 2.02669 },
+  { lat: 41.38618, lng: 2.01383 },
+  { lat: 41.49277, lng: 2.14742 },
+  { lat: 41.4668, lng: 2.07794 },
+  { lat: 49.8628, lng: 18.6293 },
+  { lat: 43.70673, lng: 7.266820000000001 },
+  { lat: 43.97276, lng: 6.50926 },
+  { lat: 45.58315, lng: 5.976050000000001 },
+  { lat: 45.82346, lng: 6.51224 },
+  { lat: 45.49916, lng: 6.93164 },
+  { lat: 45.74627, lng: 6.588300000000001 },
+  { lat: 45.91049, lng: 6.8441 },
+  { lat: 45.46389000000001, lng: 6.963039999999999 },
+  { lat: 46.71512, lng: 6.40515 },
+  { lat: 46.72308, lng: 6.393010000000001 },
+  { lat: 47.33708, lng: 7.36899 },
+  { lat: 47.27942, lng: 7.37748 },
+  { lat: 47.41792, lng: 7.502319999999999 },
+  { lat: 48.38368, lng: 7.44836 },
+  { lat: 45.64067, lng: 13.77724 },
+  { lat: 45.64088, lng: 13.77579 },
+  { lat: 50.8237, lng: 5.99752 },
+  { lat: 51.57030000000001, lng: 6.7321 },
+  { lat: 51.59186, lng: 6.71438 },
+  { lat: 51.58137, lng: 6.6845 },
+  { lat: 49.14975, lng: 10.32058 },
+  { lat: 50.46028, lng: 10.26637 },
+  { lat: 50.44851, lng: 10.29198 },
+  { lat: 50.58067, lng: 10.47649 },
+  { lat: 50.58219, lng: 10.53854 },
+  { lat: 50.26772, lng: 10.9556 },
+  { lat: 50.26628, lng: 10.95655 },
+  { lat: 50.83822000000001, lng: 10.95315 },
+  { lat: 51.30298999999999, lng: 10.81747 },
+  { lat: 53.44004, lng: 10.01134 },
+  { lat: 53.5986, lng: 9.90944 },
+  { lat: 51.06415, lng: 13.73798 },
+  { lat: 52.57484000000001, lng: 13.37532 },
+  { lat: 49.19825000000001, lng: 3.4613 },
+  { lat: 46.42741000000001, lng: 2.5965 },
+  { lat: 43.79313, lng: 6.407010000000001 },
+  { lat: 43.97263, lng: 6.509149999999999 },
+  { lat: 44.88341, lng: 6.628030000000001 },
+  { lat: 43.54231, lng: 6.96052 },
+  { lat: 43.5478, lng: 6.98096 },
+  { lat: 43.69287, lng: 7.2441 },
+  { lat: 43.70378, lng: 7.24962 },
+  { lat: 43.70693, lng: 7.26667 },
+  { lat: 44.53668, lng: 4.29541 },
+  { lat: 44.53128, lng: 4.29616 },
+  { lat: 44.74504, lng: 4.74966 },
+  { lat: 44.7826, lng: 4.76696 },
+  { lat: 44.82489, lng: 4.80151 },
+  { lat: 44.94532, lng: 4.85326 },
+  { lat: 48.29190000000001, lng: 4.06776 },
+  { lat: 43.14929, lng: 2.12287 },
+  { lat: 43.21277, lng: 2.92927 },
+  { lat: 44.31361, lng: 2.55293 },
+  { lat: 44.35369, lng: 2.55913 },
+  { lat: 43.6768, lng: 4.48129 },
+  { lat: 43.67746, lng: 4.4874 },
+  { lat: 43.57929, lng: 5.44911 },
+  { lat: 43.58423, lng: 5.47029 },
+  { lat: 43.47231, lng: 5.5121 },
+  { lat: 49.22662999999999, lng: -0.63437 },
+  { lat: 48.91711, lng: -0.47214 },
+  { lat: 44.90783, lng: 2.34706 },
+  { lat: 45.66236, lng: 0.1625 },
+  { lat: 45.74406, lng: 0.39021 },
+  { lat: 45.68578, lng: -0.8396400000000001 },
+  { lat: 47.25070000000001, lng: 4.5224 },
+  { lat: 47.09827000000001, lng: 5.24559 },
+  { lat: 48.48474, lng: -2.79483 },
+  { lat: 46.18342, lng: 1.45405 },
+  { lat: 46.13296, lng: 1.76054 },
+  { lat: 44.6651, lng: 5.06931 },
+  { lat: 48.09700999999999, lng: 1.12622 },
+  { lat: 44.01265, lng: 4.04511 },
+  { lat: 43.77355, lng: 4.14151 },
+  { lat: 43.90251, lng: 4.20996 },
+  { lat: 43.82608, lng: 4.26062 },
+  { lat: 43.80794, lng: 4.6231 },
+  { lat: 43.8037, lng: 4.63537 },
+  { lat: 43.60258, lng: 1.35084 },
+  { lat: 43.59772, lng: 2.68921 },
+  { lat: 43.47637, lng: 2.70829 },
+  { lat: 43.29389, lng: 3.11508 },
+  { lat: 43.38386, lng: 3.23156 },
+  { lat: 43.39358, lng: 3.49809 },
+  { lat: 44.87641, lng: 5.797670000000001 },
+  { lat: 46.52902, lng: 5.38434 },
+  { lat: 46.80412, lng: 5.60528 },
+  { lat: 47.68195999999999, lng: 1.45631 },
+  { lat: 45.8173, lng: 3.76175 },
+  { lat: 46.11656, lng: 3.89816 },
+  { lat: 45.56187, lng: 4.27457 },
+  { lat: 45.45684, lng: 4.75444 },
+  { lat: 45.33797, lng: 3.64796 },
+  { lat: 45.3201, lng: 3.69923 },
+  { lat: 45.1003, lng: 3.79539 },
+  { lat: 45.05082, lng: 3.90855 },
+  { lat: 45.21883, lng: 4.34697 },
+  { lat: 46.58086, lng: -1.72215 },
+  { lat: 46.70018, lng: -0.9581000000000001 },
+  { lat: 46.67988999999999, lng: 0.25003 },
+  { lat: 47.00357, lng: 0.59743 },
+  { lat: 46.23469, lng: 1.02626 },
+  { lat: 45.66678, lng: 1.2005 },
+  { lat: 47.72958, lng: 3.6103 },
+  { lat: 47.56031, lng: 3.783799999999999 },
+  { lat: 48.53242000000001, lng: 2.04562 },
+  { lat: 48.56081, lng: 2.1326 },
+  { lat: 48.71814999999999, lng: 2.26022 },
+  { lat: 48.66945999999999, lng: 2.33285 },
+  { lat: 48.70791, lng: 2.46333 },
+  { lat: 48.90112000000001, lng: 2.25625 },
+  { lat: 48.90528999999999, lng: 2.46207 },
+  { lat: 48.92527, lng: 2.47567 },
+  { lat: 42.76649, lng: 2.10471 },
+  { lat: 42.7665, lng: 2.10556 },
+  { lat: 45.46993, lng: 6.907049999999999 },
+  { lat: 45.82930999999999, lng: 6.50996 },
+  { lat: 45.82885, lng: 6.510140000000001 },
+  { lat: 48.82117, lng: 2.35259 },
+  { lat: 48.82074, lng: 2.35261 },
+  { lat: 50.81835, lng: 2.939499999999999 },
+  { lat: 50.70132000000001, lng: 3.583540000000001 },
+  { lat: 50.71869999999999, lng: 3.58719 },
+  { lat: 50.34535999999999, lng: 4.26503 },
+  { lat: 50.37390000000001, lng: 4.33685 },
+  { lat: 51.23822, lng: 4.44059 },
+  { lat: 51.23174, lng: 4.44271 },
+  { lat: 51.20233, lng: 5.22574 },
+  { lat: 49.68566999999999, lng: 5.36464 },
+  { lat: 50.63284, lng: 5.56724 },
+  { lat: 51.01054, lng: 4.3542 },
+  { lat: 49.41912, lng: 10.998444 },
+  { lat: 49.669013, lng: 10.047621 },
+  { lat: 49.706765, lng: 10.023752 },
+  { lat: 49.70366599999999, lng: 10.024987 },
+  { lat: 49.795158, lng: 9.973489000000001 },
+  { lat: 48.02143, lng: 11.582705 },
+  { lat: 48.120602, lng: 11.556298 },
+  { lat: 48.121598, lng: 11.554099 },
+  { lat: 48.124478, lng: 11.548824 },
+  { lat: 48.125963, lng: 11.545605 },
+  { lat: 51.15839500000001, lng: 6.436083 },
+  { lat: 51.26094800000001, lng: 6.395327 },
+  { lat: 47.68585, lng: 11.192364 },
+  { lat: 50.595968, lng: 8.673933999999999 },
+  { lat: 50.36110100000001, lng: 7.992066 },
+  { lat: 50.81553700000001, lng: 12.841218 },
+  { lat: 51.48767099999999, lng: 7.542301 },
+  { lat: 51.480316, lng: 7.289265999999999 },
+  { lat: 51.47162300000001, lng: 7.154438999999999 },
+  { lat: 52.209835, lng: 8.33323 },
+  { lat: 53.558313, lng: 9.864938 },
+  { lat: 53.559014, lng: 9.88133 },
+  { lat: 53.55571900000001, lng: 9.93506 },
+  { lat: 48.886188, lng: 11.174602 },
+  { lat: 48.872365, lng: 11.073966 },
+  { lat: 48.987279, lng: 9.712776 },
+  { lat: 48.368954, lng: 10.882279 },
+  { lat: 48.353201, lng: 10.893085 },
+  { lat: 48.044294, lng: 10.731779 },
+  { lat: 53.03877800000001, lng: 8.933790999999999 },
+  { lat: 53.06369099999999, lng: 8.882895 },
+  { lat: 53.07344299999999, lng: 8.868385999999999 },
+  { lat: 52.331828, lng: 9.186966999999999 },
+  { lat: 52.332317, lng: 9.185855 },
+  { lat: 52.404144, lng: 9.534461 },
+  { lat: 51.357107, lng: 11.664708 },
+  { lat: 51.39619200000001, lng: 11.651968 },
+  { lat: 51.373935, lng: 12.373597 },
+  { lat: 51.348821, lng: 12.42081 },
+  { lat: 51.324907, lng: 12.411733 },
+  { lat: 51.085824, lng: 12.425019 },
+  { lat: 50.99367, lng: 12.446245 },
+  { lat: 48.39087700000001, lng: 9.993055999999999 },
+  { lat: 50.47121099999999, lng: 12.073553 },
+  { lat: 50.570115, lng: 12.171371 },
+  { lat: 50.58766, lng: 12.010205 },
+  { lat: 50.835139, lng: 12.078212 },
+  { lat: 49.464862, lng: 11.011957 },
+  { lat: 49.96881399999999, lng: 10.119534 },
+  { lat: 50.194387, lng: 11.764114 },
+  { lat: 50.826378, lng: 7.115284 },
+  { lat: 50.91834799999999, lng: 6.938111 },
+  { lat: 50.931515, lng: 6.932002 },
+  { lat: 48.240373, lng: 12.463804 },
+  { lat: 48.06746, lng: 11.373743 },
+  { lat: 48.145652, lng: 11.441305 },
+  { lat: 48.515488, lng: 8.714969 },
+  { lat: 48.109095, lng: 9.141178999999999 },
+  { lat: 48.21418, lng: 11.257815 },
+  { lat: 48.235374, lng: 11.065612 },
+  { lat: 48.946152, lng: 11.993554 },
+  { lat: 48.992048, lng: 12.037132 },
+  { lat: 50.446885, lng: 12.423754 },
+  { lat: 50.607073, lng: 13.004707 },
+  { lat: 50.511669, lng: 13.032702 },
+  { lat: 50.96971700000001, lng: 13.877839 },
+  { lat: 51.303763, lng: 14.902994 },
+  { lat: 51.75124999999999, lng: 14.333202 },
+  { lat: 51.18909, lng: 13.563251 },
+  { lat: 51.137994, lng: 13.588566 },
+  { lat: 51.033724, lng: 13.70717 },
+  { lat: 51.373935, lng: 12.411593 },
+  { lat: 50.45796, lng: 10.43908 },
+  { lat: 50.20813600000001, lng: 9.136345 },
+  { lat: 50.88438799999999, lng: 8.029241000000001 },
+  { lat: 52.117987, lng: 8.662661999999999 },
+  { lat: 52.11838999999999, lng: 8.661579 },
+  { lat: 51.967121, lng: 13.031675 },
+  { lat: 51.994728, lng: 13.05003 },
+  { lat: 52.66682399999999, lng: 13.558307 },
+  { lat: 52.45138900000001, lng: 13.691505 },
+  { lat: 52.427714, lng: 13.752109 },
+  { lat: 52.47858600000001, lng: 13.45738 },
+  { lat: 52.973247, lng: 10.555658 },
+  { lat: 52.822828, lng: 10.680156 },
+  { lat: 53.571335, lng: 10.08197 },
+  { lat: 53.554827, lng: 8.598807000000001 },
+  { lat: 51.822259, lng: 8.101388 },
+  { lat: 51.91227299999999, lng: 8.393444000000001 },
+  { lat: 51.76294, lng: 7.897672 },
+  { lat: 51.766271, lng: 7.901999 },
+  { lat: 51.774422, lng: 7.922417 },
+  { lat: 51.52057, lng: 7.474449999999999 },
+  { lat: 51.519735, lng: 7.474009 },
+  { lat: 51.51740899999999, lng: 7.45368 },
+  { lat: 51.514641, lng: 7.436694 },
+  { lat: 51.515727, lng: 7.4338 },
+  { lat: 51.50809100000001, lng: 7.428208 },
+  { lat: 51.35211, lng: 6.640951 },
+  { lat: 51.46881, lng: 6.800659 },
+  { lat: 51.526701, lng: 7.161378 },
+  { lat: 51.568449, lng: 7.38375 },
+  { lat: 45.73498, lng: 0.1582 },
+  { lat: 47.68245999999999, lng: -2.21542 },
+  { lat: 47.34321, lng: -1.44557 },
+  { lat: 47.95883000000001, lng: -1.50623 },
+  { lat: 48.6377, lng: -1.2575 },
+  { lat: 47.22273, lng: 0.04689 },
+  { lat: 47.22738, lng: 0.04993000000000001 },
+  { lat: 49.09890999999999, lng: -1.09378 },
+  { lat: 48.57082999999999, lng: -0.7915000000000001 },
+  { lat: 48.91698, lng: -0.47206 },
+  { lat: 48.32232999999999, lng: 0.11527 },
+  { lat: 42.7588, lng: 2.08531 },
+  { lat: 42.77444, lng: 3.01718 },
+  { lat: 44.48093, lng: 1.3654 },
+  { lat: 43.14924, lng: 2.12394 },
+  { lat: 43.18839, lng: 2.59825 },
+  { lat: 43.59775, lng: 2.68903 },
+  { lat: 44.31367, lng: 2.55306 },
+  { lat: 44.35565, lng: 2.93114 },
+  { lat: 43.7773, lng: 4.11904 },
+  { lat: 44.05307, lng: 3.69241 },
+  { lat: 44.01266, lng: 4.04488 },
+  { lat: 44.45735, lng: 4.34181 },
+  { lat: 44.53168, lng: 4.29643 },
+  { lat: 43.80373, lng: 4.63549 },
+  { lat: 43.80179, lng: 4.66504 },
+  { lat: 43.47233, lng: 5.51225 },
+  { lat: 44.78314, lng: 4.76675 },
+  { lat: 44.80218, lng: 4.77984 },
+  { lat: 44.82499, lng: 4.80165 },
+  { lat: 47.37669, lng: 0.69399 },
+  { lat: 48.0969, lng: 1.1265 },
+  { lat: 47.68205, lng: 1.45632 },
+  { lat: 48.71861999999999, lng: 2.26033 },
+  { lat: 45.75519000000001, lng: 3.54604 },
+  { lat: 45.33807, lng: 3.64806 },
+  { lat: 45.04056000000001, lng: 3.87925 },
+  { lat: 46.95638, lng: 4.62707 },
+  { lat: 46.66882999999999, lng: 5.54699 },
+  { lat: 46.80405999999999, lng: 5.6054 },
+  { lat: 47.24967999999999, lng: 4.52299 },
+  { lat: 47.09824, lng: 5.24578 },
+  { lat: 47.32373, lng: 5.00903 },
+  { lat: 47.54163, lng: 5.738309999999999 },
+  { lat: 48.74464, lng: 5.02431 },
+  { lat: 48.68607, lng: 5.62167 },
+  { lat: 51.18605, lng: 0.32951 },
+  { lat: 51.17573999999999, lng: 0.49002 },
+  { lat: 51.14841, lng: 1.27302 },
+  { lat: 49.69588, lng: 2.34803 },
+  { lat: 51.28346, lng: 0.45642 },
+  { lat: 51.59829000000001, lng: 0.6128400000000001 },
+  { lat: 51.64375, lng: 0.5928600000000001 },
+  { lat: 51.28008999999999, lng: 1.07029 },
+  { lat: 51.28153, lng: 1.07576 },
+  { lat: 51.26630999999999, lng: 1.02725 },
+  { lat: 52.06921, lng: 1.12952 },
+  { lat: 52.05085, lng: 1.14182 },
+  { lat: 52.08109, lng: 1.29526 },
+  { lat: 52.4802, lng: 1.19011 },
+  { lat: 52.49466, lng: 1.19817 },
+  { lat: 52.56188, lng: 0.34747 },
+  { lat: 52.72577, lng: 1.4073 },
+  { lat: 52.86691, lng: 1.34926 },
+  { lat: 49.77723, lng: 4.38182 },
+  { lat: 49.76933, lng: 4.70851 },
+  { lat: 49.76966, lng: 4.71056 },
+  { lat: 51.24945, lng: 5.69088 },
+  { lat: 43.79361, lng: 6.404369999999999 },
+  { lat: 43.69266, lng: 7.2444 },
+  { lat: 43.69305, lng: 7.24375 },
+  { lat: 50.229763, lng: 19.163360 }
+];
+const height38 = [
+  { lat: 48.39919500000001, lng: 15.573992 },
+  { lat: 46.997371, lng: 15.449806 },
+  { lat: 48.245231, lng: 16.364016 },
+  { lat: 48.31016799999999, lng: 16.325984 },
+  { lat: 47.09594300000001, lng: 15.402347 },
+  { lat: 47.056308, lng: 15.431856 },
+  { lat: 47.55086, lng: 14.01418 },
+  { lat: 47.56564500000001, lng: 14.238214 },
+  { lat: 47.56510600000001, lng: 14.237623 },
+  { lat: 47.340461, lng: 9.640497999999999 },
+  { lat: 47.235517, lng: 9.580456999999999 },
+  { lat: 48.054256, lng: 13.772582 },
+  { lat: 46.433708, lng: 14.065713 },
+  { lat: 46.306158, lng: 15.572036 },
+  { lat: 46.296249, lng: 15.532389 },
+  { lat: 47.484886, lng: 19.053148 },
+  { lat: 46.982243, lng: 17.033164 },
+  { lat: 47.47762, lng: 19.1217 },
+  { lat: 47.467546, lng: 19.08027 },
+  { lat: 47.500744, lng: 19.024967 },
+  { lat: 47.48850999999999, lng: 19.108563 },
+  { lat: 47.487779, lng: 19.108696 },
+  { lat: 47.499026, lng: 19.046748 },
+  { lat: 47.513873, lng: 19.046537 },
+  { lat: 47.86535299999999, lng: 17.258556 },
+  { lat: 47.468785, lng: 19.079859 },
+  { lat: 47.483493, lng: 19.118732 },
+  { lat: 47.482507, lng: 19.127282 },
+  { lat: 47.498548, lng: 19.041248 },
+  { lat: 47.49976300000001, lng: 19.046553 },
+  { lat: 47.467993, lng: 19.084869 },
+  { lat: 47.473256, lng: 19.122852 },
+  { lat: 47.866253, lng: 17.258593 },
+  { lat: 47.498445, lng: 19.041343 },
+  { lat: 47.46845099999999, lng: 19.084234 },
+  { lat: 47.467631, lng: 19.079982 },
+  { lat: 47.478007, lng: 19.122096 },
+  { lat: 47.482746, lng: 19.127479 },
+  { lat: 47.514441, lng: 19.039718 },
+  { lat: 47.514833, lng: 19.039505 },
+  { lat: 47.49148600000001, lng: 19.051359 },
+  { lat: 47.497246, lng: 19.034808 },
+  { lat: 47.49821299999999, lng: 19.039701 },
+  { lat: 47.491694, lng: 19.051074 },
+  { lat: 47.400645, lng: 19.01514 },
+  { lat: 47.403505, lng: 19.012144 },
+  { lat: 47.467619, lng: 19.079336 },
+  { lat: 47.501243, lng: 19.024115 },
+  { lat: 49.85522499999999, lng: 18.273794 },
+  { lat: 50.502994, lng: 14.299898 },
+  { lat: 50.522679, lng: 14.087427 },
+  { lat: 50.07517, lng: 14.409201 },
+  { lat: 50.067356, lng: 14.415907 },
+  { lat: 50.09525600000001, lng: 14.426563 },
+  { lat: 50.062339, lng: 14.45466 },
+  { lat: 49.879177, lng: 14.4996 },
+  { lat: 50.17199200000001, lng: 14.075737 },
+  { lat: 50.653502, lng: 14.001113 },
+  { lat: 50.653484, lng: 14.001375 },
+  { lat: 50.309995, lng: 12.933299 },
+  { lat: 50.234439, lng: 12.862047 },
+  { lat: 50.178189, lng: 12.768198 },
+  { lat: 49.136638, lng: 13.225151 },
+  { lat: 49.805972, lng: 18.249629 },
+  { lat: 49.806048, lng: 18.249365 },
+  { lat: 50.325405, lng: 12.510385 },
+  { lat: 49.916707, lng: 14.376941 },
+  { lat: 50.772772, lng: 15.249189 },
+  { lat: 50.756833, lng: 15.30731 },
+  { lat: 50.752145, lng: 15.052015 },
+  { lat: 50.739643, lng: 15.051464 },
+  { lat: 50.630113, lng: 15.078465 },
+  { lat: 50.120549, lng: 12.359219 },
+  { lat: 50.67948499999999, lng: 14.530711 },
+  { lat: 50.77936600000001, lng: 15.031809 },
+  { lat: 50.778996, lng: 15.03115 },
+  { lat: 50.58867, lng: 15.134022 },
+  { lat: 50.514252, lng: 15.168793 },
+  { lat: 50.458012, lng: 15.767754 },
+  { lat: 49.73682, lng: 18.282098 },
+  { lat: 49.792719, lng: 18.426118 },
+  { lat: 49.78795099999999, lng: 15.925322 },
+  { lat: 49.97238000000001, lng: 16.366977 },
+  { lat: 49.409352, lng: 13.000417 },
+  { lat: 50.478223, lng: 13.422311 },
+  { lat: 50.478451, lng: 13.421971 },
+  { lat: 50.46956, lng: 13.413251 },
+  { lat: 50.450882, lng: 13.903065 },
+  { lat: 50.286628, lng: 13.725924 },
+  { lat: 50.491929, lng: 14.146191 },
+  { lat: 49.867999, lng: 13.926941 },
+  { lat: 49.94600699999999, lng: 14.692886 },
+  { lat: 49.74464, lng: 14.673417 },
+  { lat: 49.55832099999999, lng: 16.570223 },
+  { lat: 49.65986100000001, lng: 17.408202 },
+  { lat: 49.661973, lng: 17.408656 },
+  { lat: 49.141682, lng: 14.623408 },
+  { lat: 49.17896999999999, lng: 15.463286 },
+  { lat: 49.055681, lng: 16.597221 },
+  { lat: 48.948127, lng: 16.622997 },
+  { lat: 38.72352, lng: -9.164580000000001 },
+  { lat: 38.72525, lng: -9.152419999999999 },
+  { lat: 43.19032, lng: -2.05552 },
+  { lat: 39.84965, lng: -0.15381 },
+  { lat: 41.60425, lng: 2.62432 },
+  { lat: 41.60405, lng: 2.62434 },
+  { lat: 41.6259, lng: 2.68289 },
+  { lat: 41.62608, lng: 2.68276 },
+  { lat: 51.420527, lng: 6.769343000000001 },
+  { lat: 51.436142, lng: 6.781709 },
+  { lat: 51.438439, lng: 6.786493999999999 },
+  { lat: 51.45540400000001, lng: 6.830021 },
+  { lat: 51.502149, lng: 6.783481 },
+  { lat: 51.53389500000001, lng: 6.718617 },
+  { lat: 51.55887200000001, lng: 6.704444 },
+  { lat: 51.569147, lng: 6.694789000000001 },
+  { lat: 51.576258, lng: 6.691544000000001 },
+  { lat: 51.491172, lng: 6.934135999999999 },
+  { lat: 51.491275, lng: 6.934008 },
+  { lat: 51.154592, lng: 7.003421 },
+  { lat: 50.96399, lng: 7.018136 },
+  { lat: 50.97558, lng: 7.015362 },
+  { lat: 51.51444999999999, lng: 7.136139999999999 },
+  { lat: 51.511481, lng: 7.136875 },
+  { lat: 51.58673799999999, lng: 7.539515 },
+  { lat: 51.606365, lng: 7.27277 },
+  { lat: 50.630922, lng: 7.901584000000001 },
+  { lat: 52.35069299999999, lng: 9.772679 },
+  { lat: 50.581378, lng: 9.724313 },
+  { lat: 49.585031, lng: 7.139188000000001 },
+  { lat: 49.31846099999999, lng: 7.086547 },
+  { lat: 49.993462, lng: 7.001164000000001 },
+  { lat: 51.544887, lng: 7.670162999999999 },
+  { lat: 51.550789, lng: 7.664262 },
+  { lat: 51.551371, lng: 7.663273000000001 },
+  { lat: 51.40350800000001, lng: 10.47493 },
+  { lat: 52.217146, lng: 10.494923 },
+  { lat: 52.21689, lng: 10.496985 },
+  { lat: 52.146167, lng: 11.693001 },
+  { lat: 49.710171, lng: 8.086023000000001 },
+  { lat: 49.871212, lng: 8.343875000000001 },
+  { lat: 49.875218, lng: 8.340574999999999 },
+  { lat: 49.432297, lng: 7.821241 },
+  { lat: 48.71233699999999, lng: 10.753574 },
+  { lat: 49.776205, lng: 11.545947 },
+  { lat: 49.61124699999999, lng: 11.519747 },
+  { lat: 50.354811, lng: 9.595737 },
+  { lat: 49.680402, lng: 8.616823999999999 },
+  { lat: 49.170582, lng: 11.622056 },
+  { lat: 49.188659, lng: 11.605721 },
+  { lat: 49.189463, lng: 11.608513 },
+  { lat: 50.985566, lng: 7.113118 },
+  { lat: 55.65543, lng: 12.21731 },
+  { lat: 55.65260000000001, lng: 12.30392 },
+  { lat: 55.49533999999999, lng: 9.751300000000001 },
+  { lat: 55.31714999999999, lng: 10.79821 },
+  { lat: 55.81170000000001, lng: 12.46905 },
+  { lat: 55.73193, lng: 12.53632 },
+  { lat: 55.95876999999999, lng: 11.856 },
+  { lat: 55.19391, lng: 11.84401 },
+  { lat: 55.06734, lng: 10.57968 },
+  { lat: 56.13029000000001, lng: 10.17291 },
+  { lat: 55.17688, lng: 11.647 },
+  { lat: 55.37745, lng: 10.36973 },
+  { lat: 54.94036, lng: 11.86739 },
+  { lat: 55.68756, lng: 12.49009 },
+  { lat: 55.43686999999999, lng: 9.2965 },
+  { lat: 57.26331, lng: 9.946300000000001 },
+  { lat: 55.63651000000001, lng: 12.08194 },
+  { lat: 56.46797999999999, lng: 9.255240000000001 },
+  { lat: 54.78434, lng: 11.5003 },
+  { lat: 55.64839, lng: 12.14427 },
+  { lat: 55.35488999999999, lng: 10.25499 },
+  { lat: 55.99711, lng: 12.55078 },
+  { lat: 55.4357, lng: 8.69314 },
+  { lat: 57.27417, lng: 9.939970000000001 },
+  { lat: 55.47457, lng: 8.48559 },
+  { lat: 54.74223, lng: 11.76286 },
+  { lat: 55.752, lng: 12.48282 },
+  { lat: 56.30981999999999, lng: 9.59394 },
+  { lat: 57.26763, lng: 9.94397 },
+  { lat: 56.15366000000001, lng: 10.10135 },
+  { lat: 55.56914999999999, lng: 9.73987 },
+  { lat: 56.35475999999999, lng: 8.607279999999999 },
+  { lat: 54.74865, lng: 11.79448 },
+  { lat: 54.93894000000001, lng: 9.257630000000001 },
+  { lat: 44.63084, lng: 8.635400000000001 },
+  { lat: 44.63823, lng: 8.63841 },
+  { lat: 44.65049, lng: 8.647600000000001 },
+  { lat: 44.76656, lng: 8.805949999999999 },
+  { lat: 44.89484, lng: 8.854010000000001 },
+  { lat: 44.8949, lng: 8.856009999999999 },
+  { lat: 44.72032, lng: 8.86354 },
+  { lat: 44.71391, lng: 8.86449 },
+  { lat: 44.47287, lng: 8.90197 },
+  { lat: 44.40607, lng: 8.94805 },
+  { lat: 45.56776, lng: 9.02299 },
+  { lat: 45.33302, lng: 9.09334 },
+  { lat: 45.69344, lng: 9.61162 },
+  { lat: 44.00177, lng: 10.27833 },
+  { lat: 44.8091, lng: 10.32598 },
+  { lat: 45.14753, lng: 10.78364 },
+  { lat: 43.92798, lng: 10.92853 },
+  { lat: 43.71558, lng: 10.94754 },
+  { lat: 43.89196, lng: 11.0724 },
+  { lat: 44.64175, lng: 11.19053 },
+  { lat: 43.78981, lng: 11.24202 },
+  { lat: 44.50509, lng: 11.39724 },
+  { lat: 44.27795, lng: 11.8525 },
+  { lat: 43.46435, lng: 11.87004 },
+  { lat: 44.29207, lng: 11.88603 },
+  { lat: 45.58132, lng: 12.37395 },
+  { lat: 41.87313, lng: 12.47838 },
+  { lat: 45.96733, lng: 12.61127 },
+  { lat: 42.56833, lng: 12.63995 },
+  { lat: 45.73469, lng: 12.6733 },
+  { lat: 41.8203, lng: 12.67848 },
+  { lat: 45.95494, lng: 12.84897 },
+  { lat: 43.89059, lng: 12.88713 },
+  { lat: 46.48803, lng: 13.0965 },
+  { lat: 43.63257, lng: 13.39032 },
+  { lat: 43.63204, lng: 13.39248 },
+  { lat: 37.78821, lng: 13.67037 },
+  { lat: 37.22885, lng: 14.54679 },
+  { lat: 36.94788, lng: 14.60204 },
+  { lat: 37.52704, lng: 15.0824 },
+  { lat: 37.57516, lng: 15.09049 },
+  { lat: 37.72767, lng: 15.19879 },
+  { lat: 38.52683, lng: 16.57155 },
+  { lat: 41.11995, lng: 16.84696 },
+  { lat: 40.7838, lng: 17.24371 },
+  { lat: 49.228348, lng: 18.740455 },
+  { lat: 48.16752700000001, lng: 17.081004 },
+  { lat: 48.885028, lng: 18.027017 },
+  { lat: 48.885078, lng: 18.027904 },
+  { lat: 48.897185, lng: 18.046777 },
+  { lat: 49.06201, lng: 19.979824 },
+  { lat: 48.143486, lng: 15.05601 },
+  { lat: 48.240072, lng: 14.531497 },
+  { lat: 48.241698, lng: 14.530519 },
+  { lat: 48.242073, lng: 14.532576 },
+  { lat: 47.431424, lng: 11.86523 },
+  { lat: 47.51968800000001, lng: 12.438014 },
+  { lat: 47.390584, lng: 13.661684 },
+  { lat: 47.390837, lng: 13.660958 },
+  { lat: 46.575037, lng: 13.836806 },
+  { lat: 46.631815, lng: 13.855439 },
+  { lat: 46.63079400000001, lng: 13.854821 },
+  { lat: 48.395908, lng: 15.576487 },
+  { lat: 47.65999, lng: 6.21226 },
+  { lat: 47.68663, lng: 6.51976 },
+  { lat: 45.93335, lng: 5.852309999999999 },
+  { lat: 45.9256, lng: 6.76232 },
+  { lat: 48.81328, lng: 3.018889999999999 },
+  { lat: 48.88618, lng: 2.07713 },
+  { lat: 48.99968, lng: 2.1161 },
+  { lat: 48.86357000000001, lng: 2.11715 },
+  { lat: 48.86148, lng: 2.12163 },
+  { lat: 44.13015, lng: 0.82015 },
+  { lat: 43.11616, lng: 5.87633 },
+  { lat: 43.11745, lng: 5.98218 },
+  { lat: 43.4496, lng: 6.4495 },
+  { lat: 43.59548, lng: 6.45131 },
+  { lat: 44.00792, lng: 4.87694 },
+  { lat: 44.08659, lng: 4.88883 },
+  { lat: 44.03893, lng: 4.89223 },
+  { lat: 43.99487, lng: 5.14721 },
+  { lat: 43.70045, lng: 5.69266 },
+  { lat: 45.75818, lng: 1.6454 },
+  { lat: 48.87201, lng: 2.22127 },
+  { lat: 48.89939999999999, lng: 2.251 },
+  { lat: 49.0589, lng: 2.06979 },
+  { lat: 48.98396, lng: 2.17339 },
+  { lat: 48.94974, lng: 2.23084 },
+  { lat: 47.23205999999999, lng: 2.05029 },
+  { lat: 47.23258, lng: 2.0511 },
+  { lat: 45.06856, lng: 3.9052 },
+  { lat: 45.06834, lng: 3.90685 },
+  { lat: 45.93346, lng: 5.85127 },
+  { lat: 45.9334, lng: 5.85336 },
+  { lat: 48.84088, lng: 2.22507 },
+  { lat: 48.83067, lng: 2.25759 },
+  { lat: 48.83122, lng: 2.25836 },
+  { lat: 48.8984, lng: 2.38538 },
+  { lat: 48.89751, lng: 2.38975 },
+  { lat: 43.60907, lng: 3.88387 },
+  { lat: 45.93348, lng: 5.85484 },
+  { lat: 45.93356, lng: 5.85547 },
+  { lat: 46.16107, lng: 6.47667 },
+  { lat: 46.16157, lng: 6.476930000000001 },
+  { lat: 43.48313, lng: -1.56684 },
+  { lat: 43.0332, lng: -0.25972 },
+  { lat: 45.35025999999999, lng: 5.77479 },
+  { lat: 45.35004, lng: 5.77582 },
+  { lat: 45.34959000000001, lng: 5.77802 },
+  { lat: 45.34951, lng: 5.778439999999999 },
+  { lat: 45.34893, lng: 5.780280000000001 },
+  { lat: 45.34886999999999, lng: 5.78072 },
+  { lat: 43.81616, lng: 7.35605 },
+  { lat: 43.81604, lng: 7.35652 },
+  { lat: 45.76858, lng: 4.8597 },
+  { lat: 50.63165999999999, lng: 5.56765 },
+  { lat: 51.01075, lng: 4.36089 },
+  { lat: 50.62949, lng: 5.58708 },
+  { lat: 51.00959, lng: 4.32937 },
+  { lat: 49.99728000000001, lng: 4.98457 },
+  { lat: 50.09927, lng: 5.00555 },
+  { lat: 49.44365100000001, lng: 11.059343 },
+  { lat: 49.445325, lng: 11.055631 },
+  { lat: 49.430918, lng: 11.129813 },
+  { lat: 49.435715, lng: 11.049589 },
+  { lat: 49.72568999999999, lng: 9.999006 },
+  { lat: 49.722642, lng: 10.003073 },
+  { lat: 49.795864, lng: 9.964691 },
+  { lat: 49.772268, lng: 9.942280999999999 },
+  { lat: 49.82387799999999, lng: 9.877193999999999 },
+  { lat: 51.047004, lng: 6.567202999999999 },
+  { lat: 51.04607299999999, lng: 6.569534000000001 },
+  { lat: 51.097686, lng: 6.502452 },
+  { lat: 51.096537, lng: 6.502335 },
+  { lat: 51.19949999999999, lng: 6.473443 },
+  { lat: 51.184061, lng: 6.439498000000001 },
+  { lat: 51.137297, lng: 6.445702 },
+  { lat: 51.264263, lng: 6.384048 },
+  { lat: 51.488395, lng: 7.496373 },
+  { lat: 53.56000099999999, lng: 9.909817 },
+  { lat: 48.987364, lng: 9.711283 },
+  { lat: 48.825823, lng: 9.169846 },
+  { lat: 48.486969, lng: 10.848009 },
+  { lat: 51.329557, lng: 6.603559 },
+  { lat: 51.331407, lng: 6.588044 },
+  { lat: 52.262629, lng: 8.044862 },
+  { lat: 52.265697, lng: 8.055491999999999 },
+  { lat: 53.078712, lng: 8.833199 },
+  { lat: 53.079663, lng: 8.82715 },
+  { lat: 53.098301, lng: 8.870754 },
+  { lat: 53.472114, lng: 9.961334000000001 },
+  { lat: 48.8771, lng: 12.572532 },
+  { lat: 52.259952, lng: 8.931274 },
+  { lat: 52.389696, lng: 9.728033999999999 },
+  { lat: 52.36464600000001, lng: 9.814197 },
+  { lat: 51.261993, lng: 12.376374 },
+  { lat: 51.017467, lng: 12.433456 },
+  { lat: 47.652817, lng: 9.480157 },
+  { lat: 50.874789, lng: 12.07312 },
+  { lat: 50.09353, lng: 9.735590999999999 },
+  { lat: 50.095496, lng: 10.971554 },
+  { lat: 48.801154, lng: 9.219915 },
+  { lat: 49.013199, lng: 9.153354 },
+  { lat: 49.164823, lng: 9.436013000000001 },
+  { lat: 50.854741, lng: 7.080846 },
+  { lat: 50.933653, lng: 7.016253 },
+  { lat: 50.926712, lng: 6.93909 },
+  { lat: 48.24893999999999, lng: 12.504373 },
+  { lat: 48.247798, lng: 12.476653 },
+  { lat: 47.926846, lng: 11.287113 },
+  { lat: 48.057302, lng: 11.364318 },
+  { lat: 48.098254, lng: 11.406921 },
+  { lat: 47.829232, lng: 10.266545 },
+  { lat: 47.850037, lng: 10.255404 },
+  { lat: 48.29626600000001, lng: 9.731885999999999 },
+  { lat: 48.296117, lng: 9.732472 },
+  { lat: 48.383856, lng: 8.873797 },
+  { lat: 48.807962, lng: 9.232991999999999 },
+  { lat: 48.263853, lng: 8.242919000000001 },
+  { lat: 48.27199699999999, lng: 8.227676000000001 },
+  { lat: 47.890196, lng: 7.654824 },
+  { lat: 47.613758, lng: 7.61142 },
+  { lat: 47.6135, lng: 7.610985 },
+  { lat: 48.260131, lng: 10.99229 },
+  { lat: 48.27022300000001, lng: 10.976242 },
+  { lat: 50.97529599999999, lng: 13.868605 },
+  { lat: 51.02635, lng: 14.005579 },
+  { lat: 51.15167499999999, lng: 14.594748 },
+  { lat: 51.635758, lng: 13.70744 },
+  { lat: 50.989161, lng: 13.8455 },
+  { lat: 50.989385, lng: 13.845848 },
+  { lat: 51.304244, lng: 12.065916 },
+  { lat: 51.261645, lng: 12.02225 },
+  { lat: 50.418014, lng: 10.90184 },
+  { lat: 50.33002799999999, lng: 8.7654 },
+  { lat: 50.329332, lng: 8.763014999999999 },
+  { lat: 52.159361, lng: 9.949887 },
+  { lat: 51.851792, lng: 9.94097 },
+  { lat: 51.709144, lng: 9.340223999999999 },
+  { lat: 51.710433, lng: 9.313891 },
+  { lat: 51.71135899999999, lng: 9.179747000000001 },
+  { lat: 51.99670400000001, lng: 8.778407 },
+  { lat: 52.123568, lng: 8.666765 },
+  { lat: 52.614554, lng: 13.468835 },
+  { lat: 52.677789, lng: 13.595726 },
+  { lat: 52.571402, lng: 14.404808 },
+  { lat: 52.502036, lng: 13.475429 },
+  { lat: 52.49992300000001, lng: 13.482182 },
+  { lat: 52.45863299999999, lng: 13.579457 },
+  { lat: 52.45882499999999, lng: 13.579486 },
+  { lat: 52.45726499999999, lng: 13.625532 },
+  { lat: 52.392429, lng: 13.027707 },
+  { lat: 52.56901300000001, lng: 13.053804 },
+  { lat: 52.430218, lng: 14.476621 },
+  { lat: 53.01389700000001, lng: 13.997428 },
+  { lat: 54.758789, lng: 9.398744000000001 },
+  { lat: 53.598435, lng: 9.906556999999999 },
+  { lat: 53.559685, lng: 9.900407 },
+  { lat: 53.251172, lng: 10.419069 },
+  { lat: 53.026878, lng: 10.679358 },
+  { lat: 54.074007, lng: 9.979141 },
+  { lat: 52.757001, lng: 13.247139 },
+  { lat: 53.172599, lng: 8.637627 },
+  { lat: 53.558715, lng: 8.599710999999999 },
+  { lat: 53.135549, lng: 8.739278000000001 },
+  { lat: 53.075109, lng: 8.78514 },
+  { lat: 51.899715, lng: 8.374433 },
+  { lat: 51.919537, lng: 8.405944 },
+  { lat: 51.93931600000001, lng: 8.437252000000001 },
+  { lat: 51.987441, lng: 8.496136 },
+  { lat: 51.98756, lng: 8.494539 },
+  { lat: 51.6927, lng: 7.807586 },
+  { lat: 51.71644899999999, lng: 7.752954999999999 },
+  { lat: 51.672384, lng: 7.808816 },
+  { lat: 51.541294, lng: 7.453053999999999 },
+  { lat: 51.61461, lng: 7.202934 },
+  { lat: 51.668026, lng: 7.172767 },
+  { lat: 51.580179, lng: 6.98921 },
+  { lat: 51.354734, lng: 6.643076999999999 },
+  { lat: 51.418981, lng: 6.673473 },
+  { lat: 51.465209, lng: 6.735685 },
+  { lat: 51.46631799999999, lng: 6.744684999999999 },
+  { lat: 51.478957, lng: 6.838309000000001 },
+  { lat: 51.504697, lng: 6.885169 },
+  { lat: 51.55075, lng: 7.411151 },
+  { lat: 51.549969, lng: 7.408172 },
+  { lat: 51.465631, lng: 7.324268 },
+  { lat: 51.186841, lng: 6.678461 },
+  { lat: 50.92413, lng: 6.369321 },
+  { lat: 50.76751099999999, lng: 6.094635999999999 },
+  { lat: 51.08037899999999, lng: 6.326114 },
+  { lat: 50.605974, lng: 7.218971 },
+  { lat: 50.433146, lng: 7.504461 },
+  { lat: 50.42809800000001, lng: 7.523362000000001 },
+  { lat: 50.088562, lng: 7.760175 },
+  { lat: 50.10319, lng: 8.546868999999999 },
+  { lat: 50.09844499999999, lng: 8.751269000000001 },
+  { lat: 50.09906100000001, lng: 8.760119 },
+  { lat: 50.982638, lng: 6.671997 },
+  { lat: 50.73118900000001, lng: 7.099704 },
+  { lat: 50.51639899999999, lng: 7.029538999999999 },
+  { lat: 49.792468, lng: 6.683777 },
+  { lat: 49.744642, lng: 6.636712 },
+  { lat: 49.332967, lng: 6.744509 },
+  { lat: 49.249367, lng: 6.846979 },
+  { lat: 49.22936599999999, lng: 7.019746 },
+  { lat: 49.50235, lng: 8.204535999999999 },
+  { lat: 48.879913, lng: 8.28641 },
+  { lat: 51.058877, lng: 10.688756 },
+  { lat: 50.581134, lng: 10.419265 },
+  { lat: 50.53250799999999, lng: 11.376601 },
+  { lat: 50.88062, lng: 10.698308 },
+  { lat: 51.00022299999999, lng: 11.351246 },
+  { lat: 51.203963, lng: 9.482745 },
+  { lat: 51.365342, lng: 9.446431 },
+  { lat: 50.435026, lng: 8.668981 },
+  { lat: 50.83828, lng: 8.145413 },
+  { lat: 51.224268, lng: 6.873259999999999 },
+  { lat: 51.39046399999999, lng: 6.775117 },
+  { lat: 51.390309, lng: 6.773029000000001 },
+  { lat: 51.420047, lng: 6.776514999999999 },
+  { lat: 53.29044, lng: 0.11635 },
+  { lat: 56.91159, lng: -2.35671 },
+  { lat: 47.34594000000001, lng: 0.46273 },
+  { lat: 47.46754, lng: 0.63879 },
+  { lat: 47.48866, lng: 0.63576 },
+  { lat: 48.4031, lng: 0.87282 },
+  { lat: 47.77917, lng: 1.62653 },
+  { lat: 47.86278, lng: 1.74929 },
+  { lat: 48.59494, lng: 1.64311 },
+  { lat: 47.82001999999999, lng: 1.94758 },
+  { lat: 47.87563, lng: 2.12327 },
+  { lat: 48.31782, lng: 2.09916 },
+  { lat: 47.56587, lng: 2.838290000000001 },
+  { lat: 51.08055000000001, lng: 1.18633 },
+  { lat: 51.68918, lng: 0.42655 },
+  { lat: 51.77384000000001, lng: 0.5748 },
+  { lat: 51.25381, lng: 0.65022 },
+  { lat: 50.6257, lng: 2.5515 },
+  { lat: 47.57672, lng: 3.77599 },
+  { lat: 47.5716, lng: 3.77813 },
+  { lat: 47.50456, lng: 3.99749 },
+  { lat: 48.2045, lng: 5.13867 },
+  { lat: 48.09348, lng: 5.15258 },
+  { lat: 48.24119, lng: 5.12246 },
+  { lat: 48.36677, lng: 5.14871 },
+  { lat: 47.86064999999999, lng: 5.48747 },
+  { lat: 47.58603, lng: 5.54679 },
+  { lat: 48.72129, lng: 4.74875 },
+  { lat: 49.48318, lng: 5.51141 },
+  { lat: 48.6741, lng: 5.85237 },
+  { lat: 48.67958, lng: 5.89588 },
+  { lat: 49.96941, lng: 3.4392 },
+  { lat: 49.89807, lng: 4.09854 },
+  { lat: 50.8231, lng: 5.92528 },
+  { lat: 50.82132, lng: 5.99982 },
+  { lat: 51.0059, lng: 5.86005 },
+  { lat: 51.55985, lng: 5.09168 },
+  { lat: 51.56505000000001, lng: 5.05119 },
+  { lat: 51.56115, lng: 5.10362 },
+  { lat: 51.24811, lng: 5.71483 },
+  { lat: 52.6174, lng: 1.44881 },
+  { lat: 43.23473, lng: 6.08364 },
+  { lat: 43.39595, lng: 6.33187 },
+  { lat: 44.05405, lng: 6.16956 },
+  { lat: 44.45145, lng: 6.2402 },
+  { lat: 43.5421, lng: 6.93661 },
+  { lat: 43.66999, lng: 7.215550000000001 },
+  { lat: 43.73072, lng: 7.287569999999999 },
+  { lat: 43.80968, lng: 7.36123 },
+  { lat: 43.87743, lng: 7.19242 },
+  { lat: 43.79386, lng: 7.40077 },
+  { lat: 44.09126, lng: 6.8585 },
+  { lat: 47.20022, lng: 6.16695 },
+  { lat: 46.4942, lng: 6.76624 },
+  { lat: 43.43824, lng: 13.65992 },
+  { lat: 47.63104, lng: 7.05922 },
+  { lat: 48.06107000000001, lng: 6.99484 },
+  { lat: 48.48187000000001, lng: 7.223109999999999 },
+  { lat: 48.67082000000001, lng: 7.71726 },
+  { lat: 52.22184, lng: 6.88719 },
+  { lat: 52.26207, lng: 6.79227 },
+  { lat: 48.61619, lng: 11.53554 },
+  { lat: 48.61185, lng: 11.5736 },
+  { lat: 48.61295, lng: 11.57362 },
+  { lat: 49.44353, lng: 11.05922 },
+  { lat: 50.29097000000001, lng: 11.04239 },
+  { lat: 50.35066999999999, lng: 11.21033 },
+  { lat: 50.70304, lng: 10.86172 },
+  { lat: 53.60261, lng: 9.91855 },
+  { lat: 53.60491, lng: 9.92446 },
+  { lat: 46.18594, lng: 3.39816 },
+  { lat: 44.26873, lng: 5.854630000000001 },
+  { lat: 44.05568, lng: 6.17212 },
+  { lat: 44.44821, lng: 6.240749999999999 },
+  { lat: 44.31613, lng: 5.82558 },
+  { lat: 44.2482, lng: 6.757380000000001 },
+  { lat: 44.09103, lng: 6.8582 },
+  { lat: 43.54167, lng: 6.93647 },
+  { lat: 43.58698, lng: 6.96917 },
+  { lat: 43.54937, lng: 6.99432 },
+  { lat: 43.87768, lng: 7.19213 },
+  { lat: 43.6701, lng: 7.214790000000001 },
+  { lat: 43.79396, lng: 7.400679999999999 },
+  { lat: 43.80305, lng: 7.40491 },
+  { lat: 43.80116, lng: 7.40606 },
+  { lat: 44.71375, lng: 4.61975 },
+  { lat: 43.18377, lng: 2.65618 },
+  { lat: 43.97284, lng: 3.013199999999999 },
+  { lat: 43.6833, lng: 4.63277 },
+  { lat: 43.80644, lng: 4.66718 },
+  { lat: 43.81322, lng: 4.67048 },
+  { lat: 43.40871, lng: 5.00379 },
+  { lat: 43.50213, lng: 5.22303 },
+  { lat: 43.50023, lng: 5.22712 },
+  { lat: 44.91943, lng: 2.28604 },
+  { lat: 47.49567, lng: 5.12525 },
+  { lat: 47.19383, lng: 5.37489 },
+  { lat: 45.97156, lng: 2.48489 },
+  { lat: 45.32144, lng: 0.58648 },
+  { lat: 44.44978, lng: 4.70075 },
+  { lat: 45.07415, lng: 5.49124 },
+  { lat: 44.66424, lng: 5.54538 },
+  { lat: 44.09265, lng: 4.7027 },
+  { lat: 43.44865, lng: 1.63203 },
+  { lat: 43.39486, lng: 3.41431 },
+  { lat: 43.46531, lng: 3.43238 },
+  { lat: 43.62659, lng: 3.89928 },
+  { lat: 46.17121000000001, lng: 3.85808 },
+  { lat: 45.52935, lng: 4.18184 },
+  { lat: 45.09597999999999, lng: 3.49407 },
+  { lat: 44.92466, lng: 1.77785 },
+  { lat: 44.59333, lng: 1.98659 },
+  { lat: 44.3057, lng: 3.25775 },
+  { lat: 44.33754, lng: 3.36176 },
+  { lat: 47.6791, lng: 5.29753 },
+  { lat: 47.80809, lng: 5.44691 },
+  { lat: 50.58331, lng: 3.05287 },
+  { lat: 50.39685, lng: 3.44974 },
+  { lat: 50.3883, lng: 3.519280000000001 },
+  { lat: 49.99357, lng: 4.08905 },
+  { lat: 49.9937, lng: 4.08993 },
+  { lat: 50.63514, lng: 1.74742 },
+  { lat: 50.62562, lng: 2.55141 },
+  { lat: 50.34038000000001, lng: 2.67809 },
+  { lat: 46.01693, lng: 3.20285 },
+  { lat: 45.9289, lng: 3.23151 },
+  { lat: 43.37154, lng: -1.74503 },
+  { lat: 42.4937, lng: 2.70304 },
+  { lat: 45.77419, lng: 4.36481 },
+  { lat: 46.06729, lng: 4.72004 },
+  { lat: 45.87838, lng: 4.82732 },
+  { lat: 45.75372, lng: 4.86066 },
+  { lat: 47.58585, lng: 5.54673 },
+  { lat: 47.227, lng: 2.05528 },
+  { lat: 45.03766, lng: 0.12978 },
+  { lat: 46.07036000000001, lng: -0.5133 },
+  { lat: 46.75509, lng: -0.7819500000000001 },
+  { lat: 46.78189, lng: -0.5594 },
+  { lat: 46.86194, lng: 0.29364 },
+  { lat: 43.63394, lng: 0.89385 },
+  { lat: 43.12024, lng: 1.61817 },
+  { lat: 43.44909, lng: 1.63144 },
+  { lat: 43.58571, lng: 1.45572 },
+  { lat: 42.4941, lng: 2.70211 },
+  { lat: 43.94513, lng: 2.986489999999999 },
+  { lat: 44.36153, lng: 2.59953 },
+  { lat: 44.33316, lng: 3.032010000000001 },
+  { lat: 43.33337, lng: 3.21172 },
+  { lat: 45.15459, lng: 0.47202 },
+  { lat: 45.32135000000001, lng: 0.58635 },
+  { lat: 45.02734, lng: 0.65445 },
+  { lat: 45.88146999999999, lng: 0.89879 },
+  { lat: 45.60419, lng: 1.02448 },
+  { lat: 45.68799, lng: 1.17888 },
+  { lat: 45.69524, lng: 1.17811 },
+  { lat: 45.84314, lng: 1.25432 },
+  { lat: 45.15156, lng: 1.50186 },
+  { lat: 45.60049, lng: 1.4973 },
+  { lat: 46.12839, lng: 1.39159 },
+  { lat: 46.13538999999999, lng: 1.30722 },
+  { lat: 47.02059999999999, lng: 0.59555 },
+  { lat: 46.8104, lng: 1.70198 },
+  { lat: 45.6691, lng: 2.01711 },
+  { lat: 46.33976000000001, lng: 2.593 },
+  { lat: 46.90218999999999, lng: 3.06771 },
+  { lat: 43.46517, lng: 3.431690000000001 },
+  { lat: 44.30663, lng: 3.25426 },
+  { lat: 44.33663, lng: 3.3623 },
+  { lat: 43.77963, lng: 4.19458 },
+  { lat: 44.28407, lng: 4.12144 },
+  { lat: 43.27884, lng: 5.39925 },
+  { lat: 43.2815, lng: 5.40486 },
+  { lat: 43.40878, lng: 5.00389 },
+  { lat: 43.56945, lng: 5.01706 },
+  { lat: 43.57682, lng: 5.01325 },
+  { lat: 43.42739, lng: 5.38535 },
+  { lat: 44.31601, lng: 5.82549 },
+  { lat: 45.04972, lng: 3.90979 },
+  { lat: 46.4055, lng: 4.21305 },
+  { lat: 45.93375, lng: 5.85422 },
+  { lat: 46.82086999999999, lng: 4.8732 },
+  { lat: 46.82385, lng: 4.87697 },
+  { lat: 46.39359, lng: 5.32958 },
+  { lat: 47.19392, lng: 5.37498 },
+  { lat: 46.90454, lng: 5.77444 },
+  { lat: 46.94617999999999, lng: 5.7804 },
+  { lat: 46.94886, lng: 5.81929 },
+  { lat: 47.01793000000001, lng: 5.78601 },
+  { lat: 47.66916, lng: 0.32157 },
+  { lat: 48.09237, lng: 0.108 },
+  { lat: 48.49972, lng: 0.12561 },
+  { lat: 47.99689, lng: 0.18763 },
+  { lat: 51.09810899999999, lng: 16.994628 },
+  { lat: 52.42280000000001, lng: 16.98065 },
+  { lat: 54.480419, lng: 17.025395 },
+  { lat: 51.10086, lng: 17.01377 },
+  { lat: 51.10088, lng: 17.01347 },
+  { lat: 52.320805, lng: 16.884485 },
+  { lat: 50.59066800000001, lng: 16.817834 },
+  { lat: 48.91942, lng: 16.68356 },
+  { lat: 52.41604, lng: 16.93943 },
+  { lat: 52.41329999999999, lng: 16.91615 },
+  { lat: 48.75135999999999, lng: 16.89083 },
+  { lat: 51.071124, lng: 17.032345 },
+  { lat: 49.48328, lng: 17.3354 },
+  { lat: 51.04910900000001, lng: 17.231642 },
+  { lat: 54.50083300000001, lng: 17.226067 },
+  { lat: 52.60321999999999, lng: 17.45948 },
+  { lat: 50.31738900000001, lng: 17.396918 },
+  { lat: 50.471205, lng: 17.345139 },
+  { lat: 51.14358799999999, lng: 17.081235 },
+  { lat: 51.071294, lng: 17.053433 },
+  { lat: 51.07115, lng: 17.039272 },
+  { lat: 49.34573999999999, lng: 17.20277 },
+  { lat: 49.72771999999999, lng: 17.0819 },
+  { lat: 51.142046, lng: 17.08159 },
+  { lat: 54.35612, lng: 16.67822 },
+  { lat: 52.13534300000001, lng: 16.20067 },
+  { lat: 52.64294899999999, lng: 16.171654 },
+  { lat: 51.21316, lng: 16.16393 },
+  { lat: 49.01314000000001, lng: 16.34678 },
+  { lat: 50.798828, lng: 16.290826 },
+  { lat: 50.75656, lng: 16.230515 },
+  { lat: 53.530779, lng: 15.998162 },
+  { lat: 50.79336, lng: 15.81641 },
+  { lat: 52.23803599999999, lng: 15.815634 },
+  { lat: 50.78516999999999, lng: 16.13216 },
+  { lat: 50.34202, lng: 16.11689 },
+  { lat: 50.92684500000001, lng: 16.075202 },
+  { lat: 50.9622, lng: 16.35227 },
+  { lat: 49.12436, lng: 16.66274 },
+  { lat: 49.17428, lng: 16.61507 },
+  { lat: 52.04587200000001, lng: 16.610796 },
+  { lat: 49.27804, lng: 16.67444 },
+  { lat: 49.24638, lng: 16.67408 },
+  { lat: 49.27158, lng: 16.66661 },
+  { lat: 50.39807999999999, lng: 16.49324 },
+  { lat: 50.52397300000001, lng: 16.492237 },
+  { lat: 53.621453, lng: 16.452346 },
+  { lat: 53.769782, lng: 16.537394 },
+  { lat: 50.52452199999999, lng: 16.509069 },
+  { lat: 47.32265, lng: 4.92495 },
+  { lat: 50.323506, lng: 18.785666 },
+  { lat: 51.61397900000001, lng: 18.781572 },
+  { lat: 50.42808399999999, lng: 18.769559 },
+  { lat: 50.78844, lng: 18.86339 },
+  { lat: 51.60728, lng: 18.80975 },
+  { lat: 50.325908, lng: 18.790461 },
+  { lat: 50.307333, lng: 18.663674 },
+  { lat: 49.967342, lng: 18.662651 },
+  { lat: 53.48332, lng: 18.74579 },
+  { lat: 50.313755, lng: 18.700797 },
+  { lat: 50.31596, lng: 18.68099 },
+  { lat: 50.13024, lng: 18.86624 },
+  { lat: 50.27886, lng: 18.94313 },
+  { lat: 50.260015, lng: 18.935979 },
+  { lat: 50.28341000000001, lng: 18.93583 },
+  { lat: 50.3303, lng: 19.0103 },
+  { lat: 50.216551, lng: 18.981128 },
+  { lat: 51.695594, lng: 18.958235 },
+  { lat: 50.29066, lng: 18.91435 },
+  { lat: 50.3019, lng: 18.88507 },
+  { lat: 50.44995200000001, lng: 18.866676 },
+  { lat: 50.28446, lng: 18.93548 },
+  { lat: 51.096118, lng: 18.921187 },
+  { lat: 50.342548, lng: 18.917135 },
+  { lat: 53.573445, lng: 18.608823 },
+  { lat: 54.1309, lng: 17.95304 },
+  { lat: 50.081178, lng: 17.924762 },
+  { lat: 50.33705, lng: 17.849729 },
+  { lat: 49.18376, lng: 18.05936 },
+  { lat: 52.62497999999999, lng: 18.00761 },
+  { lat: 53.1348, lng: 17.96564 },
+  { lat: 51.42906, lng: 17.652721 },
+  { lat: 51.97242, lng: 17.49464 },
+  { lat: 50.85572, lng: 17.461988 },
+  { lat: 50.323475, lng: 17.801517 },
+  { lat: 53.600831, lng: 17.75435 },
+  { lat: 49.22946, lng: 17.6702 },
+  { lat: 51.74407800000001, lng: 18.07922 },
+  { lat: 52.55899400000001, lng: 18.508048 },
+  { lat: 50.26821, lng: 18.426958 },
+  { lat: 50.644214, lng: 18.362807 },
+  { lat: 54.41531999999999, lng: 18.56996 },
+  { lat: 50.06776799999999, lng: 18.549367 },
+  { lat: 52.31476, lng: 18.197401 },
+  { lat: 52.323089, lng: 18.191741 },
+  { lat: 50.352216, lng: 18.166413 },
+  { lat: 53.40592299999999, lng: 18.339068 },
+  { lat: 52.30572799999999, lng: 18.238077 },
+  { lat: 50.29616, lng: 19.02518 },
+  { lat: 52.22032000000001, lng: 21.08939 },
+  { lat: 52.23516000000001, lng: 21.079152 },
+  { lat: 52.247664, lng: 21.04398 },
+  { lat: 51.38958000000001, lng: 21.151264 },
+  { lat: 54.178502, lng: 21.112273 },
+  { lat: 52.23328, lng: 21.09668 },
+  { lat: 49.623586, lng: 20.944263 },
+  { lat: 52.22629, lng: 20.941854 },
+  { lat: 54.225849, lng: 20.84085 },
+  { lat: 52.240461, lng: 21.040872 },
+  { lat: 52.43586, lng: 20.98982 },
+  { lat: 50.00546, lng: 20.96972 },
+  { lat: 51.010754, lng: 21.153836 },
+  { lat: 50.066605, lng: 22.545447 },
+  { lat: 51.30942, lng: 22.26068 },
+  { lat: 51.32434, lng: 22.23836 },
+  { lat: 53.207864, lng: 22.773335 },
+  { lat: 53.13556, lng: 22.74182 },
+  { lat: 51.22351, lng: 22.69671 },
+  { lat: 53.801717, lng: 21.562473 },
+  { lat: 53.802825, lng: 21.501507 },
+  { lat: 50.52872799999999, lng: 21.478231 },
+  { lat: 50.053489, lng: 21.99673 },
+  { lat: 50.054699, lng: 21.993758 },
+  { lat: 53.84286000000001, lng: 21.78944 },
+  { lat: 54.220004, lng: 20.522566 },
+  { lat: 51.841226, lng: 19.417802 },
+  { lat: 51.86849999999999, lng: 19.396911 },
+  { lat: 50.37388, lng: 19.27031 },
+  { lat: 51.674589, lng: 19.47608 },
+  { lat: 51.069315, lng: 19.434718 },
+  { lat: 51.852818, lng: 19.428932 },
+  { lat: 50.259085, lng: 19.094219 },
+  { lat: 52.656983, lng: 19.056006 },
+  { lat: 51.524014, lng: 19.035117 },
+  { lat: 50.28524, lng: 19.13858 },
+  { lat: 50.32291, lng: 19.10678 },
+  { lat: 50.28724, lng: 19.106642 },
+  { lat: 53.520444, lng: 19.551599 },
+  { lat: 54.06905499999999, lng: 20.089053 },
+  { lat: 50.04569999999999, lng: 19.96493 },
+  { lat: 50.048892, lng: 19.932547 },
+  { lat: 49.696884, lng: 20.463546 },
+  { lat: 50.85727, lng: 20.221608 },
+  { lat: 54.10174, lng: 20.131628 },
+  { lat: 52.5658, lng: 19.71272 },
+  { lat: 53.574085, lng: 19.567589 },
+  { lat: 53.568233, lng: 19.5673 },
+  { lat: 49.93718, lng: 19.8953 },
+  { lat: 52.032687, lng: 19.859282 },
+  { lat: 51.25475599999999, lng: 15.120743 },
+  { lat: 50.90541999999999, lng: 15.1058 },
+  { lat: 51.742873, lng: 15.071406 },
+  { lat: 50.7365, lng: 15.28682 },
+  { lat: 51.50304, lng: 15.194 },
+  { lat: 51.63506, lng: 15.135603 },
+  { lat: 52.345725, lng: 14.850613 },
+  { lat: 53.55532, lng: 14.83808 },
+  { lat: 52.341124, lng: 14.828691 },
+  { lat: 51.666853, lng: 15.012374 },
+  { lat: 51.142229, lng: 15.010818 },
+  { lat: 52.24092599999999, lng: 14.971048 },
+  { lat: 51.62777500000001, lng: 15.288597 },
+  { lat: 50.67644, lng: 15.45593 },
+  { lat: 51.59728999999999, lng: 15.327905 },
+  { lat: 51.5966, lng: 15.32714 },
+  { lat: 50.90655999999999, lng: 15.74519 },
+  { lat: 50.915819, lng: 15.733272 },
+  { lat: 52.25459300000001, lng: 15.476826 },
+  { lat: 51.61134999999999, lng: 15.30362 },
+  { lat: 51.60802, lng: 15.301198 },
+  { lat: 51.61442, lng: 15.299938 },
+  { lat: 49.31328000000001, lng: 15.32672 },
+  { lat: 50.73936, lng: 15.30836 },
+  { lat: 50.7858, lng: 14.8199 },
+  { lat: 50.65358, lng: 14.00138 },
+  { lat: 50.59238, lng: 13.65947 },
+  { lat: 50.61622, lng: 14.0783 },
+  { lat: 50.66018, lng: 14.04596 },
+  { lat: 50.58088000000001, lng: 14.0378 },
+  { lat: 49.44878, lng: 13.28849 },
+  { lat: 49.1304, lng: 13.21886 },
+  { lat: 49.74263999999999, lng: 13.38599 },
+  { lat: 49.30284, lng: 13.30541 },
+  { lat: 49.38536, lng: 13.29692 },
+  { lat: 50.05664000000001, lng: 14.45969 },
+  { lat: 50.06246, lng: 14.45474 },
+  { lat: 50.08729999999999, lng: 14.44322 },
+  { lat: 52.592383, lng: 14.65079 },
+  { lat: 53.57104000000001, lng: 14.55338 },
+  { lat: 50.06658, lng: 14.49326 },
+  { lat: 50.50304000000001, lng: 14.30009 },
+  { lat: 49.31188, lng: 14.1611 },
+  { lat: 50.99186, lng: 14.2925 },
+  { lat: 49.31188, lng: 14.1611 },
+  { lat: 52.301186, lng: 15.77424 },
+  { lat: 51.071799, lng: 17.011316 },
+  { lat: 49.448678, lng: 17.441954 }
+];
+// Функція додавання
+function addHeightMarkers(points, icon, height) {
+
+  points.forEach(p => {
+
+    const popup = `
+      <b>⚠️ Обмеження висоти</b><br>
+      Максимальна висота: ${height}
+      ${p.desc ? `<br><br>${p.desc}` : ''}
+    `;
+
+    const marker = L.marker([p.lat, p.lng], { icon })
+      .addTo(heightLayer);
+
+    marker.bindPopup(popup, {
+      offset: [0, -40]
+    });
+
+  });
+
+}
+// Відображення
+addHeightMarkers(height31, icon31, "3.1 м");
+addHeightMarkers(height37, icon37, "3.7 м");
+addHeightMarkers(height38, icon38, "3.8 м");
+
+function updateHeightVisibility() {
+    const zoom = map.getZoom();
+
+    // показувати шар тільки при зумі 10+
+    if (zoom >= 11) {
+        if (!map.hasLayer(heightLayer)) {
+            map.addLayer(heightLayer);
+        }
+    } else {
+        if (map.hasLayer(heightLayer)) {
+            map.removeLayer(heightLayer);
+        }
+    }
+}
+
+updateHeightVisibility();
+
+map.on('zoomend', updateHeightVisibility);
+
+// ===== Виділена дорога =====
+const highlightedRoadCoords = [
+  [49.767888, 18.637699],
+  [49.770259, 18.637543],
+  [49.780329, 18.631721],
+  [49.782479, 18.628270],
+  [49.783530, 18.627860],
+  [49.784384, 18.627884],
+  [49.787169, 18.629024],
+  [49.796813, 18.636988],
+  [49.796913, 18.636608],
+  [49.801978, 18.633461],
+  [49.801234, 18.626948],
+  [49.801487, 18.626126],
+  [49.802005, 18.625492],
+  [49.802477, 18.622463], 
+  [49.802787, 18.613922],
+  [49.803947, 18.613210],
+  [49.804935, 18.611089],
+  [49.805149, 18.607608],
+  [49.803441, 18.599730],
+  [49.805366, 18.598896],
+  [49.805787, 18.599050],
+  [49.806200, 18.598852],
+  [49.806043, 18.598092],
+  [49.806007, 18.597618],
+  [49.807100, 18.597112], 
+  [49.811129, 18.595940],
+  [49.812242, 18.595935],
+  [49.813317, 18.594641],
+  [49.816723, 18.596047], 
+  [49.821214, 18.596252],
+  [49.821770, 18.595901],
+  [49.822303, 18.596085],
+  [49.825741, 18.592114],
+  [49.825414, 18.591484],
+];
+
+const highlightedRoad = L.polyline(highlightedRoadCoords, {
+  color: '#0066ff',   //  колір дороги
+  weight: 6,          // товщина
+  opacity: 0.9,
+  lineJoin: 'round',
+  dashArray: null     // можна "10,10" для пунктиру
+}).addTo(map);
+
+// 🔹 Google Hybrid (супутник + назви)
+const googleHybrid = L.tileLayer(
+  'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', 
+  {
+    maxZoom: 20,
+    attribution: '&copy; <a href="https://www.google.com/maps">Google Maps</a>'
+  }
+);
+
+// 🔹 Google Roadmap (світла)
+const googleMap = L.tileLayer(
+  'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', 
+  {
+    maxZoom: 20,
+    attribution: '&copy; <a href="https://www.google.com/maps">Google Maps</a>'
+  }
+).addTo(map); // ✅ додаємо світлу карту одразу
+
+// 🔹 OpenStreetMap (резервний варіант)
+const osmLayer = L.tileLayer(
+  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', 
+  {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }
+);
+
+// 🔘 Перемикач шарів
+let currentLayer = googleMap; // ✅ поточний шар — світла карта
+document.getElementById('layerBtn').onclick = () => {
+  map.removeLayer(currentLayer);
+
+  if (currentLayer === googleMap) {
+    map.addLayer(googleHybrid);
+    document.getElementById('layerBtn').textContent = "🛰️";
+    currentLayer = googleHybrid;
+  } else {
+    map.addLayer(googleMap);
+    document.getElementById('layerBtn').textContent = "🗺️";
+    currentLayer = googleMap;
+  }
+};
+
+
+
+// ----------------- Геолокація з анімацією -----------------
+document.getElementById('locateBtn').onclick = () => {
+  const btn = document.getElementById('locateBtn');
+  btn.classList.add('active');
+
+  if (!navigator.geolocation) {
+    alert("Геолокація не підтримується вашим браузером.");
+    btn.classList.remove('active');
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(pos => {
+    const { latitude, longitude } = pos.coords;
+    map.setView([latitude, longitude], 15);
+    if (window.userMarker) window.userMarker.setLatLng([latitude, longitude]);
+    else window.userMarker = L.circleMarker([latitude, longitude], {
+      radius: 8,
+      color: '#fff',
+      fillColor: '#3399ff',
+      fillOpacity: 0.8
+    }).addTo(map).bindPopup("Моє місце").openPopup();
+
+    btn.classList.remove('active');
+  }, () => {
+    alert("Не вдалося визначити місцезнаходження.");
+    btn.classList.remove('active');
+  }, { enableHighAccuracy: true });
+};
+
+
+
+// ----------------- Лічильники -----------------
+const mapViewsRef=db.ref('mapViews');
+const markersRef=db.ref('markers');
+mapViewsRef.transaction(c=>(c||0)+1);
+
+const counterDiv=L.control({position:'topright'});
+counterDiv.onAdd=function(){ 
+  this._div=L.DomUtil.create('div','map-counter'); 
+  this.update(0,0); 
+  return this._div; 
+};
+counterDiv.update=function(views, count){ 
+  this._div.innerHTML=`👁️ ${views} | 📌 ${count}`; 
+};
+counterDiv.addTo(map);
+
+let markerCount = 0;
+mapViewsRef.on('value',snap=>counterDiv.update(snap.val()||0, markerCount));
+markersRef.on('value',snap=>{
+  markerCount = snap.numChildren();
+  mapViewsRef.once('value').then(vsnap=>{ counterDiv.update(vsnap.val()||0, markerCount); });
+});
+
+// ----------------- Маркери -----------------
+const markers = {};
+let isAdmin=false;
+let pendingLatLng=null;
+const ADMIN_PASSWORD="12345";
+
+function addMarkerToMap(id, data) {
+  const icon = data.icon ? L.icon({ iconUrl: data.icon, iconSize: [35,35], iconAnchor:[20,40] }) : undefined;
+  
+  const popupDiv = document.createElement('div');
+  popupDiv.style.textAlign = 'center';
+  popupDiv.innerHTML = `<b style="color:#007bff;">${data.title}</b><br>${data.desc}`;
+
+  // Контейнер для кнопок
+  const btnContainer = document.createElement('div');
+  btnContainer.className = 'share-btn-container';
+
+  // --- Кнопка "Маршрут" ---
+  const routeBtn = document.createElement('button');
+  routeBtn.className = 'share-btn route';
+  routeBtn.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M19.44 9.03L4.56 4.57a.75.75 0 00-.95.95l4.46 14.88a.75.75 0 001.38.13l2.78-5.09 5.09-2.78a.75.75 0 00-.13-1.38z"/>
+    </svg>
+    Маршрут
+  `;
+  routeBtn.onclick = async () => {
+    if (!window.userMarker) { alert("Спершу натисніть 'Моє місце'"); return; }
+    const latlng = window.userMarker.getLatLng();
+    const url = `https://www.google.com/maps/dir/${latlng.lat},${latlng.lng}/${data.lat},${data.lng}`;
+    window.open(url, "_blank");
+  };
+  btnContainer.appendChild(routeBtn);
+
+  // --- Кнопка "Поділитися" ---
+  const shareBtn = document.createElement('button');
+  shareBtn.className = 'share-btn share';
+  shareBtn.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7a2.48 2.48 0 000-1.39l7.02-4.11A2.5 2.5 0 1014.5 5a2.5 2.5 0 00.04.42L7.53 9.53a2.5 2.5 0 100 4.94l7.01 4.12A2.5 2.5 0 1018 16.08z"/>
+    </svg>
+    Поділитися
+  `;
+  shareBtn.onclick = async () => {
+    const shareText = `📍 ${data.title}\n${data.desc}`;
+    if (navigator.share) {
+      try { await navigator.share({ text: shareText }); } 
+      catch(e) { alert("Помилка шарингу"); }
+    } else {
+      navigator.clipboard.writeText(shareText);
+      alert("Текст скопійовано");
+    }
+  };
+  btnContainer.appendChild(shareBtn);
+  db.ref(`markers/${id}/reviews`).once("value").then(snap => {
+
+    const count = snap.exists() ? snap.numChildren() : 0;
+
+    reviewBtn.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M21 6h-2v9H5v2c0 .55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1zM17 2H3c-.55 0-1 .45-1 1v13l4-4h11c.55 0 1-.45 1-1-1V3c0-.55-.45-1-1-1z"/>
+    </svg>
+    Відгуки (${count})
+    `;
+
+});
+
+  // --- 🗨️ Кнопка "Відгуки" ---
+  const reviewBtn = document.createElement('button');
+  reviewBtn.className = 'share-btn';
+  reviewBtn.style.background = 'linear-gradient(135deg, #ff9800, #f57c00)';
+  reviewBtn.innerHTML = `
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M21 6h-2v9H5v2c0 .55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1zM17 2H3c-.55 0-1 .45-1 1v13l4-4h11c.55 0 1-.45 1-1V3c0-.55-.45-1-1-1z"/>
+  </svg>
+  Відгуки (<span id="reviewCount_${id}">0</span>)
+`;
+  reviewBtn.onclick = () => openReviewsWindow(id, data.title);
+  btnContainer.appendChild(reviewBtn);
+
+  popupDiv.appendChild(btnContainer);
+
+  const marker = L.marker([data.lat, data.lng], icon ? { icon } : {})
+    .addTo(map)
+    .bindPopup(popupDiv, { closeButton: true, offset: [0, -40] });
+  marker.options.data = data;
+markers[id] = marker;
+// 🔹 Лічильник відгуків
+db.ref(`markers/${id}/reviews`).on("value", snapshot => {
+
+    const count = snapshot.exists() ? snapshot.numChildren() : 0;
+
+    const span = document.getElementById(`reviewCount_${id}`);
+
+    if (span) {
+        span.textContent = count;
+    }
+
+});
+
+  // Підсвічування
+  marker.on('click', () => {
+    Object.values(markers).forEach(m => {
+      if (m.getElement()) m.getElement().style.outline = '';
+    });
+    if (marker.getElement()) {
+      marker.getElement().style.outline = '4px solid white';
+      marker.getElement().style.outlineOffset = '4px';
+      marker.getElement().style.borderRadius = '50%';
+    }
+  });
+
+  if (isAdmin) marker.on('click', () => openEditWindow(id, data));
+}
+
+function refreshAdminClicks(){ 
+  for(const [id, marker] of Object.entries(markers)){ 
+    marker.off('click'); 
+    if(isAdmin) marker.on('click',()=>openEditWindow(id, marker.options.data)); 
+  } 
+}
+
+document.addEventListener("click", (e) => {
+  if (e.target.classList.contains("review-media")) {
+    const full = document.getElementById("imgFullScreen");
+    const fsImg = document.getElementById("fsImg");
+    fsImg.src = e.target.src;
+    full.style.display = "flex";
+  }
+});
+
+document.getElementById("imgFullScreen").onclick = () => {
+  document.getElementById("imgFullScreen").style.display = "none";
+};
+
+
+// ----------------- Firebase sync -----------------
+markersRef.on('child_added',snap=>{ if(!markers[snap.key]) addMarkerToMap(snap.key,snap.val()); });
+markersRef.on('child_changed',snap=>{ if(markers[snap.key]){ map.removeLayer(markers[snap.key]); addMarkerToMap(snap.key,snap.val()); } });
+markersRef.on('child_removed',snap=>{ if(markers[snap.key]){ map.removeLayer(markers[snap.key]); delete markers[snap.key]; } });
+
+// Loader
+const loader = document.getElementById('loader');
+markersRef.once('value').then(snap => { setTimeout(()=>{ loader.classList.add('hidden-loader'); },300); });
+
+// Автоцентр
+markersRef.once('value').then(snap=>{
+  const data=snap.val();
+  if(!data) return;
+  const latlngs=Object.values(data).map(m=>[m.lat,m.lng]);
+  if(latlngs.length>0) map.fitBounds(latlngs,{padding:[-50,10]});
+});
+
+// ----------------- Адмін -----------------
+document.getElementById('adminBtn').onclick=()=>{
+  if (isAdmin) {
+    isAdmin=false; refreshAdminClicks(); map.off('dblclick'); 
+    document.getElementById('adminBtn').textContent="🔑"; 
+    document.getElementById('coordSearch').style.display='none'; 
+    alert("🚪 Ви вийшли з режиму адміністратора."); 
+  } else document.getElementById('loginBox').style.display='flex';
+};
+document.getElementById('loginSubmit').onclick=()=>{ 
+  const pass=document.getElementById('adminPass').value.trim(); 
+  const loginBox=document.getElementById('loginBox'); 
+  const loginMsg=document.getElementById('loginMsg');
+  if(pass===ADMIN_PASSWORD){ 
+    isAdmin=true; loginBox.style.display='none'; 
+    document.getElementById('adminBtn').textContent="🚪"; 
+    enableAdminFunctions(); refreshAdminClicks(); 
+    document.getElementById('coordSearch').style.display='flex'; 
+  } else { 
+    loginMsg.style.color='red'; 
+    loginMsg.innerText="❌ Ви не адмін"; 
+    setTimeout(()=>{ loginMsg.innerText=""; loginBox.style.display='none'; isAdmin=false; refreshAdminClicks(); },3000); 
+  }
+};
+
+// ----------------- Додавання -----------------
+function enableAdminFunctions(){ 
+  map.on('dblclick', e=>{ 
+    pendingLatLng=e.latlng; 
+    document.getElementById('addMarkerBox').style.display='flex'; 
+  }); 
+}
+document.getElementById('addMarkerCancel').onclick=()=>{ document.getElementById('addMarkerBox').style.display='none'; pendingLatLng=null; };
+document.getElementById('addMarkerConfirm').onclick=()=>{
+  if(!isAdmin){ alert("Тільки адмін може додавати точки!"); return; }
+  const title=document.getElementById('markerTitle').value.trim();
+  const desc=document.getElementById('markerDesc').value.trim();
+  const file=document.getElementById('markerIcon').files[0];
+  if(!pendingLatLng||!title||!desc){ alert("Заповніть усі поля!"); return; }
+
+  const newData={lat: pendingLatLng.lat, lng: pendingLatLng.lng, title, desc};
+  const pushToFirebase=(data)=>{ db.ref('markers').push().set(data); }
+
+  if(file){
+    const reader=new FileReader();
+    reader.onload=e=>{ newData.icon=e.target.result; pushToFirebase(newData); };
+    reader.readAsDataURL(file);
+  } else { pushToFirebase(newData); }
+
+  document.getElementById('addMarkerBox').style.display='none';
+  document.getElementById('markerTitle').value="";
+  document.getElementById('markerDesc').value="";
+  document.getElementById('markerIcon').value="";
+  pendingLatLng=null;
+};
+
+// ----------------- Редагування -----------------
+let currentEditId=null;
+function openEditWindow(id,data){ 
+  currentEditId=id; 
+  document.getElementById('editTitle').value=data.title; 
+  document.getElementById('editDesc').value=data.desc; 
+  document.getElementById('editMarkerBox').style.display='flex'; 
+}
+document.getElementById('editCancel').onclick=()=>{document.getElementById('editMarkerBox').style.display='none';currentEditId=null;};
+document.getElementById('editDelete').onclick=()=>{ 
+  if(confirm("Видалити цю точку?")){ 
+    db.ref('markers/'+currentEditId).remove(); 
+    document.getElementById('editMarkerBox').style.display='none'; 
+  } 
+};
+document.getElementById('editSave').onclick=()=>{ 
+  const title=document.getElementById('editTitle').value.trim(); 
+  const desc=document.getElementById('editDesc').value.trim(); 
+  const file=document.getElementById('editIcon').files[0];
+  if(!title||!desc){ alert("Заповніть усі поля!"); return; }
+
+  const updateMarker = (data)=>{ db.ref('markers/'+currentEditId).update(data); document.getElementById('editMarkerBox').style.display='none'; }
+
+  if(file){
+    const reader=new FileReader();
+    reader.onload=e=>{ updateMarker({title, desc, icon:e.target.result}); };
+    reader.readAsDataURL(file);
+  } else { updateMarker({title, desc}); }
+};
+
+// ----------------- Пошук по координатах -----------------
+let tempAddMarker = null;
+document.getElementById('goToCoord').onclick = () => { 
+  const lat = parseFloat(document.getElementById('latInput').value); 
+  const lng = parseFloat(document.getElementById('lngInput').value);
+  if (isNaN(lat) || isNaN(lng)) { alert("Введіть правильні координати!"); return; }
+
+  map.setView([lat,lng], 15);
+  if(tempAddMarker) tempAddMarker.setLatLng([lat,lng]);
+  else tempAddMarker = L.marker([lat,lng], {draggable:true}).addTo(map).bindPopup("Точка для додавання").openPopup();
+  pendingLatLng = {lat, lng};
+};
+
+// ----- ВІДГУКИ -----
+const reviewsBox = document.getElementById('reviewsBox');
+const reviewsList = document.getElementById('reviewsList');
+const newReview = document.getElementById('newReview');
+const reviewAuthor = document.getElementById('reviewAuthor');
+const addReviewBtn = document.getElementById('addReviewBtn');
+const closeReviewsBtn = document.getElementById('closeReviewsBtn');
+
+const fsImg = document.getElementById('fsImg');
+const mediaFullScreen = document.getElementById('imgFullScreen');
+let currentReviewId = null;
+
+// Тут потрібно визначити користувача. Наприклад, просто по імені з input:
+let currentUserId = null; // Можна замінити на авторизацію
+
+// Відкриття вікна відгуків
+function openReviewsWindow(markerId, title) {
+  currentReviewId = markerId;
+  document.getElementById('reviewsTitle').innerText = `Відгуки — ${title}`;
+  reviewsBox.style.display = 'flex';
+  loadReviews(markerId);
+}
+
+// Завантаження відгуків з Firebase
+function loadReviews(markerId) {
+  const ref = db.ref(`markers/${markerId}/reviews`);
+  ref.off();
+  ref.on('value', snap => {
+    reviewsList.innerHTML = '';
+    if (!snap.exists()) {
+      reviewsList.innerHTML = '<p style="text-align:center; color:#777;">(немає відгуків)</p>';
+      return;
+    }
+
+    snap.forEach(child => {
+      const r = child.val();
+      const reviewId = child.key;
+
+      const div = document.createElement('div');
+      div.style.borderBottom = '1px solid #ddd';
+      div.style.padding = '6px 0';
+
+      div.innerHTML = `<b>👤 ${r.author || 'Анонім'}</b> 
+                       <span style="color:#777;">(${r.date || ''})</span><br>
+                       <span class="review-text">${r.text}</span>`;
+
+      // Фото/Відео
+      if (r.file) {
+        if (r.file.startsWith("data:video")) {
+          const video = document.createElement("video");
+          video.src = r.file;
+          video.controls = true;
+          video.style.width = "100%";
+          video.style.borderRadius = "6px";
+          video.style.marginTop = "6px";
+          video.className = "review-media";
+          div.appendChild(video);
+        } else if (r.file.startsWith("data:image")) {
+          const img = document.createElement("img");
+          img.src = r.file;
+          img.className = "review-media";
+          img.style.maxWidth = "100%";
+          img.style.borderRadius = "6px";
+          img.style.marginTop = "6px";
+          img.style.cursor = "zoom-in";
+          div.appendChild(img);
+        }
+      }
+
+      // Кнопки редагування/видалення
+      const canEdit = isAdmin || r.authorId === currentUserId;
+      if (canEdit) {
+        const editBtn = document.createElement('button');
+        editBtn.textContent = '✏️';
+        editBtn.style.cssText = 'margin-left:6px; cursor:pointer;';
+        editBtn.onclick = () => editReview(markerId, reviewId, div, r.text);
+        div.appendChild(editBtn);
+      }
+console.log("isAdmin =", isAdmin);
+      if (isAdmin) {
+        const delBtn = document.createElement('button');
+        delBtn.textContent = '❌';
+        delBtn.style.cssText = 'margin-left:6px; cursor:pointer; color:red;';
+        delBtn.onclick = () => {
+          if (confirm("Видалити цей відгук?")) {
+            db.ref(`markers/${markerId}/reviews/${reviewId}`).remove();
+          }
+        };
+        div.appendChild(delBtn);
+      }
+
+      reviewsList.appendChild(div);
+    });
+  });
+}
+
+// Редагування відгуку
+function editReview(markerId, reviewId, div, oldText) {
+  const span = div.querySelector('.review-text');
+  span.innerHTML = `<textarea style="width:100%">${oldText}</textarea>
+                    <button style="margin-top:4px;">Зберегти</button>
+                    <button style="margin-top:4px;">Скасувати</button>`;
+
+  const textarea = span.querySelector('textarea');
+  const saveBtn = span.querySelector('button:nth-of-type(1)');
+  const cancelBtn = span.querySelector('button:nth-of-type(2)');
+
+  saveBtn.onclick = () => {
+    const newText = textarea.value.trim();
+    if (!newText) return alert("Відгук не може бути пустим!");
+    db.ref(`markers/${markerId}/reviews/${reviewId}`).update({ text: newText });
+  };
+
+  cancelBtn.onclick = () => { span.textContent = oldText; };
+}
+
+// Додавання нового відгуку
+addReviewBtn.onclick = () => {
+  const text = newReview.value.trim();
+  const author = reviewAuthor.value.trim() || "Анонім";
+  currentUserId = author; // Проста авторизація по імені
+  const fileInput = document.getElementById('reviewFile');
+  const file = fileInput.files[0];
+
+  if (!text && !file) {
+    alert("Напишіть відгук або додайте медіа!");
+    return;
+  }
+
+  const date = new Date().toLocaleString('uk-UA');
+  const reviewData = { author, authorId: currentUserId, text, date };
+
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      reviewData.file = e.target.result;
+      db.ref(`markers/${currentReviewId}/reviews`).push(reviewData);
+      loadReviews(currentReviewId);
+    };
+    reader.readAsDataURL(file);
+  } else {
+    db.ref(`markers/${currentReviewId}/reviews`).push(reviewData);
+  }
+
+  newReview.value = "";
+  reviewAuthor.value = "";
+  fileInput.value = "";
+};
+
+// Закриття вікна відгуків
+closeReviewsBtn.onclick = () => {
+  reviewsBox.style.display = 'none';
+  currentReviewId = null;
+};
+
+// Повноекранне відкриття медіа
+document.addEventListener("click", (e) => {
+  if (e.target.classList.contains("review-media")) {
+    if (e.target.tagName === 'IMG') {
+      fsImg.src = e.target.src;
+      fsImg.style.display = 'block';
+    } else if (e.target.tagName === 'VIDEO') {
+      const fsVideo = document.createElement('video');
+      fsVideo.src = e.target.src;
+      fsVideo.controls = true;
+      fsVideo.style.maxWidth = '95%';
+      fsVideo.style.maxHeight = '95%';
+      fsVideo.style.borderRadius = '8px';
+      fsVideo.id = 'fsVideo';
+      mediaFullScreen.innerHTML = '';
+      mediaFullScreen.appendChild(fsVideo);
+      fsImg.style.display = 'none';
+    }
+    mediaFullScreen.style.display = 'flex';
+  }
+});
+
+// Закриття повноекранного медіа
+mediaFullScreen.onclick = () => {
+  mediaFullScreen.style.display = 'none';
+  fsImg.src = '';
+  const fsVideo = document.getElementById('fsVideo');
+  if(fsVideo) fsVideo.pause();
+};
+
+
+
+// --- Повноекранне фото ---
+document.addEventListener("click", (e) => {
+  if (e.target.classList.contains("review-media")) {
+    const full = document.getElementById("imgFullScreen");
+    const fsImg = document.getElementById("fsImg");
+    fsImg.src = e.target.src;
+    full.style.display = "flex";
+  }
+});
+
+document.getElementById("imgFullScreen").onclick = () => {
+  document.getElementById("imgFullScreen").style.display = "none";
+};
+</script>
+</body>
+</html>
