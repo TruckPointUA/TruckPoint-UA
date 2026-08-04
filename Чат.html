@@ -337,23 +337,45 @@ auth.onAuthStateChanged(user=>{
 // Дозвіл на сповіщення
 function enableNotifications(){
 
+    console.log("Натиснули 🔔");
+
     if(!("Notification" in window)){
+
+        alert("Ваш браузер не підтримує сповіщення");
         return;
-    }
-
-    if(Notification.permission === "default"){
-
-        Notification.requestPermission().then(permission=>{
-
-            console.log("Дозвіл:", permission);
-
-        });
 
     }
+
+
+    if(Notification.permission === "granted"){
+
+        alert("🔔 Сповіщення вже увімкнені");
+        return;
+
+    }
+
+
+    Notification.requestPermission()
+    .then(permission=>{
+
+        console.log("Статус:",permission);
+
+
+        if(permission==="granted"){
+
+            alert("✅ Сповіщення увімкнені");
+
+        }
+
+        else{
+
+            alert("❌ Сповіщення заборонені");
+
+        }
+
+    });
 
 }
-
-enableNotifications();
 function showMyProfile(){
 
     document.getElementById("myAvatar").src =
