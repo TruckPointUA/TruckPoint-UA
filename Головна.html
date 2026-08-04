@@ -203,6 +203,134 @@ height:150px;
     -ms-user-select: none;
 }
 
+.usersModal{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.45);
+display:none;
+justify-content:center;
+align-items:center;
+z-index:99999;
+}
+
+.usersWindow{
+
+width:95%;
+max-width:500px;
+height:80vh;
+background:#fff;
+border-radius:20px;
+overflow:hidden;
+display:flex;
+flex-direction:column;
+box-shadow:0 20px 40px rgba(0,0,0,.3);
+
+}
+
+.usersHeader{
+
+padding:18px;
+background:linear-gradient(135deg,#0d6efd,#00a2ff);
+color:#fff;
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+}
+
+.usersHeader button{
+
+border:none;
+background:white;
+color:#0d6efd;
+width:36px;
+height:36px;
+border-radius:50%;
+font-size:18px;
+cursor:pointer;
+
+}
+
+#userSearch{
+
+margin:15px;
+padding:12px;
+border-radius:12px;
+border:1px solid #ccc;
+font-size:15px;
+
+}
+
+#usersList{
+
+flex:1;
+overflow:auto;
+padding:10px;
+
+}
+
+.userItem{
+
+display:flex;
+align-items:center;
+justify-content:space-between;
+background:#f7f9ff;
+padding:12px;
+border-radius:15px;
+margin-bottom:10px;
+box-shadow:0 3px 8px rgba(0,0,0,.08);
+
+}
+
+.userLeft{
+
+display:flex;
+align-items:center;
+gap:12px;
+
+}
+
+.userLeft img{
+
+width:55px;
+height:55px;
+border-radius:50%;
+object-fit:cover;
+
+}
+
+.userName{
+
+font-weight:600;
+font-size:15px;
+
+}
+
+.userStatus{
+
+font-size:13px;
+color:#666;
+
+}
+
+.addFriend{
+
+background:#0d6efd;
+color:#fff;
+border:none;
+padding:10px 15px;
+border-radius:10px;
+cursor:pointer;
+font-weight:600;
+
+}
+
+.addFriend:disabled{
+
+background:#999;
+cursor:default;
+
+}
 </style>
 
 </head>
@@ -248,6 +376,11 @@ TruckPoint UA
 <div class="card" onclick="location.href='Користувачі.html'">
     <div class="icon">📡</div>
     <div class="title">Користувачі на мапі</div>
+</div>
+
+<div class="card" onclick="openUsersModal()">
+    <div class="icon">👥</div>
+    <div class="title">Усі користувачі</div>
 </div>
 
 <div class="card" onclick="location.href='Коментарі.html'">
@@ -301,6 +434,7 @@ style="background:#0d6efd;color:#fff;border:none;padding:10px 18px;border-radius
 🖼️ Змінити аватар
 </button>
 
+
 </div>
 
 <label><b>Ім'я</b></label>
@@ -349,6 +483,28 @@ style="width:100%;margin-top:20px;padding:12px;border:none;border-radius:10px;ba
 
 </div>
 
+<div class="usersModal" id="usersModal">
+
+    <div class="usersWindow">
+
+        <div class="usersHeader">
+
+            <h2>👥 Усі користувачі</h2>
+
+            <button onclick="closeUsersModal()">✕</button>
+
+        </div>
+
+        <input
+            id="userSearch"
+            placeholder="Пошук..."
+            oninput="filterUsers()">
+
+        <div id="usersList"></div>
+
+    </div>
+
+</div>
 <script>
 
 
@@ -376,8 +532,25 @@ if(!firebase.apps.length){
 firebase.initializeApp(firebaseConfig);
 
 }
+
+
 const auth = firebase.auth();
 const db = firebase.database();
+let USER_ID = "";
+
+firebase.auth().onAuthStateChanged(user => {
+
+    if (!user) {
+
+        window.location.replace("index.html");
+        return;
+
+    }
+
+    USER_ID = user.uid;
+
+    // далі твій код...
+});
 let selectedAvatar = "";
 
 firebase.auth().onAuthStateChanged(user=>{
@@ -415,17 +588,6 @@ if(snapshot.exists()){
     }
 
 }
-else if(localStorage.getItem("userName")){
-
-    name = localStorage.getItem("userName") + " " +
-           (localStorage.getItem("userSurname") || "");
-
-}
-else if(user.displayName){
-
-    name = user.displayName;
-
-}
 
 else if(localStorage.getItem("userName")){
 
@@ -441,12 +603,7 @@ else if(user.displayName){
 
 // ---------- Онлайн + геолокація ----------
 
-let USER_ID = localStorage.getItem("USER_ID");
-
-if (!USER_ID) {
-    USER_ID = "user_" + crypto.randomUUID();
-    localStorage.setItem("USER_ID", USER_ID);
-}
+const USER_ID = firebase.auth().currentUser.uid;
 
 const showLocation =
     localStorage.getItem("showLocation") !== "false";
@@ -484,7 +641,7 @@ connectedRef.on("value", (snap) => {
     });
 
     // Постійне оновлення координат
-    navigator.geolocation.watchPosition((position) => {
+    let watchId = navigator.geolocation.watchPosition((position) => {
 
         db.ref("usersLocation/" + USER_ID).update({
 
@@ -622,7 +779,7 @@ function closeSettings(){
 }
 function logout() {
 
-    const USER_ID = localStorage.getItem("USER_ID");
+    const USER_ID = firebase.auth().currentUser.uid;
 
     db.ref("usersLocation/" + USER_ID).update({
 
@@ -630,7 +787,11 @@ function logout() {
         lastUpdate: Date.now()
 
     }).finally(() => {
+if (watchId) {
 
+    navigator.geolocation.clearWatch(watchId);
+
+}
         auth.signOut();
 
     });
@@ -656,15 +817,15 @@ function chooseAvatar(){
         img.style.cursor="pointer";
         img.style.border="3px solid transparent";
 
-        img.onclick=function(){
+   img.onclick=function(){
 
-            selectedAvatar="avatar"+i+".png";
+    selectedAvatar="avatars/avatar"+i+".png";
 
-            document.getElementById("avatarPreview").src=this.src;
+    document.getElementById("avatarPreview").src=selectedAvatar;
 
-            closeAvatarPicker();
+    closeAvatarPicker();
 
-        };
+};
 
         grid.appendChild(img);
 
@@ -789,6 +950,251 @@ function uploadAvatar(){
     };
 
     reader.readAsDataURL(file);
+
+}
+
+// ================================
+// УСІ КОРИСТУВАЧІ
+// ================================
+
+let allUsers = [];
+let friends = {};
+let pending = {};
+
+function openUsersModal(){
+
+    document.getElementById("usersModal").style.display="flex";
+
+    loadAllUsers();
+
+}
+
+function closeUsersModal(){
+
+    document.getElementById("usersModal").style.display="none";
+
+}
+
+function loadAllUsers(){
+
+    const authUser = firebase.auth().currentUser;
+    if(!authUser) return;
+
+    db.ref("friends/"+authUser.uid).once("value").then(friendsSnap=>{
+
+        friends = friendsSnap.val() || {};
+
+        db.ref("users").once("value").then(usersSnap=>{
+
+            db.ref("usersLocation").once("value").then(locationSnap=>{
+
+                const online={};
+
+                locationSnap.forEach(c=>{
+                    online[c.key]=c.val();
+                });
+
+                allUsers=[];
+
+                usersSnap.forEach(child=>{
+
+                    if(child.key===authUser.uid) return;
+
+                    const d=child.val() || {};
+
+                    allUsers.push({
+
+                        uid:child.key,
+                        name:(d.name||"")+" "+(d.surname||""),
+                        avatar:d.avatar || "avatars/avatar1.png",
+                        online:online[child.key]?.online===true
+
+                    });
+
+                });
+
+                renderUsers();
+
+            });
+
+        });
+
+    });
+
+}
+
+setInterval(function(){
+
+    if(document.getElementById("usersModal").style.display==="flex"){
+
+        loadAllUsers();
+
+    }
+
+},10000);
+
+function renderUsers(){
+
+    const list=document.getElementById("usersList");
+
+    list.innerHTML="";
+
+    allUsers.sort((a,b)=>a.name.localeCompare(b.name));
+
+    allUsers.forEach(user=>{
+
+        const div=document.createElement("div");
+
+        div.className="userItem";
+
+        let btn="";
+
+        if(friends[user.uid]){
+
+            btn=`<button class="addFriend" disabled>✔ Друг</button>`;
+
+        }
+        
+
+        else if(pending[user.uid]){
+
+            btn=`<button class="addFriend" disabled>⏳ Запит</button>`;
+
+        }
+
+        else{
+
+            btn=`<button class="addFriend"
+            onclick="addFriend('${user.uid}','${user.name}')">
+            ➕ Додати
+            </button>`;
+
+        }
+        // ================================
+// ДОДАТИ В ДРУЗІ
+// ================================
+
+function addFriend(friendUid, friendName){
+
+    const me = firebase.auth().currentUser;
+
+    if(!me) return;
+
+    const USER_ID = user.uid;
+
+    const currentName =
+        localStorage.getItem("userName") + " " +
+        (localStorage.getItem("userSurname") || "");
+
+    const currentAvatar =
+        localStorage.getItem("userAvatar") || "avatars/avatar1.png";
+
+db.ref("friendRequests/"+friendUid+"/"+me.uid).set({
+
+    uid: me.uid,
+    name: currentName.trim(),
+    avatar: currentAvatar,
+    time: Date.now()
+
+ }).then(()=>{
+
+        pending[friendUid]=true;
+          renderUsers();
+
+        
+
+    });
+
+}
+// ================================
+// ПОШУК
+// ================================
+
+function filterUsers(){
+
+    const text =
+        document.getElementById("userSearch")
+        .value
+        .toLowerCase();
+
+    const cards =
+        document.querySelectorAll(".userItem");
+
+    cards.forEach(card=>{
+
+        const name =
+            card.querySelector(".userName")
+            .innerText
+            .toLowerCase();
+
+        card.style.display =
+            name.includes(text)
+            ? "flex"
+            : "none";
+
+    });
+
+}
+document
+.getElementById("usersModal")
+.onclick=function(e){
+
+    if(e.target===this){
+
+        closeUsersModal();
+
+    }
+
+};
+        div.innerHTML=`
+
+       <div class="userLeft"
+     onclick="showUserProfile('${user.uid}')"
+     style="cursor:pointer">
+
+            <img src="${user.avatar}">
+
+            <div>
+
+                <div class="userName">
+                    ${user.name}
+                </div>
+
+                <div class="userStatus">
+
+                    ${user.online ? "🟢 Онлайн":"⚪ Офлайн"}
+
+                </div>
+
+            </div>
+
+        </div>
+
+        ${btn}
+
+        `;
+
+        list.appendChild(div);
+
+    });
+
+}
+
+function showUserProfile(uid){
+
+    db.ref("users/"+uid).once("value").then(s=>{
+
+        const d=s.val()||{};
+
+        alert(
+
+"👤 "+(d.name||"")+" "+(d.surname||"")+
+
+"\n\nТелефон: "+(d.phone||"не вказано")
+
+        );
+
+    });
 
 }
 </script>
