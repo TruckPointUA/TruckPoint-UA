@@ -375,7 +375,7 @@ TruckPoint UA
 
 <div class="card" onclick="location.href='Користувачі.html'">
     <div class="icon">📡</div>
-    <div class="title">Користувачі на мапі</div>
+    <div class="title">Друзі на мапі</div>
 </div>
 
 <div class="card" onclick="openUsersModal()">
@@ -1648,6 +1648,7 @@ let friends = {};
 
 let pending = {};
 
+let sentRequests = {};
 
 
 
@@ -1719,28 +1720,20 @@ function loadAllUsers(){
 
 
 
-    Promise.all([
+   Promise.all([
 
+    db.ref("friends/"+me.uid).once("value"),
 
-        db.ref("friends/"+me.uid)
-        .once("value"),
+    db.ref("friendRequests/"+me.uid).once("value"),
 
+    db.ref("friendRequests").once("value"),
 
-        db.ref("friendRequests/"+me.uid)
-        .once("value"),
+    db.ref("users").once("value"),
 
+    db.ref("usersLocation").once("value")
 
-        db.ref("users")
-        .once("value"),
-
-
-        db.ref("usersLocation")
-        .once("value")
-
-
-
-    ])
-    .then(([friendsSnap,requestsSnap,usersSnap,locationSnap])=>{
+])
+    .then(([friendsSnap,requestsSnap,allRequestsSnap,usersSnap,locationSnap])=>{
 
 
 
@@ -1751,6 +1744,18 @@ function loadAllUsers(){
 
         pending =
         requestsSnap.val() || {};
+
+        sentRequests = {};
+
+allRequestsSnap.forEach(userNode=>{
+
+    if(userNode.hasChild(me.uid)){
+
+        sentRequests[userNode.key] = true;
+
+    }
+
+});
 
 
 
@@ -1916,7 +1921,7 @@ function renderUsers(){
 
         }
 
-        else if(pending[user.uid]){
+        else if(sentRequests[user.uid]){
 
 
 
@@ -2081,10 +2086,8 @@ function addFriend(uid,name){
     .then(()=>{
 
 
-        pending[uid]=true;
-
-
-        renderUsers();
+        sentRequests[uid]=true;
+renderUsers();
 
 
     });
