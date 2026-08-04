@@ -398,7 +398,7 @@ TruckPoint UA
 <div class="title">Вийти</div>
 
 </div>
-<div class="card" onclick="showWelcome()">
+<div class="card" onclick="openHelp()">
     <div class="icon">❓</div>
     <div class="title">Довідка</div>
 </div>
@@ -2291,6 +2291,10 @@ window.addEventListener("load",()=>{
     setTimeout(showWelcome,600);
 
 });
+
+function openHelp(){
+    document.getElementById("welcomeModal").style.display = "flex";
+}
 </script>
 
 
