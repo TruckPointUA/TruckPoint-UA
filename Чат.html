@@ -770,7 +770,16 @@ appId:"1:992372126132:web:3378b6b1794066132d42e1"
 
 
 firebase.initializeApp(firebaseConfig);
+const sound = document.getElementById("msgSound");
 
+document.addEventListener("click", () => {
+    sound.volume = 0;
+    sound.play().then(() => {
+        sound.pause();
+        sound.currentTime = 0;
+        sound.volume = 1;
+    }).catch(() => {});
+}, { once: true });
 
 
 const auth=firebase.auth();
@@ -1429,33 +1438,6 @@ setTimeout(()=>{
 watchUserStatus();
 
 },1000);
-// =====================
-// REPLY
-// =====================
-
-
-
-if(p){
-
-
-box.style.display="block";
-
-
-document.getElementById(
-"pinText"
-)
-
-.textContent=p.text;
-
-
-
-}else{
-
-
-box.style.display="none";
-
-
-}
 
 
 function openSearch(){
