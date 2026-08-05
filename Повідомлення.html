@@ -1883,7 +1883,7 @@ let list=document.getElementById("onlineList");
 list.innerHTML="Завантаження...";
 
 
-db.ref("online").on("value",onlineSnap=>{
+db.ref("usersLocation").on("value",locationSnap=>{
 
 
 list.innerHTML="";
@@ -1903,13 +1903,17 @@ if(uid===USER_ID)
 return;
 
 
-let onlineData =
-onlineSnap.child(uid).val();
+let locationData =
+locationSnap.child(uid).val();
 
+
+
+/* беремо тільки тих,
+хто увімкнув онлайн на головній */
 
 if(
-!onlineData ||
-onlineData.online!==true
+!locationData ||
+locationData.showLocation!==true
 )
 return;
 
@@ -1987,9 +1991,7 @@ list.appendChild(div);
 
 });
 
-
 }
-
 
 function deleteChat(chatId,event){
 
