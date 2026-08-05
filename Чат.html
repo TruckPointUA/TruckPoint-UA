@@ -191,66 +191,108 @@ opacity:.8;
     overflow-y:auto;
     overflow-x:hidden;
 
-    padding:10px;
+    padding:8px;
     padding-bottom:20px;
 
     display:flex;
     flex-direction:column;
-    gap:5px;
+    gap:3px;
 }
 
 
 .msg{
     position:relative;
 
-    max-width:52%;
-    width:max-content;
-    min-width:70px;
+    display:block;
 
-    padding:2px 6px;
+    width:fit-content;
+    max-width:75%;
 
-    border-radius:6px;
+    padding:7px 10px 6px 10px;
 
-    font-size:16px;
-    line-height:0.8;
+    border-radius:18px;
+
+    font-size:17px;
+    line-height:1.35;
 
     word-break:break-word;
+    overflow-wrap:anywhere;
 
-    margin:2px 0;
+    margin:4px 0 22px 0;
+
+    box-shadow:0 2px 6px rgba(0,0,0,.12);
 }
+
+
+/* МОЇ ПОВІДОМЛЕННЯ */
+
 .me{
 
-align-self:flex-end;
+    align-self:flex-end;
 
-background:#1677ff;
+    background:#1677ff;
 
-color:white;
+    color:white;
 
-border-bottom-right-radius:4px;
+    border-bottom-right-radius:5px;
 
 }
 
 
+/* ЧУЖІ ПОВІДОМЛЕННЯ */
 
 .other{
 
-align-self:flex-start;
+    align-self:flex-start;
 
-background:white;
+    background:#ffffff;
 
-color:#222;
+    color:#222;
 
-border-bottom-left-radius:4px;
+    border-bottom-left-radius:5px;
 
 }
 
+
+/* ТЕКСТ */
+
+.messageText{
+    display:inline;
+
+    white-space:pre-wrap;
+
+    font-size:17px;
+
+    line-height:1.35;
+
+    font-weight:500;
+}
+
+
+/* ЧАС ПІД БУЛЬБАШКОЮ */
 
 .msgTime{
-    font-size:8px;
-    margin-top:0;
+
+    position:absolute;
+
+    right:3px;
+
+    bottom:-18px;
+
+    font-size:11px;
+
+    color:#777;
+
+    white-space:nowrap;
+
 }
 
 
+.me .msgTime{
+
+    color:#666;
+
+}
 .actions{
     display:none;
 
@@ -273,6 +315,9 @@ border-bottom-left-radius:4px;
     left:-95px;
 }
 
+.other .msgTime{
+    color:#777;
+}
 .other .actions{
     right:-95px;
 }
@@ -384,11 +429,11 @@ cursor:pointer;
 
 
 .messageText{
-
-white-space:pre-wrap;
-
+    white-space: pre-wrap;
+    font-size: 18px;      /* розмір тексту */
+    line-height: 1.4;     /* висота рядка */
+    font-weight: 500;
 }
-
 .actions{
 
 gap:5px;
