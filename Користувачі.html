@@ -1678,8 +1678,50 @@ function openChat(uid){
         return;
     }
 
-    window.location.href =
-    "Чат.html?user=" + encodeURIComponent(uid);
+
+    let chatId = [USER_ID, uid]
+        .sort()
+        .join("_");
+
+
+    db.ref("chats/"+chatId)
+    .update({
+
+        created:
+        firebase.database.ServerValue.TIMESTAMP,
+
+        lastTime:
+        firebase.database.ServerValue.TIMESTAMP,
+
+        lastMessage:
+        "Новий чат",
+
+        members:{
+            [USER_ID]:true,
+            [uid]:true
+        }
+
+    })
+    .then(()=>{
+
+
+        localStorage.setItem(
+            "chatId",
+            chatId
+        );
+
+
+        localStorage.setItem(
+            "chatUser",
+            uid
+        );
+
+
+        window.location.href="Чат.html";
+
+
+    });
+
 
 }
 </script>
