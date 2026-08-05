@@ -29,7 +29,7 @@ font-family:Arial,sans-serif;
 
 body{
 
-height:100vh;
+height:100dvh;
 
 display:flex;
 
@@ -40,7 +40,6 @@ background:#edf2f7;
 overflow:hidden;
 
 }
-
 
 
 /* ШАПКА */
@@ -178,9 +177,11 @@ opacity:.8;
 
 flex:1;
 
-overflow:auto;
+overflow-y:auto;
 
 padding:15px;
+
+padding-bottom:80px;
 
 display:flex;
 
@@ -312,6 +313,8 @@ background:#eee;
 
 height:65px;
 
+min-height:65px;
+
 background:white;
 
 border-top:1px solid #ddd;
@@ -324,8 +327,17 @@ gap:10px;
 
 padding:10px;
 
-}
+position:fixed;
 
+bottom:0;
+
+left:0;
+
+right:0;
+
+z-index:9999;
+
+}
 
 
 #text{
@@ -585,18 +597,15 @@ style="font-size:22px;cursor:pointer">
 
 </div>
 
-    <div onclick="toggleDark()"
-style="margin-left:auto;font-size:22px;cursor:pointer">
-
+<div onclick="toggleDark()"
+style="font-size:22px;cursor:pointer">
 🌙
-
 </div>
 
-    <div onclick="openSearch()"
-style="margin-left:auto;font-size:22px;cursor:pointer">
 
+<div onclick="openSearch()"
+style="font-size:22px;cursor:pointer">
 🔎
-
 </div>
 
     <div id="pinBox" class="pinBox">
@@ -1154,7 +1163,6 @@ ${msg.uid===USER_ID ? `
 `:''}
 
 
-</div>
 
 <button onclick="editMessage('${id}','${msg.text.replace(/'/g,"\\'")}')">
 
@@ -1321,127 +1329,61 @@ msgElement.remove();
 
 function sendMessage(){
 
-
 let value=text.value.trim();
-db.ref(
-"blocked/"+USER_ID+"/"+CHAT_USER
-)
 
+if(!value)return;
+
+
+db.ref("blocked/"+USER_ID+"/"+CHAT_USER)
 .once("value")
-
 .then(block=>{
 
 
 if(block.exists()){
 
-
-alert(
-"Ви заблокували цього користувача"
-);
-
+alert("Ви заблокували цього користувача");
 
 return;
-
 
 }
 
 
-// тут далі твій код відправки
-
-
-});
-
-
-if(!value)return;
-
-
-if(!CHAT_ID)return;
-
-
-
-db.ref(
-"privateMessages/"+CHAT_ID
-)
-
+db.ref("privateMessages/"+CHAT_ID)
 .push({
 
 uid:USER_ID,
 
 text:value,
 
-
 reply:replyMessage || null,
-
 
 time:
 firebase.database.ServerValue.TIMESTAMP
 
-
 });
-
-cancelReply();
-
-
-
-// оновити список чатів
-
-
-db.ref(
-"chats/"+CHAT_ID
-)
-
-.update({
-
-
-lastMessage:value,
-
-
-lastTime:
-firebase.database.ServerValue.TIMESTAMP
-
-
-});
-
 
 
 text.value="";
 
-
-}
-
-
-
-
-send.onclick=sendMessage;
-
-
-
-text.addEventListener(
-"keydown",
-e=>{
-
-
-if(e.key==="Enter"){
-
-
-e.preventDefault();
-
-
-sendMessage();
-
-
-}
-
-
 });
 
 
+}
+
+send.onclick = sendMessage;
 
 
-// =====================
-// НАЗАД
-// =====================
+text.addEventListener("keydown",e=>{
 
+if(e.key==="Enter"){
+
+e.preventDefault();
+
+sendMessage();
+
+}
+
+});
 
 function goBack(){
 
@@ -1461,34 +1403,24 @@ location.href="Повідомлення.html";
 
 function setOnline(){
 
+db.ref("online/"+USER_ID).set({
 
-db.ref(
-"online/"+USER_ID
-)
+online:true,
 
-.set(true);
+lastSeen:Date.now()
+
+});
 
 
-
-db.ref(
-"online/"+USER_ID
-)
-
+db.ref("online/"+USER_ID)
 .onDisconnect()
+.set({
 
-.remove();
+online:false,
 
+lastSeen:Date.now()
 
-
-db.ref(
-"typing/"+CHAT_ID+"/"+USER_ID
-)
-
-.onDisconnect()
-
-.remove();
-
-
+});
 
 }
 // =====================
@@ -1805,27 +1737,17 @@ location.href=
 
 function openChatMenu(){
 
+let menu=document.getElementById("chatMenu");
 
-let menu=document.getElementById(
-"chatMenu"
-);
-
-
-menu.style.display=
-
+menu.style.display =
 menu.style.display==="block"
-
 ?
-
 "none"
-
 :
-
 "block";
 
-
 }
-function openChatMenu(){
+{
 
 
 let menu=document.getElementById(
@@ -1916,7 +1838,16 @@ document.title="Чат";
 
 
 }
+function blockUser(){
 
+db.ref(
+"blocked/"+USER_ID+"/"+CHAT_USER
+)
+.set(true);
+
+alert("Користувача заблоковано");
+
+}
 </script>
 
 
