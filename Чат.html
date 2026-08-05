@@ -1,116 +1,342 @@
 <!DOCTYPE html>
 <html lang="uk">
+
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 
-<title>TruckPoint UA Messenger</title>
+<meta name="viewport"
+content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Чат</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
+
 <style>
 
-.topBar{
 
-height:64px;
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
 
-background:linear-gradient(135deg,#0ea5e9,#0369a1);
+
+
+body{
+
+height:100vh;
+
+display:flex;
+
+flex-direction:column;
+
+background:#edf2f7;
+
+overflow:hidden;
+
+}
+
+
+
+/* ШАПКА */
+
+.header{
+
+height:60px;
+
+background:#1677ff;
+
+color:white;
 
 display:flex;
 
 align-items:center;
 
-justify-content:space-between;
+padding:0 12px;
 
-padding:0 15px;
+gap:12px;
 
-color:white;
-
-box-shadow:0 3px 10px rgba(0,0,0,.15);
+box-shadow:0 2px 10px #0003;
 
 }
 
-.title{
 
-text-align:center;
 
-flex:1;
-
-font-weight:bold;
-
-}
-
-.title small{
-
-display:block;
-
-font-size:12px;
-
-opacity:.85;
-
-}
-
-.menuBtn{
+.back{
 
 width:42px;
 height:42px;
-
-border:none;
 
 border-radius:50%;
 
 background:rgba(255,255,255,.18);
 
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+cursor:pointer;
+
+font-size:28px;
+
+transition:.25s;
+
+backdrop-filter:blur(5px);
+
+}
+
+
+.back:hover{
+
+background:rgba(255,255,255,.35);
+
+transform:scale(1.08);
+
+}
+
+
+.back span{
+
+margin-top:-3px;
+
+font-weight:bold;
+
+}
+
+
+
+.avatar{
+
+width:42px;
+
+height:42px;
+
+border-radius:50%;
+
+overflow:hidden;
+
+background:#ddd;
+
+}
+
+
+
+.avatar img{
+
+width:100%;
+
+height:100%;
+
+object-fit:cover;
+
+}
+
+
+
+.userBox{
+
+display:flex;
+
+flex-direction:column;
+
+}
+
+
+
+.userName{
+
+font-size:17px;
+
+font-weight:bold;
+
+}
+
+
+
+.status{
+
+font-size:12px;
+
+opacity:.8;
+
+}
+
+
+
+
+/* ПОВІДОМЛЕННЯ */
+
+
+.messages{
+
+flex:1;
+
+overflow:auto;
+
+padding:15px;
+
+display:flex;
+
+flex-direction:column;
+
+gap:8px;
+
+}
+
+
+
+.msg{
+
+max-width:78%;
+
+padding:10px 14px;
+
+border-radius:15px;
+
+position:relative;
+
+word-break:break-word;
+
+font-size:15px;
+
+}
+
+
+
+.me{
+
+align-self:flex-end;
+
+background:#1677ff;
+
 color:white;
 
-font-size:20px;
+border-bottom-right-radius:4px;
+
+}
+
+
+
+.other{
+
+align-self:flex-start;
+
+background:white;
+
+color:#222;
+
+border-bottom-left-radius:4px;
+
+}
+
+
+
+
+.msgTime{
+
+font-size:11px;
+
+opacity:.7;
+
+margin-top:5px;
+
+text-align:right;
+
+}
+
+
+
+.actions{
+
+display:none;
+
+position:absolute;
+
+top:-30px;
+
+right:0;
+
+background:white;
+
+border-radius:8px;
+
+box-shadow:0 3px 10px #0004;
+
+overflow:hidden;
+
+}
+
+
+
+.msg:hover .actions{
+
+display:block;
+
+}
+
+
+
+.actions button{
+
+border:0;
+
+background:white;
+
+padding:6px 10px;
 
 cursor:pointer;
 
 }
 
-#chat{
 
-height:calc(100vh - 135px);
 
-overflow:auto;
+.actions button:hover{
 
-padding:12px;
-
-background:#eef6ff;
+background:#eee;
 
 }
 
-.bottomBar{
 
-position:fixed;
 
-left:0;
-right:0;
-bottom:0;
+/* ВВІД */
+
+
+.bottom{
+
+height:65px;
+
+background:white;
+
+border-top:1px solid #ddd;
 
 display:flex;
+
+align-items:center;
 
 gap:10px;
 
 padding:10px;
 
-background:white;
-
-box-shadow:0 -3px 10px rgba(0,0,0,.12);
-
 }
 
-.bottomBar input{
+
+
+#text{
 
 flex:1;
 
-height:48px;
+height:45px;
 
-border:2px solid #dbeafe;
+border:0;
+
+background:#f1f3f7;
 
 border-radius:25px;
 
@@ -122,996 +348,857 @@ outline:none;
 
 }
 
-.sendBtn{
 
-width:52px;
 
-height:52px;
+#send{
 
-border:none;
+width:45px;
+
+height:45px;
 
 border-radius:50%;
 
-background:linear-gradient(135deg,#0ea5e9,#0369a1);
+border:0;
+
+background:#1677ff;
 
 color:white;
 
-font-size:22px;
+font-size:20px;
 
 cursor:pointer;
 
 }
 
-.msg{
-max-width:75%;
-padding:12px;
-margin:10px 0;
-border-radius:18px;
-word-break:break-word;
-cursor:pointer;
+
+.messageText{
+
+white-space:pre-wrap;
+
 }
 
-.me{
-margin-left:auto;
-background:#0ea5e9;
-color:white;
-}
 
-.other{
-background:white;
-}
+.msg:hover .actions{
 
-.user{
 display:flex;
-justify-content:space-between;
-align-items:center;
-padding:14px;
-margin:10px;
-background:white;
-border-radius:16px;
-cursor:pointer;
-box-shadow:0 2px 8px rgba(0,0,0,.08);
+
 }
 
-.status{
+
+.actions{
+
+gap:5px;
+
+}
+
+
+
+.actions button{
+
+border-radius:5px;
+
+}
+
+.replyBox{
+
+background:#dbeafe;
+
+padding:8px 12px;
+
+border-left:4px solid #1677ff;
+
+border-radius:8px;
+
+margin-bottom:8px;
+
 font-size:13px;
-color:#666;
+
+color:#333;
+
 }
-.name{
-font-size:12px;
+
+
+.replyPreview{
+
+display:none;
+
+background:white;
+
+padding:8px;
+
+border-top:1px solid #ddd;
+
+font-size:13px;
+
+}
+
+
+.replyPreview span{
+
 font-weight:bold;
-margin-bottom:5px;
+
+color:#1677ff;
+
 }
+
+
+.pin{
+
+font-size:12px;
+
+color:#ffd700;
+
+}
+.pinBox{
+
+background:white;
+
+padding:10px;
+
+border-bottom:1px solid #ddd;
+
+font-size:14px;
+
+display:none;
+
+}
+
+
+.pinBox span{
+
+color:#1677ff;
+
+font-weight:bold;
+
+}
+
+
+
+.searchChat{
+
+display:none;
+
+padding:8px;
+
+background:white;
+
+}
+
+
+
+.searchChat input{
+
+width:100%;
+
+padding:10px;
+
+border-radius:20px;
+
+border:0;
+
+background:#f1f3f7;
+
+outline:none;
+
+}
+body.dark{
+
+background:#111827;
+
+}
+
+
+body.dark .messages{
+
+background:#0f172a;
+
+}
+
+
+body.dark .other{
+
+background:#1e293b;
+
+color:white;
+
+}
+
+
+body.dark .bottom{
+
+background:#111827;
+
+border-color:#333;
+
+}
+
+
+body.dark #text{
+
+background:#1e293b;
+
+color:white;
+
+}
+
+
+body.dark .replyPreview{
+
+background:#1e293b;
+
+color:white;
+
+}
+
 </style>
+
 
 </head>
 
+
+
 <body>
- <header class="topBar">
 
-    <button class="menuBtn" onclick="openPublic()">
-        💬
-    </button>
-
-    <div class="title">
-
-        <div>TruckPoint UA</div>
-
-        <small id="chatTitle">
-            Загальний чат
-        </small>
-
-        <div id="myProfile"
+<div id="notify"
 style="
-display:flex;
-align-items:center;
-justify-content:center;
-gap:8px;
-font-size:12px;
-margin-top:5px;
+display:none;
+position:fixed;
+top:70px;
+left:50%;
+transform:translateX(-50%);
+background:#1677ff;
+color:white;
+padding:12px 20px;
+border-radius:25px;
+z-index:2000;
+box-shadow:0 5px 15px #0004;
+font-size:15px;
 ">
+</div>
 
-<img id="myAvatar"
-src="avatars/avatar1.png"
-style="
-width:25px;
-height:25px;
-border-radius:50%;
-object-fit:cover;
-">
+<div class="header">
 
-<span id="myName">
-Користувач
-</span>
+    <div onclick="deleteChat()"
+style="font-size:22px;cursor:pointer">
+
+🗑
 
 </div>
 
-    </div>
+    <div onclick="toggleDark()"
+style="margin-left:auto;font-size:22px;cursor:pointer">
 
-    <div style="display:flex;gap:8px">
+🌙
 
-    <button class="menuBtn" onclick="showFriends()"
-    title="Мої друзі">
-        👥
-    </button>
+</div>
 
-    <button class="menuBtn" onclick="showUsers()"
-    title="Усі користувачі">
-        🌍
-    </button>
-    <button class="menuBtn" onclick="showNotifications()" title="Вхідні">
+    <div onclick="openSearch()"
+style="margin-left:auto;font-size:22px;cursor:pointer">
 
-📩
-<span id="notifyCount"
+🔎
+
+</div>
+
+    <div id="pinBox" class="pinBox">
+
+📌 Закріплено:
+<span id="pinText"></span>
+
+</div>
+
+
+<div id="searchChat" class="searchChat">
+
+<input id="searchMessage"
+placeholder="Пошук повідомлень...">
+
+</div>
+
+
+<div class="back" onclick="goBack()">
+    <span>←</span>
+</div>
+
+<div onclick="openChatMenu()"
+style="margin-left:auto;font-size:25px;cursor:pointer">
+
+⋮
+
+</div>
+
+
+
+<div class="avatar">
+
+<img id="chatAvatar"
+src="avatars/avatar1.png">
+
+</div>
+
+
+
+<div class="userBox">
+
+<div class="userName"
+id="chatName">
+
+Користувач
+
+</div>
+
+
+<div class="status"
+id="status">
+
+онлайн
+
+</div>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+<div class="messages"
+id="messages">
+
+</div>
+
+<div id="chatMenu"
+
 style="
-position:absolute;
-background:red;
-color:white;
-font-size:11px;
-border-radius:50%;
-padding:2px 6px;
-margin-top:-25px;
-margin-left:15px;
 display:none;
+position:fixed;
+right:10px;
+top:60px;
+background:white;
+border-radius:10px;
+box-shadow:0 5px 20px #0004;
+z-index:999;
+overflow:hidden;
 ">
-0
-</span>
+
+
+<div onclick="blockUser()"
+style="
+padding:15px;
+cursor:pointer;
+">
+
+🚫 Заблокувати
+
+</div>
+
+
+<div onclick="unblockUser()"
+style="
+padding:15px;
+cursor:pointer;
+">
+
+✅ Розблокувати
+
+</div>
+
+
+</div>
+
+
+
+<div id="replyPreview" class="replyPreview">
+
+Відповідь на:
+<span id="replyText"></span>
+
+<button onclick="cancelReply()">
+✖
+</button>
+
+</div>
+
+<div class="bottom">
+
+
+<input id="text"
+placeholder="Повідомлення...">
+
+
+
+<button id="send">
+
+➤
+
+</button>
+
+
+</div>
+
+<audio id="msgSound">
+
+<source src="message.mp3" type="audio/mpeg">
+
+</audio>
+
+
+<script>
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyAzOpcu7kdg0y8xwqD0oKk4eMfFSK946n4",
+
+authDomain: "truckpoint-ua.firebaseapp.com",
+
+databaseURL:
+"https://truckpoint-ua-default-rtdb.firebaseio.com",
+
+projectId:"truckpoint-ua",
+
+storageBucket:"truckpoint-ua.firebasestorage.app",
+
+messagingSenderId:"992372126132",
+
+appId:"1:992372126132:web:3378b6b1794066132d42e1"
+
+};
+
+
+
+firebase.initializeApp(firebaseConfig);
+
+
+
+const auth=firebase.auth();
+
+const db=firebase.database();
+
+
+
+let USER_ID="";
+
+let CHAT_ID=localStorage.getItem("chatId");
+
+let CHAT_USER=localStorage.getItem("chatUser");
+
+let replyMessage=null;
+
+
+
+const messages=
+document.getElementById("messages");
+
+
+const text=
+document.getElementById("text");
+
+
+const send=
+document.getElementById("send");
+
+let typingTimer;
+
+
+// =====================
+// TYPING
+// =====================
+
+
+text.addEventListener("input",()=>{
+
+
+if(!USER_ID || !CHAT_USER)
+return;
+
+
+
+db.ref(
+"typing/"+CHAT_ID+"/"+USER_ID
+)
+
+.set(true);
+
+
+
+clearTimeout(typingTimer);
+
+
+
+typingTimer=setTimeout(()=>{
+
+
+db.ref(
+"typing/"+CHAT_ID+"/"+USER_ID
+)
+
+.set(false);
+
+
+
+},1500);
+
+
+
+});
+
+// =====================
+// ПОКАЗ ДРУКУЄ...
+// =====================
+
+
+function watchTyping(){
+
+
+if(!CHAT_USER)return;
+
+
+
+db.ref(
+"typing/"+CHAT_ID+"/"+CHAT_USER
+)
+
+.on("value",snap=>{
+
+
+let status =
+document.getElementById("status");
+
+
+
+if(snap.val()){
+
+
+status.textContent="✍️ друкує...";
+
+
+}else{
+
+
+watchUserStatus();
+
+
+}
+
+
+
+});
+
+
+}
+
+
+
+watchTyping();
+
+
+
+// =====================
+// АВТОРИЗАЦІЯ
+// =====================
+
+
+auth.onAuthStateChanged(user=>{
+
+
+if(user){
+
+
+USER_ID=user.uid;
+
+
+loadUser();
+
+
+loadMessages();
+
+
+setOnline();
+
+
+}else{
+
+
+auth.signInAnonymously();
+
+
+}
+
+
+});
+
+
+
+
+// =====================
+// ДАНІ СПІВРОЗМОВНИКА
+// =====================
+
+
+function loadUser(){
+
+
+if(!CHAT_USER)return;
+
+
+db.ref("users/"+CHAT_USER)
+.once("value")
+.then(snap=>{
+
+let user=snap.val();
+
+chatName.textContent =
+user.name+" "+user.surname;
+
+
+chatAvatar.src =
+user.avatar;
+
+});
+
+}
+
+
+
+// =====================
+// ЗАВАНТАЖЕННЯ ПОВІДОМЛЕНЬ
+// =====================
+
+
+function loadMessages(){
+
+
+if(!CHAT_ID)return;
+
+
+
+messages.innerHTML="";
+
+unreadTitle=0;
+
+updateTitle();
+
+
+
+db.ref("privateMessages/"+CHAT_ID)
+
+.off();
+
+
+
+db.ref("privateMessages/"+CHAT_ID)
+
+.orderByChild("time")
+
+.on("child_added",snap=>{
+
+
+let msg=snap.val();
+
+
+
+if(msg.uid!==USER_ID){
+
+unreadTitle++;
+
+updateTitle();
+
+showNotify(
+"Нове повідомлення"
+);
+
+
+
+let sound=document.getElementById(
+"msgSound"
+);
+
+
+if(sound){
+
+sound.play();
+
+}
+
+
+
+}
+
+
+
+addMessage(
+snap.key,
+msg
+);
+
+
+
+});
+
+
+
+}
+
+
+
+// =====================
+// ВИВІД ПОВІДОМЛЕННЯ
+// =====================
+
+
+function addMessage(id,msg){
+
+
+let div=document.createElement("div");
+div.id = "msg-" + id;
+
+
+div.className =
+"msg " +
+(msg.uid===USER_ID ? "me":"other");
+
+
+
+let d=new Date(
+msg.time || Date.now()
+);
+
+
+
+let time =
+String(d.getHours()).padStart(2,"0")
++
+":"
++
+String(d.getMinutes()).padStart(2,"0");
+
+
+
+let read = "";
+
+if(msg.uid===USER_ID){
+
+read =
+msg.read ? " ✓✓" : " ✓";
+
+}
+
+
+
+div.innerHTML = `
+
+
+${msg.reply ? `
+
+<div class="replyBox">
+
+↩ ${msg.reply}
+
+</div>
+
+`:''}
+
+
+
+<div class="messageText">
+
+${msg.text}
+
+</div>
+
+
+<div class="msgTime">
+
+${time}${read}
+
+</div>
+
+
+
+${msg.uid===USER_ID ? `
+
+<div class="actions">
+
+    <button onclick="pinMessage('${id}','${msg.text.replace(/'/g,"\\'")}')">
+
+📌
+
+</button>
+
+
+<button onclick="replyToMessage('${msg.text.replace(/'/g,"\\'")}')">
+
+↩
+
+</button>
+
+
+
+${msg.uid===USER_ID ? `
+
+<button onclick="editMessage('${id}','${msg.text.replace(/'/g,"\\'")}')">
+
+✏️
+
+</button>
+
+
+<button onclick="deleteMessage('${id}')">
+
+🗑
+
+</button>
+
+`:''}
+
+
+</div>
+
+<button onclick="editMessage('${id}','${msg.text.replace(/'/g,"\\'")}')">
+
+✏️
+
+</button>
+
+
+<button onclick="deleteMessage('${id}')">
+
+🗑
 
 </button>
 
 </div>
 
-</header>
-
-<div id="users" style="display:none"></div>
-
-<div id="chat"></div>
-
-<div class="bottomBar">
-
-    <input
-        id="text"
-        autocomplete="off"
-        placeholder="Написати повідомлення...">
-
-    <button
-        class="sendBtn"
-        onclick="sendMessage()">
-
-        ➤
-
-    </button>
-
-</div>
-
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyAzOpcu7kdg0y8xwqD0oKk4eMfFSK946n4",
-  authDomain: "truckpoint-ua.firebaseapp.com",
-  databaseURL: "https://truckpoint-ua-default-rtdb.firebaseio.com",
-  projectId: "truckpoint-ua",
-  storageBucket: "truckpoint-ua.firebasestorage.app",
-  messagingSenderId: "992372126132",
-  appId: "1:992372126132:web:3378b6b1794066132d42e1"
-};
-
-firebase.initializeApp(firebaseConfig);
-
-const db = firebase.database();
-const auth = firebase.auth();
-
-// Дані користувача TruckPoint UA
-let USER_ID="";
-let USER_NAME = "Користувач";
-let USER_AVATAR = "avatars/avatar1.png";
-
-let privateUser = null;
-let unreadCount = 0;
-auth.onAuthStateChanged(user=>{
-
-    if(!user){
-
-        auth.signInAnonymously();
-        return;
-
-    }
-
-
-    USER_ID=user.uid;
-
-
-    // завантажуємо профіль користувача
-    db.ref("users/"+USER_ID).once("value")
-    .then(snap=>{
-
-        const profile=snap.val();
-
-
-        if(profile){
-
-            USER_NAME = profile.name || "Користувач";
-
-            USER_AVATAR = profile.avatar || "avatars/avatar1.png";
-
-        }
-
-
-        // оновлюємо час входу
-        db.ref("users/"+USER_ID).update({
-
-            name:USER_NAME,
-
-            avatar:USER_AVATAR,
-
-            lastLogin:Date.now()
-
-        });
-        showMyProfile();
-
-        setOnline();
-
-        listenNotifications();
-
-        openPublic();
-
-
-    });
-
-
-});
-// Дозвіл на сповіщення
-function enableNotifications(){
-
-    console.log("Натиснули 🔔");
-
-    if(!("Notification" in window)){
-
-        alert("Ваш браузер не підтримує сповіщення");
-        return;
-
-    }
-
-
-    if(Notification.permission === "granted"){
-
-        alert("🔔 Сповіщення вже увімкнені");
-        return;
-
-    }
-
-
-    Notification.requestPermission()
-    .then(permission=>{
-
-        console.log("Статус:",permission);
-
-
-        if(permission==="granted"){
-
-            alert("✅ Сповіщення увімкнені");
-
-        }
-
-        else{
-
-            alert("❌ Сповіщення заборонені");
-
-        }
-
-    });
-
-}
-function showMyProfile(){
-
-    document.getElementById("myAvatar").src =
-    USER_AVATAR;
-
-
-    document.getElementById("myName").innerHTML =
-    USER_NAME;
-
-}
-function listenNotifications(){
-
-
-db.ref("notifications/"+USER_ID)
-
-.limitToLast(50)
-
-.on("value",snap=>{
-
-
-unreadCount=0;
-
-
-snap.forEach(x=>{
-
-let n=x.val();
-
-
-if(!n.read){
-
-unreadCount++;
-
-}
-
-
-});
-
-
-let badge=document.getElementById("notifyCount");
-
-
-if(unreadCount>0){
-
-badge.style.display="block";
-
-badge.innerHTML=unreadCount;
-
-}else{
-
-badge.style.display="none";
-
-}
-
-
-});
-
-
-}
-
-function openPublic(){
-
-    privateUser=null;
-
-    users.style.display="none";
-
-    chatTitle.innerHTML=
-    `
-    🌍 Загальний чат
-    `;
-
-    loadPublic();
-
-}
-function sendMessage(){
-
-    let textMsg = text.value.trim();
-
-    if(!textMsg) return;
-
-
-    let path = privateUser
-    ? "privateMessages/"+chatKey()
-    : "messages/public";
-
-
-    db.ref(path).push({
-
-        uid: USER_ID,
-
-        name: USER_NAME,
-
-        text: textMsg,
-
-        time: Date.now(),
-
-        edited:false,
-
-        read:false
-
-    });
-
-
-    text.value="";
-
-}
-function showNotification(title,text){
-
-console.log(
-"Notification:",
-title,
-text,
-Notification.permission
-);
-
-
-if(Notification.permission==="granted"){
-
-    new Notification(title,{
-        body:text,
-        icon:"avatars/avatar1.png"
-    });
-
-}
-
-}
-function chatKey(){
-
-    return [USER_ID, privateUser.uid]
-        .sort()
-        .join("_");
-
-}
-function openPrivate(uid,name){
-
-    privateUser={
-        uid:uid,
-        name:name
-    };
-
-
-    users.style.display="none";
-
-
-
-    chatTitle.innerHTML=
-    `
-    💬 Приватний чат
-    `;
-
-
-    loadPrivate();
-
-}
-function showUsers(){
-
-    users.style.display = "block";
-    chat.innerHTML = "";
-    users.innerHTML=`
-
-<div style="
-padding:15px;
-text-align:center;
-font-size:18px;
-font-weight:bold;
-color:#0369a1;
-background:white;
-margin:10px;
-border-radius:16px;
-box-shadow:0 2px 8px rgba(0,0,0,.08);
-">
-🌍 Усі користувачі
-
-<div style="
-font-size:13px;
-font-weight:normal;
-color:#666;
-margin-top:5px;
-">
-Знайдіть водіїв та почніть приватний чат
-</div>
-
-</div>
-
-`;
-
-    db.ref("users").once("value").then(snap=>{
-
-        if(!snap.exists()){
-
-            users.innerHTML = `
-            <div style="padding:40px;text-align:center">
-            Користувачів немає
-            </div>`;
-
-            return;
-        }
-
-        snap.forEach(x=>{
-
-            const uid = x.key;
-
-            if(uid === USER_ID) return;
-
-            const u = x.val() || {};
-
-            users.innerHTML += `
-
-            <div class="user"
-            onclick="openPrivate('${uid}','${u.name || 'Користувач'}')">
-
-                <div style="display:flex;align-items:center;gap:10px">
-
-                    <img
-                    src="${u.avatar || 'avatars/avatar1.png'}"
-                    style="
-                    width:42px;
-                    height:42px;
-                    border-radius:50%;
-                    object-fit:cover;">
-
-                    <div>
-
-                        <b>${u.name || "Користувач"}</b>
-
-                        <br>
-
-                        <span
-                        class="status"
-                        id="status_${uid}">
-                        Завантаження...
-                        </span>
-
-                    </div>
-
-                </div>
-
-                💬
-
-            </div>
-            `;
-
-            listenStatus(uid);
-
-        });
-
-    });
-
-}
-
-function showFriends(){
-
-    users.style.display="block";
-    chat.innerHTML="";
-
-    users.innerHTML=`
-
-    <div style="
-        padding:15px;
-        text-align:center;
-        font-size:18px;
-        font-weight:bold;
-        color:#0369a1;
-        background:white;
-        margin:10px;
-        border-radius:16px;
-        box-shadow:0 2px 8px rgba(0,0,0,.08);
-    ">
-        👥 Мої друзі
-        <div style="
-            font-size:13px;
-            font-weight:normal;
-            color:#666;
-            margin-top:5px;
-        ">
-            Тут відображаються ваші друзі для швидкого спілкування
-        </div>
-    </div>
-
-    `;
-
-    db.ref("friends/"+USER_ID).once("value").then(friendSnap=>{
-
-        if(!friendSnap.exists()){
-
-            users.innerHTML=`
-            <div style="padding:40px;text-align:center;color:#666">
-                У вас поки немає друзів
-            </div>`;
-            return;
-
-        }
-
-        friendSnap.forEach(friend=>{
-
-            const uid=friend.key;
-
-            db.ref("users/"+uid).once("value").then(userSnap=>{
-
-                if(!userSnap.exists()) return;
-
-                const u=userSnap.val();
-
-                users.innerHTML+=`
-
-                <div class="user"
-                onclick="openPrivate('${uid}','${u.name||"Користувач"}')">
-
-                    <div style="display:flex;align-items:center;gap:10px">
-
-                        <img
-                        src="${u.avatar||'avatars/avatar1.png'}"
-                        style="
-                        width:42px;
-                        height:42px;
-                        border-radius:50%;
-                        object-fit:cover;">
-
-                        <div>
-
-                            <b>${u.name||"Користувач"}</b><br>
-
-                            <span
-                            class="status"
-                            id="status_${uid}">
-                                Завантаження...
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                    💬
-
-                </div>
-                `;
-
-                listenStatus(uid);
-
-            });
-
-        });
-
-    });
-
-}
-function loadPrivate(){
-
-    db.ref("privateMessages/"+chatKey())
-
-    .limitToLast(100)
-
-    .on("value",snap=>{
-
-        chat.innerHTML="";
-
-        snap.forEach(x=>{
-
-            const id=x.key;
-
-            const m=x.val();
-            if(
-m.uid!==USER_ID &&
-m.time > Date.now()-5000
-){
-
-    showNotification(
-        m.name,
-        m.text
-    );
-
-}
-
-            const mine=m.uid===USER_ID;
-
-   chat.innerHTML+=`
-
-<div class="msg ${mine?"me":"other"}"
-onclick='messageMenu("${id}",${JSON.stringify(m)},"privateMessages/${chatKey()}")'>
-
-<div class="name"
-style="
-font-size:12px;
-font-weight:bold;
-margin-bottom:5px;
-opacity:.8;
-">
-${mine ? "Ви" : m.name}
-</div>
-
-<div>
-${m.text}
-${m.edited ? " ✏️":""}
-</div>
-
-
-</div>
-
-                <div class="time">
-
-                ${new Date(m.time)
-
-                .toLocaleTimeString([],{
-
-                    hour:"2-digit",
-
-                    minute:"2-digit"
-
-                })}
-
-                </div>
-
-            </div>
-
-            `;
-
-        });
-
-        chat.scrollTop=chat.scrollHeight;
-
-    });
-
-}
-function listenStatus(uid){
-
-    db.ref("usersLocation/"+uid)
-
-    .on("value",snap=>{
-
-        const el=document.getElementById("status_"+uid);
-
-        if(!el)return;
-
-        const s=snap.val();
-
-        if(!s){
-
-            el.innerHTML="⚪ Офлайн";
-
-            return;
-
-        }
-
-        if(s.online){
-
-            el.innerHTML="🟢 Онлайн";
-
-        }else{
-
-            const mins=Math.floor(
-
-                (Date.now()-(s.lastSeen||0))
-
-                /60000
-
-            );
-
-            if(mins<2){
-
-                el.innerHTML="🕒 Був недавно";
-
-            }else{
-
-                el.innerHTML="⚪ Офлайн";
-
-            }
-
-        }
-
-    });
-
-}
-let lastPublicMessage="";
-
-function messageMenu(id,m,path){
-
-    // тільки свої повідомлення
-    if(m.uid !== USER_ID){
-        return;
-    }
-
-
-    let choice = prompt(
-`Оберіть дію:
-
-1 ✏️ Редагувати
-2 🗑️ Видалити`
-);
-
-
-    if(choice==="1"){
-
-        let newText = prompt(
-            "Відредагуйте повідомлення:",
-            m.text
-        );
-
-
-        if(newText && newText.trim()){
-
-
-            db.ref(path+"/"+id)
-            .update({
-
-                text:newText.trim(),
-
-                edited:true
-
-            });
-
-
-        }
-
-    }
-
-
-
-    if(choice==="2"){
-
-
-        if(confirm("Видалити повідомлення?")){
-
-
-            db.ref(path+"/"+id)
-            .remove();
-
-
-        }
-
-    }
-
-}
-function loadPublic(){
-
-    db.ref("messages/public")
-    .limitToLast(100)
-    .on("value",snap=>{
-
-        chat.innerHTML="";
-
-
-        snap.forEach(x=>{
-
-    const id=x.key;
-
-    const m=x.val();
-
-    const mine=m.uid===USER_ID;
-
-
-chat.innerHTML+=`
-
-<div class="msg ${mine?"me":"other"}"
-onclick='messageMenu("${id}",${JSON.stringify(m)},"messages/public")'>
-
-
-<div>
-${m.text}
-${m.edited ? " ✏️ відредаговано":""}
-</div>
-
-
-<div class="time">
-
-${new Date(m.time)
-.toLocaleTimeString([],{
-hour:"2-digit",
-minute:"2-digit"
-})}
-
-</div>
-
-
-</div>
-
-`;
-
-
-    // ОЦЕ САМЕ МІСЦЕ
- setTimeout(()=>{
-
-let el=document.getElementById("like_"+id);
-
-if(el){
-
-loadLikes(id,el);
-
-}
-
-},100);
-
-
-});
-
-
-        chat.scrollTop=chat.scrollHeight;
-
-
-    });
-
-
-}
-
-function setOnline(){
-
-    db.ref("usersLocation/"+USER_ID).update({
-
-        online:true,
-        lastSeen:Date.now()
-
-    });
-
-}
-
-function setOffline(){
-
-    db.ref("usersLocation/"+USER_ID).update({
-
-        online:false,
-        lastSeen:Date.now()
-
-    });
-
-}
-
-window.addEventListener("beforeunload", setOffline);
-function showNotifications(){
-
-
-users.style.display="block";
-
-chat.innerHTML="";
-
-
-users.innerHTML=`
-
-<div class="user">
-
-📩 Вхідні повідомлення
-
-</div>
-
-`;
-
-
-
-db.ref("notifications/"+USER_ID)
-
-.limitToLast(50)
-
-.once("value")
-
-.then(snap=>{
-
-
-snap.forEach(x=>{
-
-
-let n=x.val();
-
-
-users.innerHTML+=`
-
-<div class="user"
-onclick="openNotification('${x.key}')">
-
-
-<div>
-
-<b>${n.name}</b>
-
-<br>
-
-${n.text}
-
-<br>
-
-<span class="status">
-
-${new Date(n.time)
-.toLocaleString()}
-
-</span>
-
-
-</div>
-
-
-💬
-
-
-</div>
+`:''}
 
 
 `;
 
 
 
-});
-
-
-});
+messages.appendChild(div);
 
 
 
-}
+messages.scrollTop =
+messages.scrollHeight;
 
-function openNotification(id){
+
+
+// позначаємо чуже повідомлення прочитаним
+
+if(msg.uid!==USER_ID && !msg.read){
+
+
+if(msg.uid!==USER_ID && !msg.read){
+
 
 db.ref(
-"notifications/"+USER_ID+"/"+id
+"privateMessages/"+CHAT_ID+"/"+id
 )
+
 .update({
 
 read:true
@@ -1119,8 +1206,721 @@ read:true
 });
 
 
+
+db.ref(
+"chats/"+CHAT_ID+"/unread/"+USER_ID
+)
+
+.set(0);
+
+
+
 }
+
+
+}
+
+
+}
+
+// =====================
+// РЕДАГУВАННЯ
+// =====================
+
+
+function editMessage(id,oldText){
+
+
+let newText =
+prompt(
+"Редагувати повідомлення:",
+oldText
+);
+
+
+
+if(!newText)return;
+
+
+newText=newText.trim();
+
+
+if(!newText)return;
+
+
+
+db.ref(
+"privateMessages/"+CHAT_ID+"/"+id
+)
+
+.update({
+
+text:newText,
+
+edited:true
+
+});
+
+
+}
+
+
+
+
+// =====================
+// ВИДАЛЕННЯ
+// =====================
+
+
+function deleteMessage(id){
+
+
+if(!confirm(
+"Видалити повідомлення?"
+))
+
+return;
+
+
+
+db.ref(
+"privateMessages/"+CHAT_ID+"/"+id
+)
+
+.remove()
+
+.then(()=>{
+
+
+let msgElement =
+document.getElementById(
+"msg-"+id
+);
+
+
+
+if(msgElement){
+
+msgElement.remove();
+
+}
+
+
+
+});
+
+
+}
+
+
+
+// =====================
+// НАДІСЛАТИ
+// =====================
+
+
+function sendMessage(){
+
+
+let value=text.value.trim();
+db.ref(
+"blocked/"+USER_ID+"/"+CHAT_USER
+)
+
+.once("value")
+
+.then(block=>{
+
+
+if(block.exists()){
+
+
+alert(
+"Ви заблокували цього користувача"
+);
+
+
+return;
+
+
+}
+
+
+// тут далі твій код відправки
+
+
+});
+
+
+if(!value)return;
+
+
+if(!CHAT_ID)return;
+
+
+
+db.ref(
+"privateMessages/"+CHAT_ID
+)
+
+.push({
+
+uid:USER_ID,
+
+text:value,
+
+
+reply:replyMessage || null,
+
+
+time:
+firebase.database.ServerValue.TIMESTAMP
+
+
+});
+
+cancelReply();
+
+
+
+// оновити список чатів
+
+
+db.ref(
+"chats/"+CHAT_ID
+)
+
+.update({
+
+
+lastMessage:value,
+
+
+lastTime:
+firebase.database.ServerValue.TIMESTAMP
+
+
+});
+
+
+
+text.value="";
+
+
+}
+
+
+
+
+send.onclick=sendMessage;
+
+
+
+text.addEventListener(
+"keydown",
+e=>{
+
+
+if(e.key==="Enter"){
+
+
+e.preventDefault();
+
+
+sendMessage();
+
+
+}
+
+
+});
+
+
+
+
+// =====================
+// НАЗАД
+// =====================
+
+
+function goBack(){
+
+
+location.href="Повідомлення.html";
+
+
+}
+
+
+
+
+// =====================
+// ONLINE
+// =====================
+
+
+function setOnline(){
+
+
+db.ref(
+"online/"+USER_ID
+)
+
+.set(true);
+
+
+
+db.ref(
+"online/"+USER_ID
+)
+
+.onDisconnect()
+
+.remove();
+
+
+
+db.ref(
+"typing/"+CHAT_ID+"/"+USER_ID
+)
+
+.onDisconnect()
+
+.remove();
+
+
+
+}
+// =====================
+// СТАТУС СПІВРОЗМОВНИКА
+// =====================
+
+
+function watchUserStatus(){
+
+
+if(!CHAT_USER)return;
+
+
+db.ref("online/"+CHAT_USER)
+
+.on("value",snap=>{
+
+
+let status=document.getElementById("status");
+
+
+if(snap.val()){
+
+
+status.textContent="🟢 онлайн";
+
+
+}else{
+
+
+status.textContent="⚪ офлайн";
+
+
+}
+
+
+
+});
+
+
+}
+
+
+
+
+// запуск
+
+setTimeout(()=>{
+
+watchUserStatus();
+
+},1000);
+// =====================
+// REPLY
+// =====================
+
+
+function replyToMessage(text){
+
+
+replyMessage=text;
+
+
+
+document.getElementById(
+"replyPreview"
+)
+
+.style.display="block";
+
+
+
+document.getElementById(
+"replyText"
+)
+
+.textContent=text;
+
+
+}
+
+
+
+
+function cancelReply(){
+
+
+replyMessage=null;
+
+
+document.getElementById(
+"replyPreview"
+)
+
+.style.display="none";
+
+
+}
+// =====================
+// PIN MESSAGE
+// =====================
+
+
+function pinMessage(id,text){
+
+
+db.ref(
+"chats/"+CHAT_ID+"/pinned"
+)
+
+.set({
+
+id:id,
+
+text:text
+
+});
+
+
+}
+function loadPinned(){
+
+
+db.ref(
+"chats/"+CHAT_ID+"/pinned"
+)
+
+.on("value",snap=>{
+
+
+let p=snap.val();
+
+
+let box=document.getElementById(
+"pinBox"
+);
+
+
+
+if(p){
+
+
+box.style.display="block";
+
+
+document.getElementById(
+"pinText"
+)
+
+.textContent=p.text;
+
+
+
+}else{
+
+
+box.style.display="none";
+
+
+}
+
+
+
+});
+
+
+}
+
+
+loadPinned();
+function openSearch(){
+
+
+let box=document.getElementById(
+"searchChat"
+);
+
+
+
+if(box.style.display==="block"){
+
+
+box.style.display="none";
+
+
+}else{
+
+
+box.style.display="block";
+
+
+}
+
+
+
+}
+
+
+
+document.getElementById(
+"searchMessage"
+)
+
+.addEventListener(
+"input",
+function(){
+
+
+let value=this.value.toLowerCase();
+
+
+
+document.querySelectorAll(
+".msg"
+)
+
+.forEach(m=>{
+
+
+if(
+m.innerText
+.toLowerCase()
+.includes(value)
+){
+
+
+m.style.display="block";
+
+
+}else{
+
+
+m.style.display="none";
+
+
+}
+
+
+
+});
+
+
+
+});
+
+// =====================
+// DARK MODE
+// =====================
+
+
+function toggleDark(){
+
+
+document.body.classList.toggle("dark");
+
+
+localStorage.setItem(
+
+"dark",
+
+document.body.classList.contains("dark")
+
+);
+
+
+}
+
+
+
+
+if(localStorage.getItem("dark")=="true"){
+
+document.body.classList.add("dark");
+
+}
+
+// =====================
+// DELETE CHAT
+// =====================
+
+
+function deleteChat(){
+
+
+if(!confirm(
+"Видалити цей чат?"
+))
+
+return;
+
+
+
+db.ref(
+"privateMessages/"+CHAT_ID
+)
+
+.remove();
+
+
+
+db.ref(
+"chats/"+CHAT_ID
+)
+
+.remove();
+
+
+
+location.href=
+"Повідомлення.html";
+
+
+}
+
+function openChatMenu(){
+
+
+let menu=document.getElementById(
+"chatMenu"
+);
+
+
+menu.style.display=
+
+menu.style.display==="block"
+
+?
+
+"none"
+
+:
+
+"block";
+
+
+}
+function openChatMenu(){
+
+
+let menu=document.getElementById(
+"chatMenu"
+);
+
+
+menu.style.display=
+
+menu.style.display==="block"
+
+?
+
+"none"
+
+:
+
+"block";
+
+
+}
+function unblockUser(){
+
+
+db.ref(
+"blocked/"+USER_ID+"/"+CHAT_USER
+)
+
+.remove();
+
+
+
+alert(
+"Користувача розблоковано"
+);
+
+
+
+}
+
+function showNotify(text){
+
+
+let box=document.getElementById(
+"notify"
+);
+
+
+box.textContent=text;
+
+
+box.style.display="block";
+
+
+
+setTimeout(()=>{
+
+
+box.style.display="none";
+
+
+},3000);
+
+
+}
+
+let unreadTitle=0;
+
+
+
+function updateTitle(){
+
+
+if(unreadTitle>0){
+
+
+document.title=
+"("+unreadTitle+") Нове повідомлення";
+
+
+}else{
+
+
+document.title="Чат";
+
+
+}
+
+
+}
+
 </script>
 
+
+
 </body>
+
 </html>
