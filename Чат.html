@@ -629,13 +629,6 @@ style="font-size:22px;cursor:pointer">
 🔎
 </div>
 
-    <div id="pinBox" class="pinBox">
-
-📌 Закріплено:
-<span id="pinText"></span>
-
-</div>
-
 
 <div id="searchChat" class="searchChat">
 
@@ -729,43 +722,21 @@ z-index:999;
 overflow:hidden;
 ">
 
-
-<div onclick="blockUser()"
-style="
-padding:15px;
-cursor:pointer;
-">
-
+<div id="blockItem"
+onclick="blockUser()"
+style="display:none;padding:15px;cursor:pointer">
 🚫 Заблокувати
-
 </div>
 
-
-<div onclick="unblockUser()"
-style="
-padding:15px;
-cursor:pointer;
-">
-
+<div id="unblockItem"
+onclick="unblockUser()"
+style="display:none;padding:15px;cursor:pointer">
 ✅ Розблокувати
+</div>
 
 </div>
 
 
-</div>
-
-
-
-<div id="replyPreview" class="replyPreview">
-
-Відповідь на:
-<span id="replyText"></span>
-
-<button onclick="cancelReply()">
-✖
-</button>
-
-</div>
 
 
 <audio id="msgSound">
@@ -1151,20 +1122,6 @@ ${msg.uid===USER_ID ? `
 
 <div class="actions">
 
-    <button onclick="pinMessage('${id}','${msg.text.replace(/'/g,"\\'")}')">
-
-📌
-
-</button>
-
-
-<button onclick="replyToMessage('${msg.text.replace(/'/g,"\\'")}')">
-
-↩
-
-</button>
-
-
 
 ${msg.uid===USER_ID ? `
 
@@ -1383,7 +1340,7 @@ uid:USER_ID,
 
 text:value,
 
-reply:replyMessage || null,
+reply: null,
 
 time:
 firebase.database.ServerValue.TIMESTAMP
