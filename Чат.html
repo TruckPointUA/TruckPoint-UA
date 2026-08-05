@@ -967,81 +967,52 @@ user.avatar;
 // ЗАВАНТАЖЕННЯ ПОВІДОМЛЕНЬ
 // =====================
 
-
+let firstLoad = true;
 function loadMessages(){
 
+    if(!CHAT_ID) return;
 
-if(!CHAT_ID)return;
+    messages.innerHTML = "";
 
+    unreadTitle = 0;
+    updateTitle();
 
+    db.ref("privateMessages/" + CHAT_ID).off();
 
-messages.innerHTML="";
+    db.ref("privateMessages/" + CHAT_ID)
+    .orderByChild("time")
+    .on("child_added", snap => {
 
-unreadTitle=0;
+        let msg = snap.val();
 
-updateTitle();
+        addMessage(snap.key, msg);
 
+        // Не відтворювати звук при першому завантаженні історії
+        if(firstLoad) return;
 
+        // Звук лише для чужих повідомлень
+        if(msg.uid !== USER_ID){
 
-db.ref("privateMessages/"+CHAT_ID)
+            unreadTitle++;
+            updateTitle();
 
-.off();
+            showNotify("Нове повідомлення");
 
+            const sound = document.getElementById("msgSound");
 
+            if(sound){
+                sound.currentTime = 0;
+                sound.play().catch(()=>{});
+            }
+        }
 
-db.ref("privateMessages/"+CHAT_ID)
+    });
 
-.orderByChild("time")
-
-.on("child_added",snap=>{
-
-
-let msg=snap.val();
-
-
-
-if(msg.uid!==USER_ID){
-
-unreadTitle++;
-
-updateTitle();
-
-showNotify(
-"Нове повідомлення"
-);
-
-
-
-let sound=document.getElementById(
-"msgSound"
-);
-
-
-if(sound){
-
-sound.play();
-
+    // Через невелику затримку вважаємо історію завантаженою
+    setTimeout(()=>{
+        firstLoad = false;
+    },1000);
 }
-
-
-
-}
-
-
-
-addMessage(
-snap.key,
-msg
-);
-
-
-
-});
-
-
-
-}
-
 
 
 // =====================
