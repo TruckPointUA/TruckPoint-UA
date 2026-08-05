@@ -332,39 +332,43 @@ cursor:default;
 
 }
 
-#chatButton{
-    position:fixed;
-    right:20px;
-    bottom:20px;
-    width:60px;
-    height:60px;
-    border-radius:50%;
-    background:#1677ff;
-    color:#fff;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:28px;
-    cursor:pointer;
-    box-shadow:0 5px 15px rgba(0,0,0,.3);
-    z-index:9999;
+
+.icon{
+    position:relative;
 }
 
 #chatBadge{
     position:absolute;
-    top:-5px;
-    right:-5px;
-    min-width:22px;
-    height:22px;
-    padding:0 6px;
-    border-radius:11px;
+    top:-6px;
+    right:-10px;
+    min-width:20px;
+    height:20px;
+    border-radius:50%;
     background:#ff2d2d;
     color:#fff;
-    font-size:12px;
-    font-weight:bold;
     display:none;
     align-items:center;
     justify-content:center;
+    font-size:11px;
+    font-weight:700;
+    padding:0 5px;
+    box-shadow:0 2px 6px rgba(0,0,0,.25);
+}
+#chatBadge{
+    position:absolute;
+    top:-8px;
+    right:-12px;
+    min-width:20px;
+    height:20px;
+    border-radius:50%;
+    background:#ff2d2d;
+    color:#fff;
+    font-size:11px;
+    font-weight:bold;
+    display:none;
+    justify-content:center;
+    align-items:center;
+    padding:0 5px;
 }
 </style>
 
@@ -418,8 +422,11 @@ TruckPoint UA
     <div class="title">Усі користувачі</div>
 </div>
 
-<div class="card" onclick="location.href='Повідомлення.html'">
-    <div class="icon">💬</div>
+<<div class="card" onclick="openChat()">
+    <div class="icon">
+        💬
+        <span id="chatBadge"></span>
+    </div>
     <div class="title">Чат</div>
 </div>
 
@@ -668,20 +675,15 @@ auth.onAuthStateChanged(user=>{
 
 
 
-        askLocationPermissionOnce();
+      askLocationPermissionOnce();
 
+startOnline();
 
+updateHeader();
 
-        startOnline();
+watchUnread();
 
-
-
-        updateHeader();
-
-
-
-    });
-
+});
 
 });
 
@@ -2358,6 +2360,27 @@ window.addEventListener("load",()=>{
 function openHelp(){
     document.getElementById("welcomeModal").style.display = "flex";
 }
+
+function openChat(){
+
+    // прибрати лічильник
+    db.ref("chats").once("value").then(snap=>{
+
+        const updates={};
+
+        snap.forEach(chat=>{
+
+            updates[chat.key+"/unread/"+USER_ID]=0;
+
+        });
+
+        db.ref("chats").update(updates).then(()=>{
+            location.href="Повідомлення.html";
+        });
+
+    });
+
+}
 </script>
 
 
@@ -2451,16 +2474,10 @@ color:white;
 font-size:16px;
 font-weight:bold;">
 
-Почати користуватися
-
 </button>
 
 </div>
 
-</div>
-<div id="chatButton" onclick="location.href='Повідомлення.html'">
-    💬
-    <span id="chatBadge">0</span>
 </div>
 </body>
 </html>
