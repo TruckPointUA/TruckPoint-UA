@@ -331,6 +331,41 @@ background:#999;
 cursor:default;
 
 }
+
+#chatButton{
+    position:fixed;
+    right:20px;
+    bottom:20px;
+    width:60px;
+    height:60px;
+    border-radius:50%;
+    background:#1677ff;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:28px;
+    cursor:pointer;
+    box-shadow:0 5px 15px rgba(0,0,0,.3);
+    z-index:9999;
+}
+
+#chatBadge{
+    position:absolute;
+    top:-5px;
+    right:-5px;
+    min-width:22px;
+    height:22px;
+    padding:0 6px;
+    border-radius:11px;
+    background:#ff2d2d;
+    color:#fff;
+    font-size:12px;
+    font-weight:bold;
+    display:none;
+    align-items:center;
+    justify-content:center;
+}
 </style>
 
 </head>
@@ -651,7 +686,35 @@ auth.onAuthStateChanged(user=>{
 });
 
 
+function watchUnread(){
 
+    db.ref("chats")
+    .on("value",snap=>{
+
+        let total = 0;
+
+        snap.forEach(chat=>{
+
+            const unread = chat.child("unread/"+USER_ID).val();
+
+            if(unread){
+                total += unread;
+            }
+
+        });
+
+        const badge = document.getElementById("chatBadge");
+
+        if(total>0){
+            badge.style.display="flex";
+            badge.textContent = total>99 ? "99+" : total;
+        }else{
+            badge.style.display="none";
+        }
+
+    });
+
+}
 
 
 // ==========================
@@ -2395,6 +2458,9 @@ font-weight:bold;">
 </div>
 
 </div>
-
+<div id="chatButton" onclick="location.href='Повідомлення.html'">
+    💬
+    <span id="chatBadge">0</span>
+</div>
 </body>
 </html>
