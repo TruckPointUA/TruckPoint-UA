@@ -203,16 +203,16 @@ opacity:.8;
 .msg{
     position:relative;
 
-    max-width:42%;
+    max-width:52%;
     width:max-content;
     min-width:70px;
 
-    padding:3px 8px;
+    padding:2px 6px;
 
-    border-radius:10px;
+    border-radius:6px;
 
-    font-size:14px;
-    line-height:1.05;
+    font-size:16px;
+    line-height:0.8;
 
     word-break:break-word;
 
@@ -721,11 +721,13 @@ let USER_ID="";
 
 let CHAT_ID=localStorage.getItem("chatId");
 
+
 let CHAT_USER=localStorage.getItem("chatUser");
 
 let replyMessage=null;
 
-
+console.log("CHAT_ID:", CHAT_ID);
+console.log("CHAT_USER:", CHAT_USER);
 
 const messages=
 document.getElementById("messages");
@@ -737,6 +739,15 @@ document.getElementById("text");
 
 const send=
 document.getElementById("send");
+
+send.addEventListener("click", sendMessage);
+
+text.addEventListener("keydown", function(e){
+    if(e.key === "Enter"){
+        e.preventDefault();
+        sendMessage();
+    }
+});
 
 let typingTimer;
 
