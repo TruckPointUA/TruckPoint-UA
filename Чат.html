@@ -267,28 +267,25 @@ display:none;
 
 position:absolute;
 
-top:-30px;
+right:5px;
 
-right:0;
+bottom:-45px;
 
 background:white;
 
-border-radius:8px;
+border-radius:10px;
 
-box-shadow:0 3px 10px #0004;
+box-shadow:0 5px 15px #0005;
 
 overflow:hidden;
 
-}
+z-index:99999;
 
+padding:5px;
 
-
-.msg:hover .actions{
-
-display:block;
+gap:5px;
 
 }
-
 
 
 .actions button{
@@ -297,12 +294,15 @@ border:0;
 
 background:white;
 
-padding:6px 10px;
+padding:8px 12px;
+
+font-size:18px;
 
 cursor:pointer;
 
-}
+border-radius:8px;
 
+}
 
 
 .actions button:hover{
@@ -310,6 +310,21 @@ cursor:pointer;
 background:#eee;
 
 }
+
+
+.msg.showActions .actions{
+
+display:flex;
+
+}
+
+
+.msg:hover .actions{
+
+display:block;
+
+}
+
 
 
 
@@ -1168,21 +1183,6 @@ ${msg.uid===USER_ID ? `
 
 `:''}
 
-
-
-<button onclick="editMessage('${id}','${msg.text.replace(/'/g,"\\'")}')">
-
-✏️
-
-</button>
-
-
-<button onclick="deleteMessage('${id}')">
-
-🗑
-
-</button>
-
 </div>
 
 `:''}
@@ -1193,6 +1193,26 @@ ${msg.uid===USER_ID ? `
 
 
 messages.appendChild(div);
+
+div.onclick=function(e){
+
+// якщо натиснули на кнопку - не закривати
+if(e.target.tagName==="BUTTON")
+return;
+
+
+// закрити інші меню
+document.querySelectorAll(".msg")
+.forEach(m=>{
+m.classList.remove("showActions");
+});
+
+
+// відкрити своє
+div.classList.toggle("showActions");
+
+
+};
 
 
 
@@ -1236,6 +1256,8 @@ db.ref(
 
 
 }
+
+
 
 // =====================
 // РЕДАГУВАННЯ
