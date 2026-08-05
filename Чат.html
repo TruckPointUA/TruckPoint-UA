@@ -182,41 +182,29 @@ opacity:.8;
 
 
 .messages{
+    position:fixed;
+    top:60px;
+    left:0;
+    right:0;
+    bottom:60px;
 
-flex:1;
+    overflow-y:auto;
+    overflow-x:hidden;
 
-overflow-y:auto;
+    padding:10px;
+    padding-bottom:20px;
 
-padding:15px;
-
-padding-bottom:100px;
-
-display:flex;
-
-flex-direction:column;
-
-gap:8px;
-
+    display:flex;
+    flex-direction:column;
+    gap:5px;
 }
 
 
 .msg{
-
-max-width:78%;
-
-padding:10px 14px;
-
-border-radius:15px;
-
-position:relative;
-
-word-break:break-word;
-
-font-size:15px;
-
+    padding:3px 8px;
+    line-height:1.05;
+    border-radius:10px;
 }
-
-
 
 .me{
 
@@ -245,63 +233,56 @@ border-bottom-left-radius:4px;
 }
 
 
-
-
 .msgTime{
-
-font-size:11px;
-
-opacity:.7;
-
-margin-top:5px;
-
-text-align:right;
-
+    font-size:8px;
+    margin-top:0;
 }
-
 
 
 .actions{
+    display:none;
 
-display:none;
+    position:absolute;
 
-position:absolute;
+    top:50%;
+    transform:translateY(-50%);
 
-right:5px;
+    background:#fff;
+    border-radius:12px;
+    box-shadow:0 5px 15px rgba(0,0,0,.2);
 
-bottom:-45px;
+    padding:4px;
+    gap:4px;
 
-background:white;
-
-border-radius:10px;
-
-box-shadow:0 5px 15px #0005;
-
-overflow:hidden;
-
-z-index:99999;
-
-padding:5px;
-
-gap:5px;
-
+    z-index:1000;
 }
 
+.me .actions{
+    left:-95px;
+}
+
+.other .actions{
+    right:-95px;
+}
 
 .actions button{
+    width:34px;
+    height:34px;
 
-border:0;
+    padding:0;
 
-background:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 
-padding:8px 12px;
+    border:none;
+    background:white;
 
-font-size:18px;
+    border-radius:8px;
 
-cursor:pointer;
+    font-size:17px;
 
-border-radius:8px;
-
+    cursor:pointer;
 }
 
 
@@ -332,53 +313,42 @@ display:block;
 
 
 .bottom{
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0;
 
-height:65px;
-min-height:65px;
+    height:60px;
 
-background:white;
+    display:flex;
+    align-items:center;
+    gap:8px;
 
-border-top:1px solid #ddd;
+    padding:8px 10px;
 
-display:flex;
-align-items:center;
+    background:#fff;
 
-gap:10px;
+    border-top:1px solid #ddd;
 
-padding:10px;
+    z-index:9999;
 
-position:fixed;
-
-bottom:0;
-
-left:0;
-
-right:0;
-
-z-index:9999;
-
-padding-bottom:calc(10px + env(safe-area-inset-bottom));
-
+    padding-bottom:calc(8px + env(safe-area-inset-bottom));
 }
-
 #text{
+    flex:1;
+    width:100%;
+    height:45px;
 
-flex:1;
+    border:0;
+    background:#f1f3f7;
 
-height:45px;
+    border-radius:25px;
 
-border:0;
+    padding:0 18px;
 
-background:#f1f3f7;
+    font-size:15px;
 
-border-radius:25px;
-
-padding:0 18px;
-
-font-size:15px;
-
-outline:none;
-
+    outline:none;
 }
 
 
@@ -436,7 +406,7 @@ border-radius:5px;
 
 background:#dbeafe;
 
-padding:8px 12px;
+padding:5px 8px;
 
 border-left:4px solid #1677ff;
 
@@ -1131,65 +1101,40 @@ ${msg.uid===USER_ID ? `
 
 messages.appendChild(div);
 
-div.onclick=function(e){
+div.onclick = function(e){
 
-// якщо натиснули на кнопку - не закривати
-if(e.target.tagName==="BUTTON")
-return;
+    e.stopPropagation();
 
+    document.querySelectorAll(".msg").forEach(m=>{
+        m.classList.remove("showActions");
+    });
 
-// закрити інші меню
-document.querySelectorAll(".msg")
-.forEach(m=>{
-m.classList.remove("showActions");
-});
-
-
-// відкрити своє
-div.classList.toggle("showActions");
-
-
-};
-
-
-
-messages.scrollTop =
-messages.scrollHeight;
-
-
-
-// позначаємо чуже повідомлення прочитаним
-
-if(msg.uid!==USER_ID && !msg.read){
-
-
-if(msg.uid!==USER_ID && !msg.read){
-
-
-db.ref(
-"privateMessages/"+CHAT_ID+"/"+id
-)
-
-.update({
-
-read:true
-
-});
-
-
-
-db.ref(
-"chats/"+CHAT_ID+"/unread/"+USER_ID
-)
-
-.set(0);
-
-
+    div.classList.add("showActions");
 
 }
 
 
+setTimeout(() => {
+    messages.scrollTop = messages.scrollHeight;
+}, 100);
+
+
+// Позначаємо чуже повідомлення прочитаним
+if(msg.uid !== USER_ID && !msg.read){
+
+    db.ref("privateMessages/"+CHAT_ID+"/"+id).update({
+        read: true
+    });
+
+    db.ref("chats/"+CHAT_ID+"/unread/"+USER_ID).set(0);
 }
+
+// Прокрутити чат до останнього повідомлення
+setTimeout(() => {
+    messages.scrollTop = messages.scrollHeight;
+}, 50);
+
+
 
 
 }
@@ -1320,6 +1265,8 @@ uid:USER_ID,
 
 text:value,
 
+
+
 reply: null,
 
 time:
@@ -1329,6 +1276,10 @@ firebase.database.ServerValue.TIMESTAMP
 
 
 text.value="";
+
+setTimeout(() => {
+    messages.scrollTop = messages.scrollHeight;
+}, 100);
 
 });
 
@@ -1697,6 +1648,20 @@ db.ref(
 alert("Користувача заблоковано");
 
 }
+
+document.addEventListener("click", function(e){
+
+   if(e.target.closest(".actions")) return;
+
+document.querySelectorAll(".msg").forEach(m=>{
+    m.classList.remove("showActions");
+});
+
+    document.querySelectorAll(".msg").forEach(msg=>{
+        msg.classList.remove("showActions");
+    });
+
+});
 </script>
 
 
