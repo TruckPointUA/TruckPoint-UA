@@ -802,11 +802,40 @@ const dialogs = document.getElementById("dialogs");
 
 auth.onAuthStateChanged(user=>{
 
+    function setOnlineStatus(){
+
+if(!USER_ID) return;
+
+
+db.ref("online/"+USER_ID).set({
+
+online:true,
+
+lastSeen:Date.now()
+
+});
+
+
+db.ref("online/"+USER_ID)
+.onDisconnect()
+.set({
+
+online:false,
+
+lastSeen:Date.now()
+
+});
+
+
+}
+
 
 if(user){
 
 
 USER_ID=user.uid;
+
+setOnlineStatus();
 
 
 loadDialogs();
@@ -1854,15 +1883,13 @@ let list=document.getElementById("onlineList");
 list.innerHTML="Завантаження...";
 
 
-db.ref("usersLocation")
-.on("value", locationSnap=>{
+db.ref("online").on("value",onlineSnap=>{
 
 
 list.innerHTML="";
 
 
-db.ref("users")
-.once("value")
+db.ref("users").once("value")
 .then(usersSnap=>{
 
 
@@ -1872,19 +1899,20 @@ usersSnap.forEach(userSnap=>{
 let uid=userSnap.key;
 
 
-// не показувати себе
-
 if(uid===USER_ID)
 return;
 
 
-
-// перевіряємо чи користувач онлайн
-
-let location = locationSnap.child(uid).val();
+let onlineData =
+onlineSnap.child(uid).val();
 
 
-if(location && location.showLocation===true){
+if(
+!onlineData ||
+onlineData.online!==true
+)
+return;
+
 
 
 let u=userSnap.val() || {};
@@ -1930,7 +1958,7 @@ ${u.surname || ""}
 <br>
 
 <small>
-Онлайн
+Онлайн зараз
 </small>
 
 </div>
@@ -1951,10 +1979,6 @@ list.appendChild(div);
 
 
 
-}
-
-
-
 });
 
 
@@ -1965,6 +1989,7 @@ list.appendChild(div);
 
 
 }
+
 
 function deleteChat(chatId,event){
 
