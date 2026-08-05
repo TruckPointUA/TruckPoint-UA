@@ -1463,87 +1463,6 @@ watchUserStatus();
 // =====================
 
 
-function replyToMessage(text){
-
-
-replyMessage=text;
-
-
-
-document.getElementById(
-"replyPreview"
-)
-
-.style.display="block";
-
-
-
-document.getElementById(
-"replyText"
-)
-
-.textContent=text;
-
-
-}
-
-
-
-
-function cancelReply(){
-
-
-replyMessage=null;
-
-
-document.getElementById(
-"replyPreview"
-)
-
-.style.display="none";
-
-
-}
-// =====================
-// PIN MESSAGE
-// =====================
-
-
-function pinMessage(id,text){
-
-
-db.ref(
-"chats/"+CHAT_ID+"/pinned"
-)
-
-.set({
-
-id:id,
-
-text:text
-
-});
-
-
-}
-function loadPinned(){
-
-
-db.ref(
-"chats/"+CHAT_ID+"/pinned"
-)
-
-.on("value",snap=>{
-
-
-let p=snap.val();
-
-
-let box=document.getElementById(
-"pinBox"
-);
-
-
 
 if(p){
 
@@ -1568,14 +1487,6 @@ box.style.display="none";
 }
 
 
-
-});
-
-
-}
-
-
-loadPinned();
 function openSearch(){
 
 
