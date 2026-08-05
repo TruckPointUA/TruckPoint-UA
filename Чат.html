@@ -1201,67 +1201,50 @@ msgElement.remove();
 
 function sendMessage(){
 
-let value=text.value.trim();
+    let value = text.value.trim();
 
-if(!value)return;
+    if(!value) return;
 
+    db.ref("blocked/"+USER_ID+"/"+CHAT_USER)
+    .once("value")
+    .then(block=>{
 
-db.ref("blocked/"+USER_ID+"/"+CHAT_USER)
-.once("value")
-.then(block=>{
+        if(block.exists()){
+            alert("Ви заблокували цього користувача");
+            return;
+        }
 
+        // записуємо повідомлення
+        db.ref("privateMessages/"+CHAT_ID)
+        .push({
+            uid: USER_ID,
+            text: value,
+            reply: null,
+            time: firebase.database.ServerValue.TIMESTAMP
+        })
+        .then(()=>{
 
-if(block.exists()){
+            // збільшуємо непрочитані у співрозмовника
+            db.ref("chats/"+CHAT_ID+"/unread/"+CHAT_USER)
+            .transaction(v => (v || 0) + 1);
 
-alert("Ви заблокували цього користувача");
+            // оновлюємо останнє повідомлення
+            db.ref("chats/"+CHAT_ID).update({
+                lastMessage: value,
+                lastTime: firebase.database.ServerValue.TIMESTAMP
+            });
 
-return;
+        });
 
-}
+        text.value="";
 
+        setTimeout(()=>{
+            messages.scrollTop = messages.scrollHeight;
+        },100);
 
-db.ref("privateMessages/"+CHAT_ID)
-.push({
-
-uid:USER_ID,
-
-text:value,
-
-
-
-reply: null,
-
-time:
-firebase.database.ServerValue.TIMESTAMP
-
-});
-
-
-text.value="";
-
-setTimeout(() => {
-    messages.scrollTop = messages.scrollHeight;
-}, 100);
-
-});
-
+    });
 
 }
-
-send.onclick = sendMessage;
-
-
-text.addEventListener("keydown",e=>{
-
-if(e.key==="Enter"){
-
-e.preventDefault();
-
-sendMessage();
-
-}
-
-});
 
 function goBack(){
 
