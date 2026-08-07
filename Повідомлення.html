@@ -802,30 +802,29 @@ const dialogs = document.getElementById("dialogs");
 
 auth.onAuthStateChanged(user=>{
 
-    function setOnlineStatus(){
+ function setOnlineStatus(){
 
-if(!USER_ID) return;
+    if(!USER_ID) return;
 
+    function update(){
 
-db.ref("online/"+USER_ID).set({
+        db.ref("online/" + USER_ID).set({
+            online: true,
+            lastSeen: Date.now()
+        });
 
-online:true,
+    }
 
-lastSeen:Date.now()
+    update();
 
-});
+    setInterval(update, 30000); // кожні 30 секунд
 
-
-db.ref("online/"+USER_ID)
-.onDisconnect()
-.set({
-
-online:false,
-
-lastSeen:Date.now()
-
-});
-
+    db.ref("online/" + USER_ID)
+    .onDisconnect()
+    .set({
+        online: false,
+        lastSeen: firebase.database.ServerValue.TIMESTAMP
+    });
 
 }
 
@@ -853,279 +852,153 @@ auth.signInAnonymously();
 });
 
 
+function setOnline() {
 
+    if (!USER_ID) return;
+
+    const ref = db.ref("online/" + USER_ID);
+
+    function update() {
+        ref.set({
+            online: true,
+            lastSeen: firebase.database.ServerValue.TIMESTAMP
+        });
+    }
+
+    update();
+
+    setInterval(update, 30000);
+
+    ref.onDisconnect().set({
+        online: false,
+        lastSeen: firebase.database.ServerValue.TIMESTAMP
+    });
+
+}
 
 // ===============================
 // ЗАВАНТАЖЕННЯ ЧАТІВ
 // ===============================
 
 
-function loadDialogs(){
+function loadUserDialog(uid, chatId, chat) {
 
-dialogs.innerHTML="";
+    db.ref("users/" + uid).once("value").then(snap => {
 
+        let user = snap.val() || {};
 
-db.ref("chats")
-.orderByChild("lastTime")
-.on("value",snap=>{
+        let div = document.createElement("div");
+        div.className = "dialog";
 
+        div.onclick = () => {
+            localStorage.setItem("chatId", chatId);
+            localStorage.setItem("chatUser", uid);
+            location.href = "Чат.html";
+        };
 
-let chats=[];
+        let time = "";
 
+        if (chat.lastTime) {
+            let d = new Date(chat.lastTime);
 
-snap.forEach(item=>{
+            time =
+                String(d.getHours()).padStart(2, "0") + ":" +
+                String(d.getMinutes()).padStart(2, "0");
+        }
 
+        // додаємо елемент лише один раз
+        dialogs.appendChild(div);
+        loadUnread(chatId);
 
-let chat=item.val();
+        // слухаємо онлайн/офлайн
+        db.ref("online/" + uid).on("value", snap => {
 
+            const data = snap.val();
 
-if(chat.members && chat.members[USER_ID]){
+            const isOnline =
+                data &&
+                data.online === true &&
+                Date.now() - (data.lastSeen || 0) < 60000;
 
+            const online = isOnline ? "🟢" : "⚪";
 
-chats.push({
+            div.innerHTML = `
+                <div class="avatar">
+                    <img src="${user.avatar || 'avatars/avatar1.png'}">
+                </div>
 
-id:item.key,
+                <div class="info">
+                    <div class="name">
+                        ${user.name || "Користувач"} ${user.surname || ""} ${online}
+                    </div>
 
-data:chat
+                    <div class="last">
+                        ${chat.lastMessage || ""}
+                    </div>
+                </div>
 
+                <div class="time">
+                    ${time}
+                </div>
 
-});
+                <div id="badge-${chatId}" class="badge" style="display:none"></div>
+            `;
+        });
 
-
-}
-
-
-
-});
-
-
-// нові зверху
-
-chats.reverse();
-
-
-
-dialogs.innerHTML="";
-
-
-chats.forEach(c=>{
-
-
-let otherUser="";
-
-
-Object.keys(c.data.members)
-
-.forEach(uid=>{
-
-
-if(uid!==USER_ID)
-
-otherUser=uid;
-
-
-});
-
-
-
-if(otherUser)
-
-loadUserDialog(
-otherUser,
-c.id,
-c.data
-);
-
-
-
-});
-
-
-
-});
-
+    });
 
 }
 
-// ===============================
-// ДАНІ КОРИСТУВАЧА
-// ===============================
+function loadDialogs() {
 
+    dialogs.innerHTML = "";
 
-function loadUserDialog(uid,chatId,chat){
+    db.ref("chats")
+        .orderByChild("lastTime")
+        .on("value", snap => {
 
+            dialogs.innerHTML = "";
 
-db.ref("users/"+uid)
+            let chats = [];
 
-.once("value")
+            snap.forEach(item => {
 
-.then(snap=>{
+                const chat = item.val();
 
+                // показувати тільки чати поточного користувача
+                if (chat.members && chat.members[USER_ID]) {
 
-let user=snap.val()||{};
+                    chats.push({
+                        id: item.key,
+                        data: chat
+                    });
 
+                }
 
+            });
 
-let div=document.createElement("div");
+            // нові зверху
+            chats.reverse();
 
-div.className="dialog";
+            chats.forEach(chat => {
 
+                let otherUser = "";
 
+                Object.keys(chat.data.members).forEach(uid => {
+                    if (uid !== USER_ID) {
+                        otherUser = uid;
+                    }
+                });
 
-div.onclick=()=>{
+                if (otherUser) {
+                    loadUserDialog(otherUser, chat.id, chat.data);
+                }
 
+            });
 
-localStorage.setItem(
-"chatId",
-chatId
-);
-
-
-localStorage.setItem(
-"chatUser",
-uid
-);
-
-
-location.href="Чат.html";
-
-
-};
-
-
-
-
-let time="";
-
-
-if(chat.lastTime){
-
-
-let d=new Date(chat.lastTime);
-
-
-time=
-
-String(d.getHours()).padStart(2,"0")
-
-+":"
-
-+
-
-String(d.getMinutes()).padStart(2,"0");
-
+        });
 
 }
-
-
-
-
-let online="";
-
-
-db.ref("online/"+uid)
-.once("value")
-.then(o=>{
-
-
-let online="";
-
-
-if(o.val()){
-
-online="🟢";
-
-}
-
-
-
-div.innerHTML=`
-
-<div class="avatar">
-<img src="${user.avatar || 'avatars/avatar1.png'}">
-</div>
-
-
-<div class="info">
-
-<div class="name">
-${online} ${user.name || "Користувач"}
-</div>
-
-
-<div class="last">
-${chat.lastMessage || "Немає повідомлень"}
-</div>
-
-</div>
-
-
-<div onclick="deleteChat('${chatId}',event)"
-style="
-font-size:22px;
-color:red;
-padding:10px;
-cursor:pointer;
-">
-🗑️
-</div>
-
-`;
-
-
-
-dialogs.appendChild(div);
-
-loadUnread(chatId);
-
-
-
-});
-
-});
-
-
-
-}
-
-// ===============================
-// ПОШУК
-// ===============================
-
-
-document.getElementById("search")
-
-.addEventListener("input",function(){
-
-
-let value=this.value.toLowerCase();
-
-
-document.querySelectorAll(".dialog")
-
-.forEach(d=>{
-
-
-d.style.display=
-
-d.innerText.toLowerCase().includes(value)
-
-?
-
-"flex"
-
-:
-
-"none";
-
-
-});
-
-
-});
-
-
-
 // ===============================
 // НОВИЙ ЧАТ
 // ===============================
@@ -1911,10 +1784,12 @@ onlineSnap.child(uid).val();
 
 // показуємо тільки активних
 if(
-!onlineData ||
-onlineData.online!==true
-)
-return;
+    !onlineData ||
+    onlineData.online !== true ||
+    Date.now() - (onlineData.lastSeen || 0) > 60000
+){
+    return;
+}
 
 
 
