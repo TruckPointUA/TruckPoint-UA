@@ -26,25 +26,23 @@ background:#edf3ff;
 min-height:100vh;
 }
 
-
 header{
-background:linear-gradient(135deg,#0057ff,#00a2ff);
-color:white;
-padding:20px;
-border-radius:0 0 25px 25px;
-box-shadow:0 5px 15px #0003;
-text-align:center;
+    background:linear-gradient(135deg,#0057ff,#00a2ff);
+    color:white;
+    padding:18px;
+    border-radius:0 0 25px 25px;
+    box-shadow:0 5px 15px #0003;
 }
 
 .logo{
-font-size:28px;
-font-weight:700;
+    text-align:center;
+    font-size:28px;
+    font-weight:700;
+    margin-bottom:12px;
 }
 
 .user{
-margin-top:8px;
-font-size:15px;
-font-weight:500;
+    text-align:left;
 }
 
 
@@ -120,11 +118,6 @@ text-align:center;
 @media(max-width:480px){
 
 
-header{
-
-padding:16px;
-
-}
 
 
 .logo{
@@ -973,39 +966,42 @@ function updateHeader(){
         if(box){
 
 
-            box.innerHTML=`
+ box.innerHTML = `
+<div style="
+display:flex;
+align-items:center;
+gap:12px;
+">
 
-            <div style="
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            gap:10px">
+    <img src="${currentAvatar}"
+    onerror="this.src='avatars/avatar1.png'"
+    style="
+    width:56px;
+    height:56px;
+    border-radius:50%;
+    object-fit:cover;
+    border:2px solid #fff;
+    ">
 
+    <div>
 
-            <img src="${currentAvatar}"
-            onerror="this.src='avatars/avatar1.png'"
-            style="
-            width:50px;
-            height:50px;
-            border-radius:50%;
-            object-fit:cover">
+        <div style="
+        font-size:17px;
+        font-weight:700;
+        ">
+            ${currentUserName}
+        </div>
 
+        <div style="
+        font-size:14px;
+        ">
+            👥 ${usersCount} &nbsp;&nbsp; 🟢 ${onlineCount}
+        </div>
 
-            <div>
+    </div>
 
-            <b>${currentUserName}</b>
-            <br>
-
-            👥 ${usersCount}
-            |
-            🟢 ${onlineCount}
-
-            </div>
-
-
-            </div>
-
-            `;
+</div>
+`;
 
 
         }
@@ -1831,33 +1827,22 @@ function loadAllUsers(){
 
 
 
-            allUsers.push({
+const loc = online[child.key];
 
+allUsers.push({
 
+    uid: child.key,
 
-                uid:child.key,
+    name: ((d.name || "") + " " + (d.surname || "")).trim() || "Користувач",
 
+    avatar: d.avatar || "avatars/avatar1.png",
 
+    online:
+        loc &&
+        loc.online === true &&
+        Date.now() - (loc.lastUpdate || 0) < 120000
 
-                name:
-                ((d.name||"")+" "+(d.surname||""))
-                .trim() ||
-                "Користувач",
-
-
-
-                avatar:
-                d.avatar ||
-                "avatars/avatar1.png",
-
-
-
-                online:
-                online[child.key]?.online===true
-
-
-
-            });
+});
 
 
 
