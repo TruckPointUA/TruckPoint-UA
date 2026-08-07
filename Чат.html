@@ -193,13 +193,15 @@ opacity:.8;
 
 
 .msg{
+    position:relative;
     display:inline-block;
-    width:auto;
+    width:fit-content;
     max-width:75%;
-    align-self:flex-start;
-    flex:0 0 auto;
+    padding:10px 14px;
+    margin:4px 0 22px;
+    border-radius:18px;
+    word-break:break-word;
 }
-
 .msg.me{
     align-self:flex-end;
 }
@@ -244,21 +246,13 @@ opacity:.8;
 /* ЧАС ПІД БУЛЬБАШКОЮ */
 
 .msgTime{
-
     position:absolute;
-
-    right:3px;
-
+    right:6px;
     bottom:-18px;
-
     font-size:11px;
-
     color:#777;
-
     white-space:nowrap;
-
 }
-
 
 .me .msgTime{
 
@@ -916,17 +910,27 @@ function loadUser(){
 
     db.ref("users/"+CHAT_USER).once("value").then(snap=>{
 
-        const user = snap.val();
+const user = snap.val();
 
-        if(!user) return;
+if (!user) return;
 
-        chatName.textContent =
-            (user.name || "") + " " + (user.surname || "");
+chatName.textContent =
+    (user.name || "") + " " + (user.surname || "");
 
-        chatAvatar.src =
-            user.avatar ||
-            user.photoURL ||
-            "avatars/default.png";
+console.log("avatar:", user.avatar);
+console.log("photoURL:", user.photoURL);
+
+chatAvatar.src =
+    (typeof user.avatar === "string" && user.avatar.trim() !== "")
+        ? user.avatar
+        : (typeof user.photoURL === "string" && user.photoURL.trim() !== "")
+            ? user.photoURL
+            : "avatars/avatar1.png";
+
+chatAvatar.onerror = function () {
+    this.onerror = null;
+    this.src = "avatars/avatar1.png";
+};
 
     });
 
@@ -1037,60 +1041,20 @@ msg.read ? " ✓✓" : " ✓";
 
 div.innerHTML = `
 
-
 ${msg.reply ? `
+<div class="replyBox">↩ ${msg.reply}</div>
+` : ''}
 
-<div class="replyBox">
+<div class="messageText">${msg.text}</div>
 
-↩ ${msg.reply}
-
-</div>
-
-`:''}
-
-
-
-<div class="messageText">
-
-${msg.text}
-
-</div>
-
-
-<div class="msgTime">
-
-${time}${read}
-
-</div>
-
-
+<div class="msgTime">${time}${read}</div>
 
 ${msg.uid===USER_ID ? `
-
 <div class="actions">
-
-
-${msg.uid===USER_ID ? `
-
-<button onclick="editMessage('${id}','${msg.text.replace(/'/g,"\\'")}')">
-
-✏️
-
-</button>
-
-
-<button onclick="deleteMessage('${id}')">
-
-🗑
-
-</button>
-
-`:''}
-
+    <button onclick="editMessage('${id}','${msg.text.replace(/'/g,"\\'")}')">✏️</button>
+    <button onclick="deleteMessage('${id}')">🗑️</button>
 </div>
-
-`:''}
-
+` : ''}
 
 `;
 
