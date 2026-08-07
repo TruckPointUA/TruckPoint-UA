@@ -53,23 +53,13 @@ overflow:hidden;
 /* ШАПКА */
 
 .header{
-
-height:60px;
-
-background:#1677ff;
-
-color:white;
-
-display:flex;
-
-align-items:center;
-
-padding:0 12px;
-
-gap:12px;
-
-box-shadow:0 2px 10px #0003;
-
+    height:60px;
+    background:#1677ff;
+    color:white;
+    display:flex;
+    align-items:center;
+    padding:0 12px;
+    box-shadow:0 2px 10px #0003;
 }
 
 
@@ -197,60 +187,42 @@ opacity:.8;
     display:flex;
     flex-direction:column;
     gap:3px;
+
+    align-items:flex-start; /* ← ДОДАТИ */
 }
 
 
 .msg{
-    position:relative;
-
-    display:block;
-
-    width:fit-content;
+    display:inline-block;
+    width:auto;
     max-width:75%;
-
-    padding:7px 10px 6px 10px;
-
-    border-radius:18px;
-
-    font-size:17px;
-    line-height:1.35;
-
-    word-break:break-word;
-    overflow-wrap:anywhere;
-
-    margin:4px 0 22px 0;
-
-    box-shadow:0 2px 6px rgba(0,0,0,.12);
+    align-self:flex-start;
+    flex:0 0 auto;
 }
 
+.msg.me{
+    align-self:flex-end;
+}
+
+.msg.other{
+    align-self:flex-start;
+}
 
 /* МОЇ ПОВІДОМЛЕННЯ */
 
 .me{
-
-    align-self:flex-end;
-
-    background:#1677ff;
-
-    color:white;
-
-    border-bottom-right-radius:5px;
-
+    background:#1f7cff;
+    color:#fff;
+    border-radius:18px 18px 4px 18px;
 }
 
 
 /* ЧУЖІ ПОВІДОМЛЕННЯ */
 
 .other{
-
-    align-self:flex-start;
-
-    background:#ffffff;
-
+    background:#fff;
     color:#222;
-
-    border-bottom-left-radius:5px;
-
+    border-radius:18px 18px 18px 4px;
 }
 
 
@@ -571,6 +543,34 @@ color:white;
 
 }
 
+.menuItem{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:13px 18px;
+    font-size:15px;
+    color:#333;
+    cursor:pointer;
+    transition:.18s;
+    user-select:none;
+}
+
+.menuItem:hover{
+    background:#f5f7fb;
+}
+
+.menuItem:active{
+    background:#e9eef8;
+    transform:scale(.98);
+}
+
+.menuItem i{
+    width:22px;
+    text-align:center;
+    color:#1976d2;
+    font-size:17px;
+}
+
 </style>
 
 
@@ -599,58 +599,24 @@ font-size:15px;
 
 <div class="header">
 
-    <div onclick="deleteChat()"
-style="font-size:22px;cursor:pointer">
+   <div style="width:24px;"></div>
 
-🗑
+    <div style="flex:1;display:flex;justify-content:center;align-items:center;gap:10px;">
 
-</div>
+        <div class="avatar">
+            <img id="chatAvatar" src="avatars/avatar1.png">
+        </div>
 
-<div onclick="toggleDark()"
-style="font-size:22px;cursor:pointer">
-🌙
-</div>
+        <div class="userBox">
+            <div class="userName" id="chatName">Користувач</div>
+            <div class="status" id="status">онлайн</div>
+        </div>
 
+    </div>
 
-<div class="back" onclick="goBack()">
-    <span>←</span>
-</div>
-
-<div onclick="openChatMenu()"
-style="margin-left:auto;font-size:25px;cursor:pointer">
-
-⋮
-
-</div>
-
-
-
-<div class="avatar">
-
-<img id="chatAvatar"
-src="avatars/avatar1.png">
-
-</div>
-
-
-
-<div class="userBox">
-
-<div class="userName"
-id="chatName">
-
-Користувач
-
-</div>
-
-
-<div class="status"
-id="status">
-
-онлайн
-
-</div>
-
+    <div onclick="openChatMenu()" style="font-size:25px;cursor:pointer">
+        ⋮
+    </div>
 
 </div>
 
@@ -687,19 +653,31 @@ placeholder="Повідомлення...">
 style="
 display:none;
 position:fixed;
-right:10px;
-top:60px;
-background:white;
-border-radius:10px;
-box-shadow:0 5px 20px #0004;
-z-index:999;
+right:12px;
+top:58px;
+min-width:210px;
+background:#ffffff;
+border:1px solid #e8e8e8;
+border-radius:18px;
+box-shadow:0 12px 35px rgba(0,0,0,.18);
+backdrop-filter:blur(12px);
+-webkit-backdrop-filter:blur(12px);
 overflow:hidden;
+z-index:9999;
+padding:6px 0;
+animation:menuOpen .18s ease;
 ">
 
 <div id="blockItem"
 onclick="blockUser()"
 style="display:none;padding:15px;cursor:pointer">
 🚫 Заблокувати
+</div>
+
+<div
+onclick="deleteChat()"
+style="padding:15px;cursor:pointer;color:#d32f2f;border-top:1px solid #eee;">
+🗑 Видалити чат
 </div>
 
 <div id="unblockItem"
@@ -934,27 +912,25 @@ auth.signInAnonymously();
 
 function loadUser(){
 
+    if(!CHAT_USER) return;
 
-if(!CHAT_USER)return;
+    db.ref("users/"+CHAT_USER).once("value").then(snap=>{
 
+        const user = snap.val();
 
-db.ref("users/"+CHAT_USER)
-.once("value")
-.then(snap=>{
+        if(!user) return;
 
-let user=snap.val();
+        chatName.textContent =
+            (user.name || "") + " " + (user.surname || "");
 
-chatName.textContent =
-user.name+" "+user.surname;
+        chatAvatar.src =
+            user.avatar ||
+            user.photoURL ||
+            "avatars/default.png";
 
-
-chatAvatar.src =
-user.avatar;
-
-});
+    });
 
 }
-
 
 
 // =====================
@@ -1024,6 +1000,12 @@ div.id = "msg-" + id;
 div.className =
 "msg " +
 (msg.uid===USER_ID ? "me":"other");
+
+if(msg.uid === USER_ID){
+    div.style.alignSelf = "flex-end";
+}else{
+    div.style.alignSelf = "flex-start";
+}
 
 
 
@@ -1318,26 +1300,39 @@ location.href="Повідомлення.html";
 // =====================
 
 
+let onlineTimer;
+
 function setOnline(){
 
-db.ref("online/"+USER_ID).set({
+    const ref = db.ref("online/" + USER_ID);
 
-online:true,
+    function updateOnline(){
+        ref.update({
+            online: true,
+            lastSeen: firebase.database.ServerValue.TIMESTAMP
+        });
+    }
 
-lastSeen:Date.now()
+    // Встановити онлайн одразу
+    updateOnline();
 
-});
+    // Оновлювати кожні 20 секунд
+    clearInterval(onlineTimer);
+    onlineTimer = setInterval(updateOnline, 20000);
 
+    // При відключенні
+    ref.onDisconnect().set({
+        online: false,
+        lastSeen: firebase.database.ServerValue.TIMESTAMP
+    });
 
-db.ref("online/"+USER_ID)
-.onDisconnect()
-.set({
-
-online:false,
-
-lastSeen:Date.now()
-
-});
+    // Якщо вкладка закривається
+    window.addEventListener("beforeunload", () => {
+        ref.set({
+            online: false,
+            lastSeen: Date.now()
+        });
+    });
 
 }
 // =====================
@@ -1347,36 +1342,23 @@ lastSeen:Date.now()
 
 function watchUserStatus(){
 
+    if(!CHAT_USER) return;
 
-if(!CHAT_USER)return;
+    db.ref("online/" + CHAT_USER).on("value", snap => {
 
+        const status = document.getElementById("status");
+        const data = snap.val();
 
-db.ref("online/"+CHAT_USER)
+        const online =
+            data &&
+            data.online === true &&
+            Date.now() - (data.lastSeen || 0) < 60000;
 
-.on("value",snap=>{
+        status.textContent = online
+            ? "🟢 онлайн"
+            : "⚪ офлайн";
 
-
-let status=document.getElementById("status");
-
-
-if(snap.val()){
-
-
-status.textContent="🟢 онлайн";
-
-
-}else{
-
-
-status.textContent="⚪ офлайн";
-
-
-}
-
-
-
-});
-
+    });
 
 }
 
@@ -1464,38 +1446,22 @@ location.href=
 
 function openChatMenu(){
 
-let menu=document.getElementById("chatMenu");
+    const menu = document.getElementById("chatMenu");
 
-menu.style.display =
-menu.style.display==="block"
-?
-"none"
-:
-"block";
+    menu.style.display =
+        menu.style.display === "block"
+        ? "none"
+        : "block";
 
 }
-{
+document.addEventListener("click", function(e){
 
+    if(e.target.closest("#chatMenu")) return;
+    if(e.target.closest('[onclick="openChatMenu()"]')) return;
 
-let menu=document.getElementById(
-"chatMenu"
-);
+    document.getElementById("chatMenu").style.display = "none";
 
-
-menu.style.display=
-
-menu.style.display==="block"
-
-?
-
-"none"
-
-:
-
-"block";
-
-
-}
+});
 function unblockUser(){
 
 
