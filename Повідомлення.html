@@ -859,17 +859,19 @@ function setOnline() {
     const ref = db.ref("online/" + USER_ID);
 
     function update() {
-        ref.set({
+
+        ref.update({
             online: true,
             lastSeen: firebase.database.ServerValue.TIMESTAMP
         });
+
     }
 
     update();
 
     setInterval(update, 30000);
 
-    ref.onDisconnect().set({
+    ref.onDisconnect().update({
         online: false,
         lastSeen: firebase.database.ServerValue.TIMESTAMP
     });
@@ -902,49 +904,90 @@ function loadUserDialog(uid, chatId, chat) {
             let d = new Date(chat.lastTime);
 
             time =
-                String(d.getHours()).padStart(2, "0") + ":" +
+                String(d.getHours()).padStart(2, "0") +
+                ":" +
                 String(d.getMinutes()).padStart(2, "0");
         }
 
-        // додаємо елемент лише один раз
         dialogs.appendChild(div);
+
         loadUnread(chatId);
 
-        // слухаємо онлайн/офлайн
-        db.ref("online/" + uid).on("value", snap => {
+        // Оновлення статусу користувача
+       db.ref("usersLocation/" + uid).on("value", onlineSnap => {
 
-            const data = snap.val();
+    const loc = onlineSnap.val() || {};
 
-            const isOnline =
-                data &&
-                data.online === true &&
-                Date.now() - (data.lastSeen || 0) < 60000;
+    const isOnline =
+        loc.online === true &&
+        Date.now() - (loc.lastUpdate || 0) < 120000;
 
-            const online = isOnline ? "🟢" : "⚪";
+    let status = "";
 
-            div.innerHTML = `
-                <div class="avatar">
-                    <img src="${user.avatar || 'avatars/avatar1.png'}">
-                </div>
+    if (isOnline) {
 
-                <div class="info">
-                    <div class="name">
-                        ${user.name || "Користувач"} ${user.surname || ""} ${online}
-                    </div>
+        status = "🟢 Онлайн";
 
-                    <div class="last">
-                        ${chat.lastMessage || ""}
-                    </div>
-                </div>
+    } else if (loc.lastUpdate) {
 
-                <div class="time">
-                    ${time}
-                </div>
+        const d = new Date(loc.lastUpdate);
+        const now = new Date();
 
-                <div id="badge-${chatId}" class="badge" style="display:none"></div>
-            `;
-        });
+        if (d.toDateString() === now.toDateString()) {
 
+            status =
+                "Був(ла) сьогодні о " +
+                d.getHours().toString().padStart(2, "0") +
+                ":" +
+                d.getMinutes().toString().padStart(2, "0");
+
+        } else {
+
+            status =
+                "Був(ла) " +
+                d.getDate().toString().padStart(2, "0") +
+                "." +
+                (d.getMonth() + 1).toString().padStart(2, "0") +
+                "." +
+                d.getFullYear() +
+                " о " +
+                d.getHours().toString().padStart(2, "0") +
+                ":" +
+                d.getMinutes().toString().padStart(2, "0");
+
+        }
+
+    } else {
+
+        status = "⚪ Не в мережі";
+
+    }
+
+    div.innerHTML = `
+        <div class="avatar">
+            <img src="${user.avatar || 'avatars/avatar1.png'}">
+        </div>
+
+        <div class="info">
+            <div class="name">
+                ${user.name || "Користувач"} ${user.surname || ""}
+            </div>
+
+            <div class="last">
+                ${status}
+            </div>
+        </div>
+
+        <div class="time">
+            ${time}
+        </div>
+
+        <div id="badge-${chatId}" class="badge" style="display:none"></div>
+    `;
+
+    loadUnread(chatId);
+
+});
     });
 
 }
