@@ -349,39 +349,60 @@ cursor:default;
 /* Шапка */
 .header{
     position:relative;
-    height:90px;
-    background:linear-gradient(90deg,#1565ff,#1aa7ff);
+    height:95px;
     display:flex;
-    justify-content:center;
     align-items:center;
-    border-bottom-left-radius:25px;
-    border-bottom-right-radius:25px;
+    justify-content:center;
+    background:linear-gradient(135deg,#0d6efd,#29b6ff);
+    border-bottom-left-radius:30px;
+    border-bottom-right-radius:30px;
+    box-shadow:0 10px 25px rgba(0,0,0,.18);
 }
 
 .logo{
-    position:absolute;
-    left:50%;
-    transform:translateX(-50%);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    line-height:1.2;
     color:#fff;
-    font-size:22px;
+}
+.logo .name{
+    font-size:20px;
     font-weight:700;
-    white-space:nowrap;
 }
 
+.logo .stats{
+    margin-top:4px;
+    font-size:13px;
+    opacity:.95;
+}
 .user{
     position:absolute;
     left:15px;
     top:50%;
     transform:translateY(-50%);
 }
-
 .avatar{
-    width:42px;
-    height:42px;
+    width:56px;
+    height:56px;
     border-radius:50%;
     object-fit:cover;
-    border:2px solid #fff;
-    cursor:pointer;
+    border:3px solid rgba(255,255,255,.95);
+    box-shadow:0 4px 12px rgba(0,0,0,.25);
+    background:#fff;
+}
+
+.header::after{
+    content:"";
+    position:absolute;
+    right:15px;
+    top:50%;
+    transform:translateY(-50%);
+    width:60px;
+    height:60px;
+    background:url("logo.png") center/contain no-repeat;
+    opacity:.12;
+    pointer-events:none;
 }
 </style>
 
@@ -938,98 +959,73 @@ function saveLocation(position){
 
 function updateHeader(){
 
-
     Promise.all([
-
-
         db.ref("users").once("value"),
-
-
         db.ref("usersLocation").once("value")
-
-
     ])
     .then(([usersSnap,locationSnap])=>{
 
-
-        let usersCount =
-        usersSnap.numChildren();
-
-
-
-        let onlineCount=0;
-
-
+        let usersCount = usersSnap.numChildren();
+        let onlineCount = 0;
 
         locationSnap.forEach(child=>{
 
-
-            const d=child.val();
-
-
+            const d = child.val();
 
             if(
-
-                d.online===true &&
-
-                d.showLocation===true &&
-
-                Date.now() -
-                (d.lastUpdate || 0)
-                <120000
-
+                d.online === true &&
+                d.showLocation === true &&
+                Date.now() - (d.lastUpdate || 0) < 120000
             ){
-
                 onlineCount++;
-
             }
-
 
         });
 
+        // Оновлюємо аватар
+        document.getElementById("userAvatar").src =
+            currentAvatar || "avatars/avatar1.png";
 
-
-
-
-        const box =
-        document.getElementById("userInfo");
-
-
-
-        if(box){
-
+        const box = document.getElementById("userInfo");
 
 box.innerHTML = `
-<div style="display:flex;align-items:center;gap:10px;">
-    <div style="line-height:1.2">
+    <div style="display:flex;flex-direction:column;align-items:center;line-height:1.15">
 
         <div style="
+            font-size:13px;
+            color:rgba(255,255,255,.85);
+            letter-spacing:2px;
+            text-transform:uppercase;
+            font-weight:600;">
+            Truck Point UA
+        </div>
+
+        <div style="
+            font-size:21px;
             color:#fff;
-            font-size:17px;
             font-weight:700;
-        ">
+            margin-top:2px;">
             ${currentUserName}
         </div>
 
         <div style="
-            color:#fff;
-            font-size:14px;
-        ">
+            margin-top:4px;
+            font-size:13px;
+            color:rgba(255,255,255,.95);
+            background:rgba(255,255,255,.15);
+            padding:3px 10px;
+            border-radius:20px;
+            backdrop-filter:blur(8px);">
+
             👥 ${usersCount}
-            &nbsp;
-            🟢 ${onlineCount}
+            &nbsp;&nbsp;|&nbsp;&nbsp;
+            🟢 ${onlineCount} онлайн
+
         </div>
 
     </div>
-
-</div>
 `;
-
-        }
-
-
     });
-
 
 }
 
@@ -1621,10 +1617,14 @@ function saveProfile(){
         currentUserName =
         fullName;
 
+        updateHeader();
+
 
 
         currentAvatar =
         selectedAvatar;
+
+        document.getElementById("userAvatar").src = currentAvatar;
 
 
 
