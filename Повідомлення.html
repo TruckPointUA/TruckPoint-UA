@@ -793,42 +793,68 @@ let USER_ID="";
 
 const dialogs = document.getElementById("dialogs");
 
-
+const messageSound = new Audio("message.mp3");
+messageSound.preload = "auto";
 
 // ===============================
 // АВТОРИЗАЦІЯ
 // ===============================
 
 
-auth.onAuthStateChanged(user=>{
 
- function setOnlineStatus(){
 
-    if(!USER_ID) return;
+function setOnlineStatus() {
 
-    function update(){
+    if (!USER_ID) return;
 
-        db.ref("online/" + USER_ID).set({
+    const ref = db.ref("online/" + USER_ID);
+
+    function update() {
+
+        ref.set({
             online: true,
-            lastSeen: Date.now()
+            lastSeen: firebase.database.ServerValue.TIMESTAMP
         });
 
     }
 
     update();
 
-    setInterval(update, 30000); // кожні 30 секунд
+    setInterval(update, 20000);
 
-    db.ref("online/" + USER_ID)
-    .onDisconnect()
-    .set({
+    ref.onDisconnect().set({
         online: false,
         lastSeen: firebase.database.ServerValue.TIMESTAMP
     });
 
+    document.addEventListener("visibilitychange", () => {
+
+        if (document.hidden) {
+
+            ref.update({
+                online: false,
+                lastSeen: firebase.database.ServerValue.TIMESTAMP
+            });
+
+        } else {
+
+            update();
+
+        }
+
+    });
+
+    window.addEventListener("beforeunload", () => {
+
+        ref.update({
+            online: false,
+            lastSeen: firebase.database.ServerValue.TIMESTAMP
+        });
+
+    });
+
 }
-
-
+auth.onAuthStateChanged(user=>{
 if(user){
 
 
@@ -1373,50 +1399,39 @@ u.innerText
 
 
 });
+
+const unreadCache = {};
+
 function loadUnread(chatId){
 
+    db.ref("chats/"+chatId+"/unread/"+USER_ID)
+    .on("value",snap=>{
 
-db.ref(
-"chats/"+chatId+"/unread/"+USER_ID
-)
+        let count = snap.val() || 0;
 
-.on("value",snap=>{
+        let badge = document.getElementById("badge-"+chatId);
 
+        if(!badge) return;
 
-let count=snap.val()||0;
+        // звук тільки коли кількість збільшилась
+        if(
+            unreadCache[chatId] !== undefined &&
+            count > unreadCache[chatId]
+        ){
+            messageSound.currentTime = 0;
+            messageSound.play().catch(()=>{});
+        }
 
+        unreadCache[chatId] = count;
 
-let badge=document.getElementById(
-"badge-"+chatId
-);
+        if(count>0){
+            badge.style.display="flex";
+            badge.textContent=count;
+        }else{
+            badge.style.display="none";
+        }
 
-
-
-if(!badge)return;
-
-
-
-if(count>0){
-
-
-badge.style.display="flex";
-
-
-badge.textContent=count;
-
-
-}else{
-
-
-badge.style.display="none";
-
-
-}
-
-
-
-});
-
+    });
 
 }
 
