@@ -13,6 +13,7 @@ content="width=device-width,initial-scale=1,viewport-fit=cover">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="online.js"></script>
 
 
 <style>
@@ -165,7 +166,19 @@ opacity:.8;
 
 }
 
+#status{
+    font-size:13px;
+    font-weight:500;
+}
 
+#status.online{
+    color:#7CFC00; /* яскраво-зелений */
+}
+
+#status.offline{
+    color:#ffffff;
+    opacity:.8;
+}
 
 
 /* ПОВІДОМЛЕННЯ */
@@ -875,6 +888,8 @@ if(user){
 
 USER_ID=user.uid;
 
+setOnlineStatus();
+
 
 loadUser();
 
@@ -965,20 +980,10 @@ function loadMessages(){
         if(firstLoad) return;
 
         // Звук лише для чужих повідомлень
-        if(msg.uid !== USER_ID){
-
-            unreadTitle++;
-            updateTitle();
-
-            showNotify("Нове повідомлення");
-
-            const sound = document.getElementById("msgSound");
-
-            if(sound){
-                sound.currentTime = 0;
-                sound.play().catch(()=>{});
-            }
-        }
+       if (msg.uid !== USER_ID && document.hidden) {
+    sound.currentTime = 0;
+    sound.play().catch(() => {});
+}
 
     });
 
@@ -1320,8 +1325,8 @@ db.ref("usersLocation/" + CHAT_USER).on("value", snap => {
 
     if (online) {
 
-        status.textContent = "🟢 Онлайн";
-        status.style.color = "#16a34a";
+       status.textContent = "🟢 онлайн";
+    status.className = "online";
 
     } else if (loc.lastUpdate) {
 
@@ -1355,12 +1360,12 @@ db.ref("usersLocation/" + CHAT_USER).on("value", snap => {
         }
 
         status.textContent = text;
-        status.style.color = "#6b7280";
+        status.style.color = "#fff";
 
     } else {
 
-        status.textContent = "⚪ Не в мережі";
-        status.style.color = "#6b7280";
+         status.textContent = "⚪ офлайн";
+    status.className = "offline";
 
     }
 
