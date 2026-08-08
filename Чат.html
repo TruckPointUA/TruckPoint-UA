@@ -1308,21 +1308,63 @@ function watchUserStatus(){
 
     if(!CHAT_USER) return;
 
-    db.ref("online/" + CHAT_USER).on("value", snap => {
+db.ref("usersLocation/" + CHAT_USER).on("value", snap => {
 
-        const status = document.getElementById("status");
-        const data = snap.val();
+    const loc = snap.val() || {};
 
-        const online =
-            data &&
-            data.online === true &&
-            Date.now() - (data.lastSeen || 0) < 60000;
+    const online =
+        loc.online === true &&
+        Date.now() - (loc.lastUpdate || 0) < 120000;
 
-        status.textContent = online
-            ? "🟢 онлайн"
-            : "⚪ офлайн";
+    const status = document.getElementById("status");
 
-    });
+    if (online) {
+
+        status.textContent = "🟢 Онлайн";
+        status.style.color = "#16a34a";
+
+    } else if (loc.lastUpdate) {
+
+        const d = new Date(loc.lastUpdate);
+        const now = new Date();
+
+        let text;
+
+        if (d.toDateString() === now.toDateString()) {
+
+            text =
+                "Був(ла) сьогодні о " +
+                d.getHours().toString().padStart(2, "0") +
+                ":" +
+                d.getMinutes().toString().padStart(2, "0");
+
+        } else {
+
+            text =
+                "Був(ла) " +
+                d.getDate().toString().padStart(2, "0") +
+                "." +
+                (d.getMonth() + 1).toString().padStart(2, "0") +
+                "." +
+                d.getFullYear() +
+                " о " +
+                d.getHours().toString().padStart(2, "0") +
+                ":" +
+                d.getMinutes().toString().padStart(2, "0");
+
+        }
+
+        status.textContent = text;
+        status.style.color = "#6b7280";
+
+    } else {
+
+        status.textContent = "⚪ Не в мережі";
+        status.style.color = "#6b7280";
+
+    }
+
+});
 
 }
 
