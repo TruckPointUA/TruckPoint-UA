@@ -603,6 +603,9 @@ onclick="openOnlineUsers()">
 
 🟢 Онлайн користувачі
 
+<div class="menuItem" onclick="createDiscussion()">
+    💬 Створити обговорення
+</div>
 </div>
 
 
@@ -1952,6 +1955,74 @@ err
 
 });
 
+
+}
+
+function createDiscussion() {
+
+    let isFriends = confirm(
+        "Натисніть OK — щоб створити обговорення між друзями.\n\n" +
+        "Натисніть Скасувати — щоб створити обговорення для всіх користувачів."
+    );
+
+    let type = isFriends ? "friends" : "public";
+
+    // Тема
+    let topic = prompt("Введіть тему чату:");
+    if (!topic) return;
+
+    // Назва
+    let title = prompt("Введіть назву чату:");
+    if (!title) return;
+
+    // Питання
+    let question = prompt("Введіть запитання для обговорення:");
+    if (!question) return;
+
+    let id = "topic_" + Date.now();
+
+    db.ref("topics/" + id).set({
+
+        topic: topic,
+        title: title,
+        question: question,
+
+        creator: USER_ID,
+        type: type,
+
+        created: firebase.database.ServerValue.TIMESTAMP
+
+    }).then(() => {
+
+        // Створюємо запис чату
+        return db.ref("chats/" + id).set({
+
+            isTopic: true,
+
+            members: {
+                [USER_ID]: true
+            },
+
+            topic: topic,
+            title: title,
+            question: question,
+
+            lastMessage: question,
+            lastTime: firebase.database.ServerValue.TIMESTAMP,
+
+            creator: USER_ID,
+            type: type
+
+        });
+
+    }).then(() => {
+
+        localStorage.setItem("chatId", id);
+        localStorage.setItem("chatUser", "topic");
+
+        location.href = "Чат.html";
+
+    });
 
 }
 
