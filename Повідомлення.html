@@ -921,106 +921,158 @@ function loadUserDialog(uid, chatId, chat) {
         let div = document.createElement("div");
         div.className = "dialog";
 
-        div.onclick = () => {
-            localStorage.setItem("chatId", chatId);
-            localStorage.setItem("chatUser", uid);
-            location.href = "Чат.html";
-        };
+    div.onclick = () => {
+
+    // Запам'ятовуємо відкритий чат
+    localStorage.setItem("chatId", chatId);
+    localStorage.setItem("chatUser", uid);
+
+    // Обнуляємо ТІЛЬКИ цей чат
+    db.ref("chats/" + chatId + "/unread/" + USER_ID)
+      .set(0)
+      .then(() => {
+
+          // Після обнулення відкриваємо чат
+          location.href = "Чат.html";
+
+      });
+
+};
 
         let time = "";
 
         if (chat.lastTime) {
+
             let d = new Date(chat.lastTime);
 
             time =
                 String(d.getHours()).padStart(2, "0") +
                 ":" +
                 String(d.getMinutes()).padStart(2, "0");
+
         }
+
+        // =====================================
+        // СПОЧАТКУ СТВОРЮЄМО HTML
+        // =====================================
+
+        div.innerHTML = `
+
+            <div class="avatar">
+                <img src="${user.avatar || 'avatars/avatar1.png'}">
+            </div>
+
+            <div class="info">
+
+                <div class="name">
+
+                    ${user.name || "Користувач"}
+                    ${user.surname || ""}
+
+                </div>
+
+                <div class="last" id="status-${chatId}">
+                    ⚪ Не в мережі
+                </div>
+
+            </div>
+
+            <div class="time">
+                ${time}
+            </div>
+
+            <div
+                id="badge-${chatId}"
+                class="badge"
+                style="display:none">
+            </div>
+
+        `;
+
+        // =====================================
+        // ТЕПЕР ДОДАЄМО DIV У СПИСОК
+        // =====================================
 
         dialogs.appendChild(div);
 
+        // =====================================
+        // ТЕПЕР ВЖЕ МОЖНА СЛУХАТИ UNREAD
+        // =====================================
+
         loadUnread(chatId);
 
-        // Оновлення статусу користувача
-       db.ref("usersLocation/" + uid).on("value", onlineSnap => {
 
-    const loc = onlineSnap.val() || {};
+        // =====================================
+        // СТАТУС КОРИСТУВАЧА
+        // =====================================
 
-    const isOnline =
-        loc.online === true &&
-        Date.now() - (loc.lastUpdate || 0) < 120000;
+        db.ref("usersLocation/" + uid).on("value", onlineSnap => {
 
-    let status = "";
+            const loc = onlineSnap.val() || {};
 
-    if (isOnline) {
+            const isOnline =
+                loc.online === true &&
+                Date.now() - (loc.lastUpdate || 0) < 120000;
 
-        status = "🟢 Онлайн";
+            let status = "";
 
-    } else if (loc.lastUpdate) {
+            if (isOnline) {
 
-        const d = new Date(loc.lastUpdate);
-        const now = new Date();
+                status = "🟢 Онлайн";
 
-        if (d.toDateString() === now.toDateString()) {
+            }
 
-            status =
-                "Був(ла) сьогодні о " +
-                d.getHours().toString().padStart(2, "0") +
-                ":" +
-                d.getMinutes().toString().padStart(2, "0");
+            else if (loc.lastUpdate) {
 
-        } else {
+                const d = new Date(loc.lastUpdate);
+                const now = new Date();
 
-            status =
-                "Був(ла) " +
-                d.getDate().toString().padStart(2, "0") +
-                "." +
-                (d.getMonth() + 1).toString().padStart(2, "0") +
-                "." +
-                d.getFullYear() +
-                " о " +
-                d.getHours().toString().padStart(2, "0") +
-                ":" +
-                d.getMinutes().toString().padStart(2, "0");
+                if (d.toDateString() === now.toDateString()) {
 
-        }
+                    status =
+                        "Був(ла) сьогодні о " +
+                        d.getHours().toString().padStart(2, "0") +
+                        ":" +
+                        d.getMinutes().toString().padStart(2, "0");
 
-    } else {
+                }
 
-        status = "⚪ Не в мережі";
+                else {
 
-    }
+                    status =
+                        "Був(ла) " +
+                        d.getDate().toString().padStart(2, "0") +
+                        "." +
+                        (d.getMonth() + 1).toString().padStart(2, "0") +
+                        "." +
+                        d.getFullYear() +
+                        " о " +
+                        d.getHours().toString().padStart(2, "0") +
+                        ":" +
+                        d.getMinutes().toString().padStart(2, "0");
 
-    div.innerHTML = `
-        <div class="avatar">
-            <img src="${user.avatar || 'avatars/avatar1.png'}">
-        </div>
+                }
 
-        <div class="info">
-            <div class="name">
-                ${user.name || "Користувач"} ${user.surname || ""}
-            </div>
+            }
 
-            <div class="last">
-                ${status}
-            </div>
-        </div>
+            else {
 
-        <div class="time">
-            ${time}
-        </div>
+                status = "⚪ Не в мережі";
 
-        <div id="badge-${chatId}" class="badge" style="display:none"></div>
-    `;
+            }
 
-    loadUnread(chatId);
+            const statusElement =
+                document.getElementById("status-" + chatId);
 
-});
+            if (statusElement) {
+                statusElement.textContent = status;
+            }
+
+        });
+
     });
 
 }
-
 function loadDialogs() {
 
     dialogs.innerHTML = "";
@@ -1413,7 +1465,8 @@ function loadUnread(chatId){
         let count = snap.val() || 0;
 
         let badge = document.getElementById("badge-"+chatId);
-
+console.log("chatId:", chatId);
+console.log("badge:", badge);
         if(!badge) return;
 
         // звук тільки коли кількість збільшилась
@@ -1651,23 +1704,19 @@ ${count}
 
 
 
-div.onclick=()=>{
+div.onclick = () => {
 
+    localStorage.setItem("chatId", chatId);
+    localStorage.setItem("chatUser", uid);
 
-localStorage.setItem(
-"chatId",
-chatId
-);
+    // Обнуляємо тільки цей конкретний чат
+    db.ref("chats/" + chatId + "/unread/" + USER_ID)
+      .set(0)
+      .then(() => {
 
+          location.href = "Чат.html";
 
-localStorage.setItem(
-"chatUser",
-uid
-);
-
-
-location.href="Чат.html";
-
+      });
 
 };
 
