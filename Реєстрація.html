@@ -204,7 +204,7 @@ header{
 
 <input id="email" type="email" placeholder="Email">
 
-<input id="password" type="password" placeholder="Пароль">
+<input id="password" type="password" placeholder="Створи пароль">
 
 
 <button onclick="register()">
@@ -253,70 +253,153 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
+
 async function register(){
 
-    const name = document.getElementById("name").value.trim();
-    const surname = document.getElementById("surname").value.trim();
-    const phone = document.getElementById("phone").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
+const name = document.getElementById("name").value.trim();
+const surname = document.getElementById("surname").value.trim();
+const phone = document.getElementById("phone").value.trim();
+const email = document.getElementById("email").value.trim();
+const password = document.getElementById("password").value;
 
-    if (!name) {
-        alert("Введіть ім'я.");
-        return;
+
+if (!name) {
+alert("Введіть ім'я.");
+return;
+}
+
+
+if (!email || !password) {
+alert("Введіть Email та пароль.");
+return;
+}
+
+
+// Перевірка дублікатів
+
+
+const fullNameKey = (name + "_" + surname)
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "_");
+
+
+
+// перевірка Ім'я + Прізвище
+
+const nameCheck = await db.ref("fullNames/" + fullNameKey).once("value");
+
+if(nameCheck.exists()){
+
+    alert("Користувач з таким ім'ям та прізвищем вже існує!");
+    return;
+
+}
+
+
+
+// ===============================
+// СТВОРЕННЯ АКАУНТА
+// ===============================
+
+
+try{
+
+
+const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+
+
+const uid = userCredential.user.uid;
+
+const result = await db.ref("fullNames/" + fullNameKey).transaction(current => {
+
+    if (current === null) {
+        return uid;      // ключ вільний — займаємо
     }
 
-    if (!email || !password) {
-        alert("Введіть Email та пароль.");
-        return;
-    }
+    return;              // ключ вже існує — скасувати
 
-    try{
+});
+if (!result.committed) {
 
-        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+    await userCredential.user.delete();
 
-        const uid = userCredential.user.uid;
+    alert("Користувач з таким ім'ям та прізвищем вже існує.");
 
-
-  console.log("Починаю запис у users...");
-
+    return;
+}
 await db.ref("users/" + uid).set({
-    name: name,
-    surname: surname,
-    phone: phone,
-    email: email,
+    name,
+    surname,
+    phone,
+    email,
+    avatar: "avatars/avatar1.png",
+    status: "Новий користувач",
+    about: "",
+    online: false,
     createdAt: firebase.database.ServerValue.TIMESTAMP,
     admin: false
 });
 
+
+
+console.log("Починаю запис у users...");
+
+
+
+
+
+// ===============================
+// СТВОРЮЄМО ІНДЕКСИ
+// ===============================
+
+
+
+
+
+
 const check = await db.ref("users/" + uid).once("value");
+
 console.log("Запис після створення:", check.val());
+
 
 console.log("Запис users успішний");
 
-        localStorage.setItem("userName", name);
-        localStorage.setItem("userSurname", surname);
-
-        alert("Ласкаво просимо до TruckPoint UA!");
-
-        window.location.replace("Головна.html");
 
 
-} catch(err){
+localStorage.setItem("userName", name);
 
-    console.error(err);
-    alert(err.code + "\n" + err.message);
+localStorage.setItem("userSurname", surname);
+
+
+
+alert("Ласкаво просимо до TruckPoint UA!");
+
+
+window.location.replace("Головна.html");
+
+
+
+}catch(err){
+
+
+console.error(err);
+
+alert(err.code + "\n" + err.message);
+
 
 }
 
+
 }
+
 
 
 function logout(){
 
     auth.signOut().then(()=>{
 
-        window.location.replace("index.html");
+        window.location.replace("Головна.html");
 
     });
 
