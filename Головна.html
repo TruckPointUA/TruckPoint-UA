@@ -421,7 +421,7 @@ cursor:default;
         <img id="userAvatar" src="avatars/avatar1.png" class="avatar">
     </div>
 
-    <div class="logo" id="userInfo">Ім'я</div>
+    <div class="logo" id="userInfo" style="visibility:hidden"></div>
 
 </div>
 
@@ -631,6 +631,8 @@ let watchId = null;
 let currentUserName = "Користувач";
 
 let currentAvatar = "avatars/avatar1.png";
+currentUserName = localStorage.getItem("userName") || "Користувач";
+currentAvatar = localStorage.getItem("userAvatar") || "avatars/avatar1.png";
 
 let geoAsked = localStorage.getItem("geoAsked") === "true";
 
@@ -1031,6 +1033,7 @@ box.innerHTML = `
 
     </div>
 `;
+    box.style.visibility = "visible";
     });
 
 }
@@ -1040,13 +1043,9 @@ box.innerHTML = `
 
 setInterval(()=>{
 
-
     if(USER_ID){
-
-        updateHeader();
-
+        refreshOnline();
     }
-
 
 },10000);
 
@@ -2375,6 +2374,56 @@ function openChat(){
         });
 
     });
+
+}
+
+function renderHeader(userCount, onlineCount){
+
+    document.getElementById("userAvatar").src =
+        currentAvatar || "avatars/avatar1.png";
+
+    document.getElementById("userInfo").innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;line-height:1.15">
+
+        <div style="
+            font-size:13px;
+            color:rgba(255,255,255,.85);
+            letter-spacing:2px;
+            text-transform:uppercase;
+            font-weight:600;">
+            Truck Point UA
+        </div>
+
+        <div id="headerUserName"
+             style="font-size:21px;font-weight:700;color:#fff;">
+            ${currentUserName}
+        </div>
+
+        <div id="headerStats"
+             style="
+             margin-top:4px;
+             font-size:13px;
+             color:white;
+             background:rgba(255,255,255,.15);
+             padding:3px 10px;
+             border-radius:20px;">
+
+            👥 ${userCount}
+            &nbsp;|&nbsp;
+            🟢 ${onlineCount} онлайн
+
+        </div>
+
+    </div>`;
+}
+function updateOnlineStats(userCount, onlineCount){
+
+    const stats = document.getElementById("headerStats");
+
+    if(stats){
+        stats.innerHTML =
+            `👥 ${userCount} &nbsp;|&nbsp; 🟢 ${onlineCount} онлайн`;
+    }
 
 }
 </script>
