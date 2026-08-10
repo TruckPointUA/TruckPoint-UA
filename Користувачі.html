@@ -443,33 +443,27 @@ border-radius:12px;
 }
 
 #friendsModal{
+    display:none;
+    position:fixed;
+    left:20px;
+    right:20px;
+    top:50%;
+    transform:translateY(-50%);
+    background:white;
+    padding:25px;
+    border-radius:22px;
+    z-index:100001;
+    box-shadow:0 10px 40px rgba(0,0,0,.35);
+    font-family:Poppins;
 
-display:none;
-
-position:fixed;
-
-left:20px;
-right:20px;
-
-top:50%;
-
-transform:translateY(-50%);
-
-background:white;
-
-padding:25px;
-
-border-radius:22px;
-
-z-index:100001;
-
-box-shadow:0 10px 40px rgba(0,0,0,.35);
-
-font-family:Poppins;
-
+    max-height:80vh;
 }
 
-
+#friendsList{
+    max-height:60vh;
+    overflow-y:auto;
+    margin:15px 0;
+}
 .friendItem{
     display:flex;
     justify-content:space-between;
