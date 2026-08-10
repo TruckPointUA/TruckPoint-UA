@@ -406,6 +406,44 @@ cursor:default;
     opacity:.12;
     pointer-events:none;
 }
+
+.notifyPopup{
+    position:fixed;
+    top:20px;
+    left:50%;
+    transform:translateX(-50%) translateY(-120px);
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:#fff;
+    color:#222;
+    padding:14px 18px;
+    border-radius:18px;
+    box-shadow:0 8px 30px rgba(0,0,0,.25);
+    z-index:999999;
+    transition:.35s;
+    font-family:Poppins,sans-serif;
+    min-width:260px;
+    max-width:90%;
+}
+
+.notifyPopup.show{
+    transform:translateX(-50%) translateY(0);
+}
+
+#notifyIcon{
+    font-size:28px;
+}
+
+#notifyTitle{
+    font-weight:700;
+    color:#0d6efd;
+}
+
+#notifyText{
+    font-size:14px;
+    margin-top:2px;
+}
 </style>
 
 </head>
@@ -439,25 +477,29 @@ cursor:default;
 <div class="title">Точки Зацікавленості</div>
 </div>
 
-<div class="card" onclick="location.href='Для відпочинку.html'">
-<div class="icon">☕</div>
-<div class="title">Для відпочинку</div>
+<div class="card" onclick="location.href='Користувачі.html'">
+    <div class="icon">📡</div>
+    <div class="title">Друзі на мапі</div>
 </div>
+
+
+<div class="card" onclick="openUsersModal()">
+    <div class="icon">👥</div>
+    <div class="title">Усі користувачі</div>
+</div>
+
 
 <div class="card" onclick="location.href='https://for-driver.info/ua/traffic-ban.html'">
 <div class="icon">⚠️</div>
 <div class="title">Заборони руху</div>
 </div>
 
-<div class="card" onclick="location.href='Користувачі.html'">
-    <div class="icon">📡</div>
-    <div class="title">Друзі на мапі</div>
+
+<div class="card" onclick="location.href='Для відпочинку.html'">
+<div class="icon">☕</div>
+<div class="title">Для відпочинку</div>
 </div>
 
-<div class="card" onclick="openUsersModal()">
-    <div class="icon">👥</div>
-    <div class="title">Усі користувачі</div>
-</div>
 
 <div class="card" onclick="openChat()">
     <div class="icon">
@@ -466,21 +508,24 @@ cursor:default;
     </div>
     <div class="title">Чат</div>
 </div>
+<div class="card" onclick="openHelp()">
+    <div class="icon">❓</div>
+    <div class="title">Довідка</div>
+</div>
+
 
 <div class="card" onclick="openSettings()">
 <div class="icon">⚙️</div>
 <div class="title">Налаштування</div>
 </div>
 
+
 <div class="card" onclick="logout()">
 <div class="icon">🚪</div>
 <div class="title">Вийти</div>
 
 </div>
-<div class="card" onclick="openHelp()">
-    <div class="icon">❓</div>
-    <div class="title">Довідка</div>
-</div>
+
 
 
 
@@ -1038,16 +1083,6 @@ box.innerHTML = `
 
 }
 
-
-
-
-setInterval(()=>{
-
-    if(USER_ID){
-        refreshOnline();
-    }
-
-},10000);
 
 
 
@@ -2357,26 +2392,8 @@ function openHelp(){
 }
 
 function openChat(){
-
-    // прибрати лічильник
-    db.ref("chats").once("value").then(snap=>{
-
-        const updates={};
-
-        snap.forEach(chat=>{
-
-            updates[chat.key+"/unread/"+USER_ID]=0;
-
-        });
-
-        db.ref("chats").update(updates).then(()=>{
-            location.href="Повідомлення.html";
-        });
-
-    });
-
+    location.href="Повідомлення.html";
 }
-
 function renderHeader(userCount, onlineCount){
 
     document.getElementById("userAvatar").src =
@@ -2426,6 +2443,51 @@ function updateOnlineStats(userCount, onlineCount){
     }
 
 }
+function showNotification(title,text,icon="🔔"){
+
+    document.getElementById("notifyTitle").textContent=title;
+    document.getElementById("notifyText").textContent=text;
+    document.getElementById("notifyIcon").textContent=icon;
+
+    const p=document.getElementById("notifyPopup");
+
+    p.classList.add("show");
+
+    // звук
+    try{
+        new Audio("message.mp3").play();
+    }catch(e){}
+
+    // вібрація
+    if(navigator.vibrate){
+        navigator.vibrate([200,100,200]);
+    }
+
+    setTimeout(()=>{
+        p.classList.remove("show");
+    },4500);
+}
+let friendRequestLoaded = false;
+
+db.ref("friendRequests/" + USER_ID).on("value", snap => {
+
+    if (!friendRequestLoaded) {
+        friendRequestLoaded = true;
+        return; // не показувати старі запити
+    }
+
+    const data = snap.val();
+    if (!data) return;
+
+    const last = Object.values(data).sort((a,b)=>b.time-a.time)[0];
+
+    showNotification(
+        "Новий запит у друзі",
+        last.name + " хоче додати вас у друзі",
+        "👥"
+    );
+
+});
 </script>
 
 
@@ -2461,9 +2523,20 @@ max-height:90vh;">
 
 Кожне додане вами місце, коментар, фотографія чи відгук допомагають іншим користувачам. Саме завдяки активності спільноти **TruckPoint UA** стає точнішим, кориснішим і зручнішим для всіх.
 
+🆓 **TruckPoint UA — безкоштовний сервіс для водіїв.**
+Користуйтеся програмою, шукайте потрібну інформацію, спілкуйтеся та додавайте власні місця без оплати. Ми також не змушуємо вас **чекати на рекламу перед використанням функцій програми** — сервіс створений для того, щоб ви могли швидко отримати потрібну інформацію та продовжити свою поїздку.
+
 ❤️ **Долучайтеся до розвитку проєкту!** Разом ми створюємо сервіс, який щодня допомагає водіям швидше знаходити потрібні місця, отримувати актуальну інформацію та робити свої поїздки безпечнішими й комфортнішими.
 
-**Дякуємо, що ви є частиною спільноти TruckPoint UA!** 🇺🇦🚛
+💡 **Маєте зауваження, пропозиції або цікаві ідеї щодо розвитку TruckPoint UA?** Будемо раді почути вашу думку! Якщо ви помітили помилку, маєте пропозицію щодо покращення роботи сервісу або хочете запропонувати нову функцію — напишіть розробнику в **Telegram**.
+
+📱 **Telegram:** +380 93 428 72 29
+✉️ **Будь ласка, пишіть у Telegram — дзвінки не потрібні.**
+
+Ваші пропозиції, зауваження та ідеї допомагають розвивати **TruckPoint UA** та робити його ще зручнішим і кориснішим для кожного водія.
+
+🇺🇦🚛 **Дякуємо, що ви є частиною спільноти TruckPoint UA!**
+
 
 </p>
 
@@ -2524,6 +2597,13 @@ font-weight:bold;">
 
 </div>
 
+</div>
+<div id="notifyPopup" class="notifyPopup">
+    <div id="notifyIcon">🔔</div>
+    <div>
+        <div id="notifyTitle">Сповіщення</div>
+        <div id="notifyText"></div>
+    </div>
 </div>
 </body>
 </html>
