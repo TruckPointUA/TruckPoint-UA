@@ -886,7 +886,7 @@ if(user){
 
 
 USER_ID=user.uid;
-
+CHAT_ID = localStorage.getItem("chatId");
 
 
 loadUser();
@@ -955,6 +955,7 @@ chatAvatar.onerror = function () {
 // =====================
 
 let firstLoad = true;
+
 function loadMessages(){
 
     if(!CHAT_ID) return;
@@ -964,31 +965,54 @@ function loadMessages(){
     unreadTitle = 0;
     updateTitle();
 
-    db.ref("privateMessages/" + CHAT_ID).off();
+    firstLoad = true;
 
-    db.ref("privateMessages/" + CHAT_ID)
-    .orderByChild("time")
-    .on("child_added", snap => {
+    const ref = db.ref("privateMessages/" + CHAT_ID);
 
-        let msg = snap.val();
+    ref.off();
 
-        addMessage(snap.key, msg);
+    // Спочатку завантажуємо всю історію
+    ref.orderByChild("time").once("value", snap => {
 
-        // Не відтворювати звук при першому завантаженні історії
-        if(firstLoad) return;
+        messages.innerHTML = "";
 
-        // Звук лише для чужих повідомлень
-       if (msg.uid !== USER_ID && document.hidden) {
-    sound.currentTime = 0;
-    sound.play().catch(() => {});
-}
+        snap.forEach(child => {
+            addMessage(child.key, child.val());
+        });
+
+        // Після цього слухаємо тільки нові повідомлення
+        firstLoad = false;
+
+        ref.orderByChild("time").limitToLast(1).on("child_added", snap => {
+
+            const msg = snap.val();
+
+            // Якщо повідомлення вже є на екрані — пропускаємо
+            if(document.getElementById("msg-" + snap.key)){
+                return;
+            }
+
+            addMessage(snap.key, msg);
+
+            if(msg.uid !== USER_ID){
+
+                showNotification(
+                    "Нове повідомлення",
+                    msg.name + ": " + msg.text,
+                    "💬"
+                );
+
+                if(document.hidden){
+                    sound.currentTime = 0;
+                    sound.play().catch(()=>{});
+                }
+
+            }
+
+        });
 
     });
 
-    // Через невелику затримку вважаємо історію завантаженою
-    setTimeout(()=>{
-        firstLoad = false;
-    },1000);
 }
 
 
@@ -1093,7 +1117,6 @@ if(msg.uid !== USER_ID && !msg.read){
         read: true
     });
 
-    db.ref("chats/"+CHAT_ID+"/unread/"+USER_ID).set(0);
 }
 
 // Прокрутити чат до останнього повідомлення
@@ -1144,8 +1167,7 @@ text:newText,
 
 edited:true
 
-});
-
+    });
 
 }
 
@@ -1230,8 +1252,14 @@ function sendMessage(){
         .then(()=>{
 
             // збільшуємо непрочитані у співрозмовника
-            db.ref("chats/"+CHAT_ID+"/unread/"+CHAT_USER)
-            .transaction(v => (v || 0) + 1);
+           db.ref("chats/"+CHAT_ID+"/unread/"+CHAT_USER)
+.transaction(v => {
+    console.log("Було:", v);
+    return (v || 0) + 1;
+})
+.then(result => {
+    console.log("Стало:", result.snapshot.val());
+});
 
             // оновлюємо останнє повідомлення
             db.ref("chats/"+CHAT_ID).update({
@@ -1560,6 +1588,7 @@ document.addEventListener("click", function(e){
     });
 
 });
+
 </script>
 
 
