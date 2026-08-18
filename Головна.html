@@ -10,7 +10,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
 
@@ -18,22 +18,16 @@
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:'Poppins',sans-serif;
+font-family:'Montserrat',sans-serif;
 }
 
 body{
 background:#edf3ff;
 min-height:100vh;
-padding-top:90px;
+padding-top:82px;
 }
 
-header{
-    background:linear-gradient(135deg,#0057ff,#00a2ff);
-    color:white;
-    padding:18px;
-    border-radius:0 0 25px 25px;
-    box-shadow:0 5px 15px #0003;
-}
+
 
 .logo{
     text-align:center;
@@ -347,33 +341,74 @@ cursor:default;
 }
 
 
-/* Шапка */
+/* ===== НОВА ШАПКА TRUCKPOINT UA ===== */
 .header{
     position:fixed;
     top:0;
     left:0;
     width:100%;
-    height:90px;
-
-    background:linear-gradient(90deg,#1565ff,#1aa7ff);
-
+    height:82px;
+    background:#161b22;
+    color:#fff;
     display:flex;
-    justify-content:center;
     align-items:center;
-
+    justify-content:center;
     z-index:9999;
+    border-bottom:1px solid rgba(0,191,255,.22);
+    box-shadow:
+        0 8px 18px rgba(0,0,0,.38),
+        0 3px 12px rgba(0,191,255,.28);
+    overflow:hidden;
+}
+
+.header::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(90deg,rgba(0,153,255,.10),rgba(0,191,255,.04),rgba(0,153,255,.10));
+    pointer-events:none;
+}
+
+.header::after{
+    content:"";
+    position:absolute;
+    right:18px;
+    top:50%;
+    transform:translateY(-50%);
+    width:58px;
+    height:58px;
+    background:url("logo.png") center/contain no-repeat;
+    opacity:.10;
+    pointer-events:none;
 }
 
 .user{
     position:absolute;
-    left:15px;
+    left:14px;
+    top:50%;
+    transform:translateY(-50%);
+    z-index:2;
+}
+
+.avatar{
+    width:52px;
+    height:52px;
+    border-radius:50%;
+    object-fit:cover;
+    border:2px solid #00bfff;
+    box-shadow:0 0 14px rgba(0,191,255,.35);
+    background:#fff;
 }
 
 .logo{
+    position:relative;
+    z-index:2;
     color:#fff;
     font-size:22px;
     font-weight:700;
+    line-height:1.1;
 }
+
 .logo .name{
     font-size:20px;
     font-weight:700;
@@ -384,27 +419,75 @@ cursor:default;
     font-size:13px;
     opacity:.95;
 }
-.avatar{
-    width:56px;
-    height:56px;
-    border-radius:50%;
-    object-fit:cover;
-    border:3px solid rgba(255,255,255,.95);
-    box-shadow:0 4px 12px rgba(0,0,0,.25);
-    background:#fff;
+
+#userInfo{
+    text-align:center;
+    max-width:calc(100% - 140px);
 }
 
-.header::after{
-    content:"";
-    position:absolute;
-    right:15px;
-    top:50%;
-    transform:translateY(-50%);
-    width:60px;
-    height:60px;
-    background:url("logo.png") center/contain no-repeat;
-    opacity:.12;
-    pointer-events:none;
+#userInfo > div > div:first-child{
+    color:#00bfff !important;
+    letter-spacing:1.5px !important;
+    font-size:11px !important;
+}
+
+#userInfo #headerUserName,
+#userInfo > div > div:nth-child(2){
+    font-size:18px !important;
+    font-weight:700 !important;
+    color:#fff !important;
+}
+
+#userInfo #headerStats,
+#userInfo > div > div:nth-child(3){
+    margin-top:3px !important;
+    font-size:11px !important;
+    background:rgba(0,191,255,.12) !important;
+    border:1px solid rgba(0,191,255,.18);
+    padding:2px 9px !important;
+    border-radius:20px !important;
+    backdrop-filter:blur(8px);
+}
+
+@media(max-width:480px){
+    .header{
+        height:74px;
+    }
+
+    .user{
+        left:10px;
+    }
+
+    .avatar{
+        width:46px;
+        height:46px;
+    }
+
+    #userInfo{
+        max-width:calc(100% - 115px);
+    }
+
+    #userInfo > div > div:first-child{
+        font-size:9px !important;
+        letter-spacing:1.2px !important;
+    }
+
+    #userInfo #headerUserName,
+    #userInfo > div > div:nth-child(2){
+        font-size:15px !important;
+    }
+
+    #userInfo #headerStats,
+    #userInfo > div > div:nth-child(3){
+        font-size:10px !important;
+        padding:2px 7px !important;
+    }
+
+    .header::after{
+        right:8px;
+        width:46px;
+        height:46px;
+    }
 }
 
 .notifyPopup{
@@ -453,15 +536,11 @@ cursor:default;
 
 <header class="header">
 
-<div class="header">
-
     <div class="user">
         <img id="userAvatar" src="avatars/avatar1.png" class="avatar">
     </div>
 
     <div class="logo" id="userInfo" style="visibility:hidden"></div>
-
-</div>
 
 </header>
 
