@@ -2216,7 +2216,24 @@ const firebaseConfig = {
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
+usersAuth.onAuthStateChanged(async function(user) {
 
+    if (!user) {
+
+        console.warn("⚠️ Користувач не авторизований");
+
+        window.currentFirebaseUser = null;
+
+        return;
+    }
+
+    console.log("✅ Користувач авторизований");
+    console.log("UID:", user.uid);
+    console.log("Email:", user.email);
+
+    window.currentFirebaseUser = user;
+
+});
 /* Основний App — ТОЧКИ */
 
 const pointsApp =
@@ -3583,63 +3600,54 @@ function escapeHtml(value) {
 
 async function getCurrentUserName() {
 
+    const user = firebase.auth().currentUser;
+
+    if (!user) {
+        return "Користувач";
+    }
+
     try {
 
-        const firebaseUser =
-            usersAuth.currentUser;
+        const snap = await db
+            .ref("users/" + user.uid)
+            .once("value");
 
-        if (!firebaseUser) {
-            return "Користувач";
-        }
+        if (snap.exists()) {
 
-        const uid =
-            firebaseUser.uid;
-
-        const snapshot =
-            await usersDb
-                .ref("users/" + uid)
-                .once("value");
-
-        if (snapshot.exists()) {
-
-            const user =
-                snapshot.val();
+            const data = snap.val();
 
             const name =
-                (user.name || "").trim();
+                (data.name || "").trim();
 
             const surname =
-                (user.surname || "").trim();
+                (data.surname || "").trim();
 
             const fullName =
-                [name, surname]
-                    .filter(Boolean)
-                    .join(" ")
-                    .trim();
+                (name + " " + surname).trim();
 
             if (fullName) {
                 return fullName;
             }
-        }
 
-        /* Якщо ім'я не знайдено */
-        return (
-            firebaseUser.displayName ||
-            firebaseUser.email ||
-            "Користувач"
-        );
+            if (name) {
+                return name;
+            }
+        }
 
     } catch (error) {
 
         console.error(
-            "❌ Помилка отримання імені:",
+            "❌ Помилка отримання профілю:",
             error
         );
-
-        return "Користувач";
     }
-}
 
+    return (
+        user.displayName ||
+        user.email ||
+        "Користувач"
+    );
+}
 
 /* =====================================================
    ДОДАТИ ВІДГУК ВІД ІМЕНІ ПОТОЧНОГО КОРИСТУВАЧА
