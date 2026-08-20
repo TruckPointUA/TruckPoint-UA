@@ -2198,59 +2198,66 @@ body.night-mode .sheetHandle{
 </div>
 <script>
 
-/* =========================
+/* =====================================================
    FIREBASE
-========================= */
+   2 ОКРЕМІ ПРОЕКТИ:
+   1. truckpointua-magazyny — точки та відгуки
+   2. truckpoint-ua — користувачі та авторизація
+===================================================== */
+
+
+/* =====================================================
+   1. FIREBASE — ТОЧКИ
+===================================================== */
 
 const firebaseConfig = {
-    apiKey: "AIzaSyAzOpcu7kdg0y8xwqD0oKk4eMfFSK946n4",
-    authDomain: "truckpointua-magazyny.firebaseapp.com",
-    projectId: "truckpointua-magazyny",
-    storageBucket: "truckpointua-magazyny.firebasestorage.app",
-    messagingSenderId: "107043584267",
-    appId: "1:107043584267:web:7e9e0fd643c193c5834a0e",
-    measurementId: "G-Y8Q7605L32",
-    databaseURL: "https://truckpointua-magazyny-default-rtdb.europe-west1.firebasedatabase.app"
+
+    apiKey:
+        "AIzaSyBC2dtlKJSJqW2mNirMm2LVs61OQpnbPuU",
+
+    authDomain:
+        "truckpointua-magazyny.firebaseapp.com",
+
+    projectId:
+        "truckpointua-magazyny",
+
+    storageBucket:
+        "truckpointua-magazyny.firebasestorage.app",
+
+    messagingSenderId:
+        "107043584267",
+
+    appId:
+        "1:107043584267:web:7e9e0fd643c193c5834a0e",
+
+    measurementId:
+        "G-Y8Q7605L32",
+
+    databaseURL:
+        "https://truckpointua-magazyny-default-rtdb.europe-west1.firebasedatabase.app"
+
 };
 
+
+/* Створюємо основний Firebase App */
+
 if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
-usersAuth.onAuthStateChanged(async function(user) {
 
-    if (!user) {
-
-        console.warn("⚠️ Користувач не авторизований");
-
-        window.currentFirebaseUser = null;
-
-        return;
-    }
-
-    console.log("✅ Користувач авторизований");
-    console.log("UID:", user.uid);
-    console.log("Email:", user.email);
-
-    window.currentFirebaseUser = user;
-
-});
-/* Основний App — ТОЧКИ */
-
-const pointsApp =
     firebase.initializeApp(
         firebaseConfig
     );
+
+}
 
 
 /* База точок */
 
 const db =
-    pointsApp.database();
-
+    firebase.database();
 
 
 /* =====================================================
-   2. FIREBASE КОРИСТУВАЧІ
+   2. FIREBASE — КОРИСТУВАЧІ
 ===================================================== */
 
 const firebaseConfigUsers = {
@@ -2275,10 +2282,13 @@ const firebaseConfigUsers = {
 
     appId:
         "1:992372126132:web:3378b6b1794066132d42e1"
+
 };
 
 
-/* Окремий Firebase App користувачів */
+/* =====================================================
+   ОКРЕМИЙ FIREBASE APP КОРИСТУВАЧІВ
+===================================================== */
 
 const usersApp =
     firebase.initializeApp(
@@ -2287,7 +2297,7 @@ const usersApp =
     );
 
 
-/* Авторизація користувачів */
+/* Авторизація */
 
 const usersAuth =
     usersApp.auth();
@@ -2297,6 +2307,52 @@ const usersAuth =
 
 const usersDb =
     usersApp.database();
+
+
+/* =====================================================
+   ПОТОЧНИЙ КОРИСТУВАЧ
+===================================================== */
+
+window.currentFirebaseUser = null;
+
+
+usersAuth.onAuthStateChanged(
+    function(user){
+
+        if(!user){
+
+            console.warn(
+                "⚠️ Користувач не авторизований"
+            );
+
+            window.currentFirebaseUser =
+                null;
+
+            return;
+
+        }
+
+
+        console.log(
+            "✅ Користувач авторизований"
+        );
+
+        console.log(
+            "UID:",
+            user.uid
+        );
+
+        console.log(
+            "Email:",
+            user.email
+        );
+
+
+        window.currentFirebaseUser =
+            user;
+
+    }
+);
 
 
 
@@ -3600,7 +3656,8 @@ function escapeHtml(value) {
 
 async function getCurrentUserName() {
 
-    const user = firebase.auth().currentUser;
+    const user =
+        usersAuth.currentUser;
 
     if (!user) {
         return "Користувач";
@@ -3608,13 +3665,15 @@ async function getCurrentUserName() {
 
     try {
 
-        const snap = await db
-            .ref("users/" + user.uid)
-            .once("value");
+        const snap =
+            await usersDb
+                .ref("users/" + user.uid)
+                .once("value");
 
         if (snap.exists()) {
 
-            const data = snap.val();
+            const data =
+                snap.val();
 
             const name =
                 (data.name || "").trim();
@@ -3625,21 +3684,23 @@ async function getCurrentUserName() {
             const fullName =
                 (name + " " + surname).trim();
 
-            if (fullName) {
+            if(fullName){
                 return fullName;
             }
 
-            if (name) {
+            if(name){
                 return name;
             }
+
         }
 
-    } catch (error) {
+    } catch(error){
 
         console.error(
             "❌ Помилка отримання профілю:",
             error
         );
+
     }
 
     return (
@@ -4244,51 +4305,6 @@ window.addEventListener("resize", function(){
 });
 
 
-
-function toggleShopping(){
-
-    const shopping =
-        document.getElementById("shoppingCategories");
-
-    const parking =
-        document.getElementById("parkingCategories");
-
-    const buttons =
-        document.querySelectorAll(".categoryScroll .categoryBtn");
-
-    const shoppingButton = buttons[0];
-    const parkingButton = buttons[1];
-
-    if(!shopping) return;
-
-
-    /* Якщо Закупи вже відкриті — закриваємо */
-
-    if(shopping.classList.contains("show")){
-
-        shopping.classList.remove("show");
-
-        shoppingButton.classList.remove("active");
-
-    }else{
-
-        /* Закриваємо Паркування */
-
-        if(parking){
-            parking.classList.remove("show");
-        }
-
-        /* Відкриваємо Закупи */
-
-        shopping.classList.add("show");
-
-        shoppingButton.classList.add("active");
-
-        parkingButton.classList.remove("active");
-
-    }
-
-}
 
 function selectCategory(button){ 
 
@@ -5868,110 +5884,6 @@ function toggleShopping(){
 
 }
 
-
-/* =====================================================
-   ОНОВЛЕННЯ ІКОНOК АКТИВНИХ КАТЕГОРІЙ
-===================================================== */
-
-function updateActiveCategoryIcons(){
-
-    const container =
-        document.getElementById(
-            "activeCategoryIcons"
-        );
-
-
-    if(!container){
-        return;
-    }
-
-
-    container.innerHTML = "";
-
-
-    const icons = [
-
-        {
-            selector:
-                '#shoppingCategories button[onclick*="toggleGroceryStores"]',
-
-            image:
-                "maarket_map.svg",
-
-            title:
-                "Продуктові магазини"
-        },
-
-        {
-            selector:
-                "#parkingCategories .subCategoryBtn:nth-child(1)",
-
-            image:
-                "promzona_map.svg",
-
-            title:
-                "Промислова зона"
-        },
-
-        {
-            selector:
-                "#parkingCategories .subCategoryBtn:nth-child(2)",
-
-            image:
-                "pocket_map.svg",
-
-            title:
-                "Паркування при дорозі"
-        }
-
-    ];
-
-
-    icons.forEach(item => {
-
-        const button =
-            document.querySelector(
-                item.selector
-            );
-
-
-        if(
-            !button ||
-            !button.classList.contains(
-                "active"
-            )
-        ){
-
-            return;
-
-        }
-
-
-        const img =
-            document.createElement(
-                "img"
-            );
-
-
-        img.src =
-            item.image;
-
-
-        img.title =
-            item.title;
-
-
-        img.className =
-            "activeMapCategoryIcon";
-
-
-        container.appendChild(
-            img
-        );
-
-    });
-
-}
 
 
 /* =====================================================
