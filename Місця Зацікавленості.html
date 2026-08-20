@@ -2218,9 +2218,10 @@ const db = firebase.database();
 
 
 /* =====================================================
-   ЗБЕРЕГТИ ГЕОЛОКАЦІЮ
+   ЗБЕРЕГТИ ГЕОЛОКАЦІЮ КОРИСТУВАЧА
+   Геолокація використовується ТІЛЬКИ для маркера "Моє місце"
+   На завантаження точок НЕ впливає
 ===================================================== */
-
 
 function setUserLocation(lat, lng){
 
@@ -2233,10 +2234,13 @@ ${userLatitude}, ${userLongitude}`
     );
 
     console.log(
-        `📡 Точки завантажуються в межах ${POINTS_RADIUS_METERS} м`
+        "ℹ️ Геолокація збережена."
+    );
+
+    console.log(
+        "ℹ️ Завантаження точок виконується від центру карти."
     );
 }
-
 /* =====================================================
    ВИЗНАЧЕННЯ КАТЕГОРІЇ ТОЧКИ ЗА ІКОНКОЮ
 ===================================================== */
@@ -3747,8 +3751,7 @@ handle.addEventListener(
 );
 
 
-/* ===== СВАЙП ШТОРКИ ВНИЗ ===== */
-
+/* ===== СВАЙП ШТОРКИ ВНИЗ У БУДЬ-ЯКОМУ МІСЦІ ===== */
 
 let touchStartY = 0;
 let lastTouchY = 0;
@@ -3774,7 +3777,6 @@ sheet.addEventListener("touchmove", function(e) {
     const y = e.touches[0].clientY;
     const move = y - lastTouchY;
 
-    /* Тільки рух вниз */
     if (move > 0) {
 
         const currentHeight = sheet.offsetHeight;
@@ -3803,7 +3805,7 @@ sheet.addEventListener("touchend", function() {
     sheet.style.transition =
         "height .3s ease";
 
-    /* ===== ЗАКРИВАЄМО ===== */
+    /* ===== ЗАКРИТИ ===== */
 
     if (totalMove > 70) {
 
@@ -3827,12 +3829,9 @@ sheet.addEventListener("touchend", function() {
                 "visible";
         }
 
-    } 
-    
-    /* ===== НЕ ДОТЯГНУЛИ — ПОВЕРТАЄМО ===== */
+    } else {
 
-    else {
-
+        /* Повернути шторку */
         sheet.style.height = "";
 
     }
@@ -4340,662 +4339,708 @@ function calculateDistanceKm(
 
 
 
-// ======================================================
-// НАЛАШТУВАННЯ ЗАВАНТАЖЕННЯ ТОЧОК
-// ======================================================
+/* =====================================================
+   ПРАВИЛЬНА ЛОГІКА ТОЧОК НА КАРТІ
+===================================================== */
 
-// 10 000 метрів = 10 км
-const POINTS_LOAD_RADIUS_METERS = 10000;
+/*
+   ЛОГІКА:
 
-// Поточна геолокація користувача
-let userLatitude = null;
-let userLongitude = null;
-
-
-// ======================================================
-// ВСТАНОВЛЕННЯ ГЕОЛОКАЦІЇ
-// ======================================================
-
-function setUserLocation(lat, lng) {
-
-    userLatitude = Number(lat);
-    userLongitude = Number(lng);
-
-    console.log("📍 Геолокація:");
-    console.log(userLatitude + ", " + userLongitude);
-
-    console.log(
-        "📡 Точки завантажуються в межах " +
-        POINTS_LOAD_RADIUS_METERS +
-        " м"
-    );
-
-    // ВАЖЛИВО:
-    // Тут НЕ створюємо жодного кола/радіуса на карті.
-}
+   • точки НЕ залежать від геолокації
+   • точки залежать від центру карти
+   • радіус = 20 км
+   • точки показуються тільки активних категорій
+   • при русі карти точки НЕ очищуються
+   • нове завантаження тільки після зміщення >= 5 км
+   • вже показані точки не створюються повторно
+   • далекі точки видаляються
+*/
 
 
-// ======================================================
-// РОЗРАХУНОК ВІДСТАНІ МІЖ ДВОМА КООРДИНАТАМИ
-// ======================================================
-
-function getDistanceMeters(lat1, lng1, lat2, lng2) {
-
-    const R = 6371000;
-
-    const p1 = Number(lat1) * Math.PI / 180;
-    const p2 = Number(lat2) * Math.PI / 180;
-
-    const dLat =
-        (Number(lat2) - Number(lat1)) *
-        Math.PI / 180;
-
-    const dLng =
-        (Number(lng2) - Number(lng1)) *
-        Math.PI / 180;
-
-    const a =
-        Math.sin(dLat / 2) *
-        Math.sin(dLat / 2) +
-        Math.cos(p1) *
-        Math.cos(p2) *
-        Math.sin(dLng / 2) *
-        Math.sin(dLng / 2);
-
-    const c =
-        2 *
-        Math.atan2(
-            Math.sqrt(a),
-            Math.sqrt(1 - a)
-        );
-
-    return R * c;
-}
-
-
-// ======================================================
-//        ЗАВАНТАЖЕННЯ ТОЧОК ПО ВИДИМІЙ ОБЛАСТІ КАРТИ
-// ======================================================
-
-// Максимальна відстань від центру карти — 20 км
-const MAP_POINTS_RADIUS_METERS = 20000;
-
-
-// ======================================================
-// РОЗРАХУНОК ВІДСТАНІ МІЖ КООРДИНАТАМИ
-// ======================================================
-
-function getDistanceMeters(lat1, lng1, lat2, lng2) {
-
-    const R = 6371000;
-
-    const p1 =
-        Number(lat1) * Math.PI / 180;
-
-    const p2 =
-        Number(lat2) * Math.PI / 180;
-
-    const dLat =
-        (Number(lat2) - Number(lat1)) *
-        Math.PI / 180;
-
-    const dLng =
-        (Number(lng2) - Number(lng1)) *
-        Math.PI / 180;
-
-    const a =
-        Math.sin(dLat / 2) *
-        Math.sin(dLat / 2) +
-
-        Math.cos(p1) *
-        Math.cos(p2) *
-
-        Math.sin(dLng / 2) *
-        Math.sin(dLng / 2);
-
-    const c =
-        2 *
-        Math.atan2(
-            Math.sqrt(a),
-            Math.sqrt(1 - a)
-        );
-
-    return R * c;
-}
-
-
-// ============================================================
-// ДИНАМІЧНЕ ЗАВАНТАЖЕННЯ ТОЧОК ЗА ЦЕНТРОМ КАРТИ
-// Геолокація НЕ використовується
-// Радіус: 20 км
-// Без мерехтіння точок при русі карти
-// ============================================================
+/* =====================================================
+   НАЛАШТУВАННЯ
+===================================================== */
 
 const POINTS_RADIUS_KM = 20;
 
-// Останній центр, для якого реально виконувалось завантаження
-let lastLoadedCenter = null;
-
-// Чи виконується зараз завантаження
-let pointsLoading = false;
-
-// Таймер після руху карти
-let pointsMoveTimer = null;
-
-// Відстань, після якої дозволяємо нове завантаження
-// 5 км — щоб не перезавантажувати точки при кожному русі
+/* після якого переміщення карти перевіряти нову область */
 const RELOAD_DISTANCE_KM = 5;
 
 
-// ------------------------------------------------------------
-// Відстань між двома координатами
-// ------------------------------------------------------------
-function distanceBetweenPoints(lat1, lon1, lat2, lon2) {
+/* =====================================================
+   СТАН
+===================================================== */
+
+let pointMarkers = {};
+
+let lastPointsCenter = null;
+
+let pointsLoading = false;
+
+let pointsReloadTimer = null;
+
+
+/* =====================================================
+   ВІДСТАНЬ МІЖ ДВОМА ТОЧКАМИ
+===================================================== */
+
+function distanceBetweenPoints(
+    lat1,
+    lng1,
+    lat2,
+    lng2
+){
 
     const R = 6371;
 
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const dLat =
+        (lat2 - lat1) *
+        Math.PI / 180;
+
+    const dLng =
+        (lng2 - lng1) *
+        Math.PI / 180;
 
     const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.sin(dLat / 2) *
+        Math.sin(dLat / 2) +
+
         Math.cos(lat1 * Math.PI / 180) *
         Math.cos(lat2 * Math.PI / 180) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
 
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        Math.sin(dLng / 2) *
+        Math.sin(dLng / 2);
+
+    const c =
+        2 *
+        Math.atan2(
+            Math.sqrt(a),
+            Math.sqrt(1 - a)
+        );
 
     return R * c;
 }
 
 
-// ------------------------------------------------------------
-// Перевірка: чи потрібно завантажувати точки
-// ------------------------------------------------------------
-function shouldReloadPoints() {
+/* =====================================================
+   ІКОНКА КАТЕГОРІЇ
+===================================================== */
 
-    if (!lastLoadedCenter) {
-        return true;
+function getCategoryIcon(category, data = {}){
+
+    const iconFile =
+        String(data.icon || "").toLowerCase();
+
+
+    /* -------------------------
+       Іконка з Firebase
+    ------------------------- */
+
+    if(iconFile.includes("maarket_map")){
+
+        return L.icon({
+            iconUrl:"maarket_map.svg",
+            iconSize:[40,40],
+            iconAnchor:[20,40],
+            popupAnchor:[0,-40]
+        });
+
     }
 
-    const center = map.getCenter();
 
-    const distance = distanceBetweenPoints(
-        lastLoadedCenter.lat,
-        lastLoadedCenter.lng,
-        center.lat,
-        center.lng
+    if(iconFile.includes("pocket_map")){
+
+        return L.icon({
+            iconUrl:"pocket_map.svg",
+            iconSize:[40,40],
+            iconAnchor:[20,40],
+            popupAnchor:[0,-40]
+        });
+
+    }
+
+
+    if(iconFile.includes("promzona_map")){
+
+        return L.icon({
+            iconUrl:"promzona_map.svg",
+            iconSize:[40,40],
+            iconAnchor:[20,40],
+            popupAnchor:[0,-40]
+        });
+
+    }
+
+
+    /* -------------------------
+       Іконка за категорією
+    ------------------------- */
+
+    const icons = {
+
+        market:"maarket_map.svg",
+
+        road_parking:"pocket_map.svg",
+
+        industrial:"promzona_map.svg",
+
+        parking:"parking_map.svg",
+
+        wash:"wash_map.svg",
+
+        gas_station:"gas_map.svg",
+
+        restaurant:"restaurant_map.svg",
+
+        hotel:"hotel_map.svg",
+
+        service:"service_map.svg",
+
+        tire:"tire_map.svg",
+
+        truck_service:"truck_service_map.svg"
+
+    };
+
+
+    const iconUrl =
+        icons[category] ||
+        "maarket_map.svg";
+
+
+    return L.icon({
+
+        iconUrl:iconUrl,
+
+        iconSize:[40,40],
+
+        iconAnchor:[20,40],
+
+        popupAnchor:[0,-40]
+
+    });
+
+}
+
+
+/* =====================================================
+   ЧИ КАТЕГОРІЯ АКТИВНА
+===================================================== */
+
+function isCategoryActive(category){
+
+    const shoppingButtons =
+        document.querySelectorAll(
+            "#shoppingCategories .subCategoryBtn"
+        );
+
+    const parkingButtons =
+        document.querySelectorAll(
+            "#parkingCategories .subCategoryBtn"
+        );
+
+
+    /* -------------------------
+       Продуктові магазини
+    ------------------------- */
+
+    if(category === "market"){
+
+        const button =
+            document.querySelector(
+                '#shoppingCategories button[onclick*="toggleGroceryStores"]'
+            );
+
+        return !!(
+            button &&
+            button.classList.contains("active")
+        );
+
+    }
+
+
+    /* -------------------------
+       Магазини ТІР
+    ------------------------- */
+
+    if(category === "truck_shop"){
+
+        return !!(
+            shoppingButtons[1] &&
+            shoppingButtons[1].classList.contains("active")
+        );
+
+    }
+
+
+    /* -------------------------
+       Блошиний ринок
+    ------------------------- */
+
+    if(category === "flea_market"){
+
+        return !!(
+            shoppingButtons[2] &&
+            shoppingButtons[2].classList.contains("active")
+        );
+
+    }
+
+
+    /* -------------------------
+       Промислова зона
+    ------------------------- */
+
+    if(category === "industrial"){
+
+        return !!(
+            parkingButtons[0] &&
+            parkingButtons[0].classList.contains("active")
+        );
+
+    }
+
+
+    /* -------------------------
+       Паркування при дорозі
+    ------------------------- */
+
+    if(category === "road_parking"){
+
+        return !!(
+            parkingButtons[1] &&
+            parkingButtons[1].classList.contains("active")
+        );
+
+    }
+
+
+    /* -------------------------
+       Інші типи паркування
+    ------------------------- */
+
+    if(category === "parking"){
+
+        return !!(
+            parkingButtons[2] &&
+            parkingButtons[2].classList.contains("active")
+        );
+
+    }
+
+
+    return false;
+
+}
+
+
+/* =====================================================
+   СТВОРЕННЯ МАРКЕРА
+===================================================== */
+
+function createPointMarker(
+    category,
+    pointId,
+    data,
+    lat,
+    lng
+){
+
+    const marker =
+        L.marker(
+            [lat,lng],
+            {
+                icon:
+                    getCategoryIcon(
+                        category,
+                        data
+                    )
+            }
+        );
+
+
+    /* -------------------------
+       Відкриття інформації
+    ------------------------- */
+
+    marker.on(
+        "click",
+        function(){
+
+            openPointInfo(
+
+                pointId,
+
+                {
+
+                    ...data,
+
+                    id:pointId,
+
+                    lat:lat,
+
+                    lng:lng,
+
+                    category:category
+
+                }
+
+            );
+
+        }
     );
 
-    return distance >= RELOAD_DISTANCE_KM;
+
+    return marker;
+
 }
 
-// ============================================================
-// ІКОНКИ ТОЧОК ЗА КАТЕГОРІЄЮ
-// ============================================================
 
-function getCategoryIcon(category, data = {}) {
+/* =====================================================
+   ЗАВАНТАЖЕННЯ ОДНІЄЇ КАТЕГОРІЇ
+===================================================== */
 
-    const iconFile = String(data.icon || "").toLowerCase();
+async function loadCategoryPoints(category){
 
-    // --------------------------------------------------------
-    // Якщо у Firebase вже записана конкретна SVG-іконка
-    // --------------------------------------------------------
+    /* категорія НЕ активна */
+    if(!isCategoryActive(category)){
 
-    if (iconFile.includes("maarket_map")) {
-        return L.icon({
-            iconUrl: "maarket_map.svg",
-            iconSize: [40, 40],
-            iconAnchor: [20, 40],
-            popupAnchor: [0, -40]
+        return;
+
+    }
+
+
+    const center =
+        map.getCenter();
+
+
+    try{
+
+        console.log(
+            "📡 Завантаження:",
+            category
+        );
+
+
+        const snapshot =
+            await db
+                .ref("points/" + category)
+                .once("value");
+
+
+        if(!snapshot.exists()){
+
+            console.log(
+                "⚪ Немає точок:",
+                category
+            );
+
+            return;
+
+        }
+
+
+        let added = 0;
+
+
+        snapshot.forEach(child => {
+
+            const data =
+                child.val();
+
+
+            if(!data){
+                return;
+            }
+
+
+            /* -------------------------
+               Координати
+            ------------------------- */
+
+            let lat =
+                Number(
+                    data.lat ??
+                    data.latitude
+                );
+
+
+            let lng =
+                Number(
+                    data.lng ??
+                    data.lon ??
+                    data.longitude
+                );
+
+
+            if(
+                !Number.isFinite(lat) ||
+                !Number.isFinite(lng)
+            ){
+
+                return;
+
+            }
+
+
+            /* -------------------------
+               Відстань від центру карти
+            ------------------------- */
+
+            const distance =
+                distanceBetweenPoints(
+
+                    center.lat,
+                    center.lng,
+
+                    lat,
+                    lng
+
+                );
+
+
+            if(
+                distance >
+                POINTS_RADIUS_KM
+            ){
+
+                return;
+
+            }
+
+
+            /* -------------------------
+               Унікальний ID
+            ------------------------- */
+
+            const pointId =
+                category +
+                "_" +
+                child.key;
+
+
+            /* -------------------------
+               Якщо вже існує
+            ------------------------- */
+
+            if(pointMarkers[pointId]){
+
+                return;
+
+            }
+
+
+            /* -------------------------
+               Створюємо маркер
+            ------------------------- */
+
+            const marker =
+                createPointMarker(
+
+                    category,
+
+                    pointId,
+
+                    data,
+
+                    lat,
+
+                    lng
+
+                );
+
+
+            marker.addTo(map);
+
+
+            pointMarkers[pointId] =
+                {
+
+                    marker:marker,
+
+                    category:category,
+
+                    lat:lat,
+
+                    lng:lng
+
+                };
+
+
+            added++;
+
         });
+
+
+        console.log(
+            `✅ ${category}: додано ${added}`
+        );
+
     }
 
-    if (iconFile.includes("pocket_map")) {
-        return L.icon({
-            iconUrl: "pocket_map.svg",
-            iconSize: [40, 40],
-            iconAnchor: [20, 40],
-            popupAnchor: [0, -40]
-        });
+    catch(error){
+
+        console.error(
+            "❌ Помилка:",
+            category,
+            error
+        );
+
     }
 
-    if (iconFile.includes("promzona_map")) {
-        return L.icon({
-            iconUrl: "promzona_map.svg",
-            iconSize: [40, 40],
-            iconAnchor: [20, 40],
-            popupAnchor: [0, -40]
-        });
-    }
-
-    // --------------------------------------------------------
-    // Якщо іконки немає — визначаємо за категорією
-    // --------------------------------------------------------
-
-    switch (category) {
-
-        case "market":
-            return L.icon({
-                iconUrl: "maarket_map.svg",
-                iconSize: [40, 40],
-                iconAnchor: [20, 40],
-                popupAnchor: [0, -40]
-            });
-
-        case "road_parking":
-            return L.icon({
-                iconUrl: "pocket_map.svg",
-                iconSize: [40, 40],
-                iconAnchor: [20, 40],
-                popupAnchor: [0, -40]
-            });
-
-        case "industrial":
-            return L.icon({
-                iconUrl: "promzona_map.svg",
-                iconSize: [40, 40],
-                iconAnchor: [20, 40],
-                popupAnchor: [0, -40]
-            });
-
-        case "parking":
-            return L.icon({
-                iconUrl: "parking_map.svg",
-                iconSize: [40, 40],
-                iconAnchor: [20, 40],
-                popupAnchor: [0, -40]
-            });
-
-        case "wash":
-            return L.icon({
-                iconUrl: "wash_map.svg",
-                iconSize: [40, 40],
-                iconAnchor: [20, 40],
-                popupAnchor: [0, -40]
-            });
-
-        case "gas_station":
-            return L.icon({
-                iconUrl: "gas_map.svg",
-                iconSize: [40, 40],
-                iconAnchor: [20, 40],
-                popupAnchor: [0, -40]
-            });
-
-        case "restaurant":
-            return L.icon({
-                iconUrl: "restaurant_map.svg",
-                iconSize: [40, 40],
-                iconAnchor: [20, 40],
-                popupAnchor: [0, -40]
-            });
-
-        case "hotel":
-            return L.icon({
-                iconUrl: "hotel_map.svg",
-                iconSize: [40, 40],
-                iconAnchor: [20, 40],
-                popupAnchor: [0, -40]
-            });
-
-        case "service":
-            return L.icon({
-                iconUrl: "service_map.svg",
-                iconSize: [40, 40],
-                iconAnchor: [20, 40],
-                popupAnchor: [0, -40]
-            });
-
-        case "tire":
-            return L.icon({
-                iconUrl: "tire_map.svg",
-                iconSize: [40, 40],
-                iconAnchor: [20, 40],
-                popupAnchor: [0, -40]
-            });
-
-        case "truck_service":
-            return L.icon({
-                iconUrl: "truck_service_map.svg",
-                iconSize: [40, 40],
-                iconAnchor: [20, 40],
-                popupAnchor: [0, -40]
-            });
-
-        default:
-            return L.icon({
-                iconUrl: "maarket_map.svg",
-                iconSize: [40, 40],
-                iconAnchor: [20, 40],
-                popupAnchor: [0, -40]
-            });
-    }
 }
-// ------------------------------------------------------------
-// Завантаження всіх категорій точок
-// ------------------------------------------------------------
-async function loadPointsForMapCenter() {
 
-    if (pointsLoading) {
+
+/* =====================================================
+   ВИДАЛЕННЯ ДАЛЕКИХ ТОЧОК
+===================================================== */
+
+function removeFarPoints(){
+
+    const center =
+        map.getCenter();
+
+
+    Object.keys(pointMarkers)
+        .forEach(pointId => {
+
+            const item =
+                pointMarkers[pointId];
+
+
+            if(!item){
+                return;
+            }
+
+
+            /* -------------------------
+               Якщо категорія вже вимкнена
+            ------------------------- */
+
+            if(
+                !isCategoryActive(
+                    item.category
+                )
+            ){
+
+                map.removeLayer(
+                    item.marker
+                );
+
+                delete pointMarkers[
+                    pointId
+                ];
+
+                return;
+
+            }
+
+
+            /* -------------------------
+               Відстань
+            ------------------------- */
+
+            const distance =
+                distanceBetweenPoints(
+
+                    center.lat,
+                    center.lng,
+
+                    item.lat,
+                    item.lng
+
+                );
+
+
+            /*
+               Видаляємо тільки якщо
+               точка вийшла далеко за межі
+               радіуса.
+
+               Робимо запас 5 км,
+               щоб не було мерехтіння.
+            */
+
+            if(
+                distance >
+                POINTS_RADIUS_KM + RELOAD_DISTANCE_KM
+            ){
+
+                map.removeLayer(
+                    item.marker
+                );
+
+                delete pointMarkers[
+                    pointId
+                ];
+
+            }
+
+        });
+
+}
+
+
+/* =====================================================
+   ЗАВАНТАЖЕННЯ АКТИВНИХ КАТЕГОРІЙ
+===================================================== */
+
+async function loadActiveCategories(){
+
+    if(pointsLoading){
         return;
     }
 
-    if (!map) {
-        return;
-    }
-
-    const center = map.getCenter();
-
-    console.log(
-        "📍 Центр карти:",
-        center.lat.toFixed(6),
-        center.lng.toFixed(6)
-    );
-
-    console.log(
-        "📡 Завантаження точок у радіусі",
-        POINTS_RADIUS_KM,
-        "км"
-    );
 
     pointsLoading = true;
 
-    try {
 
-        // Запам'ятовуємо центр
-        lastLoadedCenter = {
-            lat: center.lat,
-            lng: center.lng
-        };
+    try{
 
+        const categories = [
 
-        // ----------------------------------------------------
-        // СПИСОК КАТЕГОРІЙ
-        // ----------------------------------------------------
+            "market",
 
-        const pointCategories = [
+            "truck_shop",
+
+            "flea_market",
+
+            "industrial",
 
             "road_parking",
+
             "parking",
-            "market",
+
             "wash",
+
             "gas_station",
-            "industrial",
+
             "restaurant",
+
             "hotel",
+
             "service",
+
             "tire",
+
             "truck_service"
 
         ];
 
 
-        // ----------------------------------------------------
-        // Завантажуємо кожну категорію
-        // ----------------------------------------------------
-
-        for (const category of pointCategories) {
-
-            try {
-
-                console.log(
-                    "📡 Завантаження:",
-                    "points/" + category
-                );
-
-                const snapshot =
-                    await firebase.database()
-                        .ref("points/" + category)
-                        .once("value");
-
-
-                if (!snapshot.exists()) {
-
-                    console.log(
-                        "⚪ points/" + category +
-                        ": даних немає"
-                    );
-
-                    continue;
-                }
-
-
-                let shown = 0;
-                let rejected = 0;
-
-
-                snapshot.forEach(child => {
-
-                    const data = child.val();
-
-                    if (!data) {
-                        return;
-                    }
-
-
-                    // ----------------------------------------
-                    // Визначення координат
-                    // ----------------------------------------
-
-                    let lat = parseFloat(
-                        data.lat ??
-                        data.latitude
-                    );
-
-                    let lng = parseFloat(
-                        data.lng ??
-                        data.lon ??
-                        data.longitude
-                    );
-
-
-                    // Якщо координати лежать всередині location
-                    if (
-                        (!Number.isFinite(lat) ||
-                         !Number.isFinite(lng)) &&
-                        data.location
-                    ) {
-
-                        lat = parseFloat(
-                            data.location.lat ??
-                            data.location.latitude
-                        );
-
-                        lng = parseFloat(
-                            data.location.lng ??
-                            data.location.lon ??
-                            data.location.longitude
-                        );
-                    }
-
-
-                    // Немає координат
-                    if (
-                        !Number.isFinite(lat) ||
-                        !Number.isFinite(lng)
-                    ) {
-
-                        console.warn(
-                            "⚠️ Немає координат:",
-                            child.key,
-                            data
-                        );
-
-                        return;
-                    }
-
-
-                    // ----------------------------------------
-                    // Перевірка відстані ВІД ЦЕНТРУ КАРТИ
-                    // ----------------------------------------
-
-                    const distance = distanceBetweenPoints(
-                        center.lat,
-                        center.lng,
-                        lat,
-                        lng
-                    );
-
-
-                    if (distance > POINTS_RADIUS_KM) {
-
-                        rejected++;
-
-                        return;
-                    }
-
-
-                    // ----------------------------------------
-                    // Створення маркера
-                    // ----------------------------------------
-
-                    const pointId =
-                        category + "_" + child.key;
-
-
-                    // Якщо маркер вже існує —
-                    // НЕ створюємо його повторно
-                    if (
-                        window.pointMarkers &&
-                        window.pointMarkers[pointId]
-                    ) {
-
-                        return;
-                    }
-
-
-                    // Створюємо сховище маркерів
-                    if (!window.pointMarkers) {
-                        window.pointMarkers = {};
-                    }
-
-
-                    // ----------------------------------------
-                    // Іконка
-                    // ----------------------------------------
-
-                    let icon = null;
-
-                    if (
-                        typeof getCategoryIcon === "function"
-                    ) {
-
-                        icon =
-                            getCategoryIcon(
-                                category,
-                                data
-                            );
-                    }
-
-
-                    // Запасна іконка
-                    if (!icon) {
-
-                        icon = L.divIcon({
-
-                            className:
-                                "custom-point-marker",
-
-                            html:
-                                "📍",
-
-                            iconSize: [
-                                35,
-                                35
-                            ],
-
-                            iconAnchor: [
-                                17,
-                                35
-                            ]
-
-                        });
-                    }
-
-
-                    // ----------------------------------------
-                    // Створюємо Leaflet marker
-                    // ----------------------------------------
-
-                    const marker = L.marker(
-                        [lat, lng],
-                        {
-                            icon: icon
-                        }
-                    );
-
-
-// ========================================
-// ВІДКРИТТЯ ПОВНОЇ ІНФОРМАЦІЇ ПРО ТОЧКУ
-// ========================================
-
-marker.on("click", function(){
-
-    openPointInfo(
-        pointId,
-        {
-            ...data,
-            id: pointId,
-            lat: lat,
-            lng: lng,
-            category: category
-        }
-    );
-
-});
-
-                    marker.on("click", function(){
-
-    openPointInfo(
-        pointId,
-        {
-            ...data,
-            id: pointId,
-            lat: lat,
-            lng: lng,
-            category: category
-        }
-    );
-
-});
-
-
-                    // ----------------------------------------
-                    // Додаємо на карту
-                    // ----------------------------------------
-
-                    marker.addTo(map);
-
-
-                    // Зберігаємо
-                    window.pointMarkers[pointId] =
-                        marker;
-
-
-                    shown++;
-
-                });
-
-
-                console.log(
-                    `✅ points/${category}: ` +
-                    `показано ${shown} точок`
-                );
-
-                console.log(
-                    `⛔ points/${category}: ` +
-                    `відкинуто ${rejected} точок`
-                );
-
-
-            } catch (error) {
-
-                console.error(
-                    "❌ Помилка категорії:",
-                    category,
-                    error
+        for(
+            const category
+            of categories
+        ){
+
+            if(
+                isCategoryActive(
+                    category
+                )
+            ){
+
+                await loadCategoryPoints(
+                    category
                 );
 
             }
@@ -5003,14 +5048,13 @@ marker.on("click", function(){
         }
 
 
-    } catch (error) {
+        /* прибираємо старі */
 
-        console.error(
-            "❌ Помилка завантаження точок:",
-            error
-        );
+        removeFarPoints();
 
-    } finally {
+    }
+
+    finally{
 
         pointsLoading = false;
 
@@ -5019,289 +5063,578 @@ marker.on("click", function(){
 }
 
 
-// ============================================================
-// РУХ КАРТИ
-// ============================================================
+/* =====================================================
+   ПЕРЕВІРКА РУХУ КАРТИ
+===================================================== */
 
-// ВАЖЛИВО:
-// НЕ використовуємо "move"
-// НЕ завантажуємо точки під час кожного руху
+function shouldReloadPoints(){
 
-map.on("moveend", function () {
+    if(!lastPointsCenter){
 
-    // Скасовуємо попередній таймер
-    clearTimeout(pointsMoveTimer);
+        return true;
 
-
-    // Чекаємо 700 мс після завершення руху
-    pointsMoveTimer = setTimeout(() => {
-
-        if (!shouldReloadPoints()) {
-
-            console.log(
-                "🟢 Карта перемістилась недостатньо далеко." +
-                " Повторне завантаження не потрібне."
-            );
-
-            return;
-        }
+    }
 
 
-        console.log(
-            "🔄 Центр карти змінився достатньо." +
-            " Завантажуємо нові точки..."
+    const center =
+        map.getCenter();
+
+
+    const distance =
+        distanceBetweenPoints(
+
+            lastPointsCenter.lat,
+            lastPointsCenter.lng,
+
+            center.lat,
+            center.lng
+
         );
 
 
-        loadPointsForMapCenter();
-
-    }, 700);
-
-});
-
-
-// ============================================================
-// ПЕРШЕ ЗАВАНТАЖЕННЯ
-// ============================================================
-
-setTimeout(() => {
-
-    loadPointsForMapCenter();
-
-}, 1000);
-
-// ======================================================
-// АВТОМАТИЧНЕ ОНОВЛЕННЯ ТОЧОК ПРИ РУСІ КАРТИ
-// ======================================================
-
-let pointsReloadTimer = null;
-
-function reloadVisiblePoints() {
-
-    clearTimeout(pointsReloadTimer);
-
-    pointsReloadTimer = setTimeout(() => {
-
-        console.log(
-            "🔄 Оновлення точок для нової області карти..."
-        );
-
-
-        // ------------------------------------------
-        // ПРОДУКТОВІ МАГАЗИНИ
-        // ------------------------------------------
-
-        const groceryButton =
-            document.querySelector(
-                '#shoppingCategories button[onclick*="toggleGroceryStores"]'
-            );
-
-
-        if (
-            groceryButton &&
-            groceryButton.classList.contains("active")
-        ) {
-
-            groceryLayer.clearLayers();
-
-        }
-
-
-        // ------------------------------------------
-        // ПРОМИСЛОВА ЗОНА
-        // ------------------------------------------
-
-        const parkingButtons =
-            document.querySelectorAll(
-                "#parkingCategories .subCategoryBtn"
-            );
-
-
-        if (
-            parkingButtons[0] &&
-            parkingButtons[0].classList.contains("active")
-        ) {
-
-            industrialLayer.clearLayers();
-
-
-        }
-
-
-        // ------------------------------------------
-        // ПАРКУВАННЯ ПРИ ДОРОЗІ
-        // ------------------------------------------
-
-        if (
-            parkingButtons[1] &&
-            parkingButtons[1].classList.contains("active")
-        ) {
-
-            roadParkingLayer.clearLayers();
-
-    
-
-        }
-
-    }, 300);
+    return (
+        distance >=
+        RELOAD_DISTANCE_KM
+    );
 
 }
 
 
-// ======================================================
-// КАРТА РУХАЄТЬСЯ
-// ======================================================
+/* =====================================================
+   РУХ КАРТИ
+===================================================== */
 
 map.on(
     "moveend",
-    reloadVisiblePoints
+    function(){
+
+        /*
+           Якщо карта посунулась
+           менше 5 км —
+           НІЧОГО НЕ РОБИМО.
+        */
+
+        if(
+            !shouldReloadPoints()
+        ){
+
+            return;
+
+        }
+
+
+        clearTimeout(
+            pointsReloadTimer
+        );
+
+
+        pointsReloadTimer =
+            setTimeout(
+                async function(){
+
+                    const center =
+                        map.getCenter();
+
+
+                    lastPointsCenter = {
+
+                        lat:center.lat,
+
+                        lng:center.lng
+
+                    };
+
+
+                    console.log(
+                        "🗺 Нова область карти"
+                    );
+
+
+                    await loadActiveCategories();
+
+                },
+                300
+            );
+
+    }
 );
 
 
-function toggleGroceryStores(button){
+/* =====================================================
+   ЗАВАНТАЖЕННЯ КАТЕГОРІЇ ПРИ НАТИСКАННІ
+===================================================== */
 
-    const active =
-        button.classList.toggle("active");
+async function reloadCategory(category){
+
+    /*
+       Якщо категорію вимкнули —
+       прибираємо її точки.
+    */
+
+    if(
+        !isCategoryActive(
+            category
+        )
+    ){
+
+        Object.keys(pointMarkers)
+            .forEach(id => {
+
+                const item =
+                    pointMarkers[id];
 
 
-    if(!active){
+                if(
+                    item.category ===
+                    category
+                ){
 
-        groceryLayer.clearLayers();
+                    map.removeLayer(
+                        item.marker
+                    );
+
+                    delete pointMarkers[
+                        id
+                    ];
+
+                }
+
+            });
+
 
         updateActiveCategoryIcons();
 
         return;
+
     }
 
 
-    groceryLayer.clearLayers();
+    /*
+       Якщо категорію увімкнули —
+       завантажуємо її.
+    */
 
+    await loadCategoryPoints(
+        category
+    );
 
 
     updateActiveCategoryIcons();
 
 }
-function toggleParking(){
-
-    const parking =
-        document.getElementById("parkingCategories");
-
-    const shopping =
-        document.getElementById("shoppingCategories");
-
-    const buttons =
-        document.querySelectorAll(".categoryScroll .categoryBtn");
-
-    const shoppingButton = buttons[0];
-    const parkingButton = buttons[1];
-
-    if(!parking) return;
 
 
-    /* Якщо Паркування вже відкриті — закриваємо */
+/* =====================================================
+   ПРОДУКТОВІ МАГАЗИНИ
+===================================================== */
 
-    if(parking.classList.contains("show")){
+async function toggleGroceryStores(button){
 
-        parking.classList.remove("show");
+    const active =
+        button.classList.toggle(
+            "active"
+        );
 
-        parkingButton.classList.remove("active");
+
+    if(active){
+
+        await reloadCategory(
+            "market"
+        );
 
     }else{
 
-        /* Закриваємо Закупи */
-
-        if(shopping){
-            shopping.classList.remove("show");
-        }
-
-        /* Відкриваємо Паркування */
-
-        parking.classList.add("show");
-
-        parkingButton.classList.add("active");
-
-        shoppingButton.classList.remove("active");
+        await reloadCategory(
+            "market"
+        );
 
     }
 
 }
 
 
-function selectParking(button){
+/* =====================================================
+   ПАРКУВАННЯ
+===================================================== */
 
-    const active =
-        button.classList.toggle("active");
+function toggleParking(){
+
+    const parking =
+        document.getElementById(
+            "parkingCategories"
+        );
+
+    const shopping =
+        document.getElementById(
+            "shoppingCategories"
+        );
 
 
-    /* =====================================================
-       ПРОМИСЛОВА ЗОНА
-    ===================================================== */
+    const buttons =
+        document.querySelectorAll(
+            ".categoryScroll .categoryBtn"
+        );
+
+
+    const shoppingButton =
+        buttons[0];
+
+
+    const parkingButton =
+        buttons[1];
+
+
+    if(!parking){
+        return;
+    }
+
 
     if(
-        button.textContent.includes(
+        parking.classList.contains(
+            "show"
+        )
+    ){
+
+        parking.classList.remove(
+            "show"
+        );
+
+        if(parkingButton){
+
+            parkingButton.classList.remove(
+                "active"
+            );
+
+        }
+
+    }else{
+
+        if(shopping){
+
+            shopping.classList.remove(
+                "show"
+            );
+
+        }
+
+
+        parking.classList.add(
+            "show"
+        );
+
+
+        if(parkingButton){
+
+            parkingButton.classList.add(
+                "active"
+            );
+
+        }
+
+
+        if(shoppingButton){
+
+            shoppingButton.classList.remove(
+                "active"
+            );
+
+        }
+
+    }
+
+}
+
+
+/* =====================================================
+   ПРОМИСЛОВА ЗОНА
+===================================================== */
+
+async function selectParking(button){
+
+    const active =
+        button.classList.toggle(
+            "active"
+        );
+
+
+    const text =
+        button.textContent
+            .trim();
+
+
+    if(
+        text.includes(
             "Промислова зона"
         )
     ){
 
-        if(!active){
-
-            industrialLayer.clearLayers();
-
-            updateActiveCategoryIcons();
-
-            return;
-        }
-
-
-        industrialLayer.clearLayers();
-
+        await reloadCategory(
+            "industrial"
+        );
 
     }
 
-
-    /* =====================================================
-       ОНОВЛЕННЯ ІКОНOК
-    ===================================================== */
 
     updateActiveCategoryIcons();
 
 }
 
-/* =========================
+
+/* =====================================================
    ПАРКУВАННЯ ПРИ ДОРОЗІ
-========================= */
-function toggleRoadParking(button){
+===================================================== */
 
-    const active =
-        button.classList.toggle("active");
+async function toggleRoadParking(button){
+
+    button.classList.toggle(
+        "active"
+    );
 
 
-    /* ==========================================
-       ВИМКНЕНО
-    ========================================== */
+    await reloadCategory(
+        "road_parking"
+    );
 
-    if(!active){
 
-        roadParkingLayer.clearLayers();
+    updateActiveCategoryIcons();
 
-        updateActiveCategoryIcons();
+}
 
+
+/* =====================================================
+   ЗАКУПИ
+===================================================== */
+
+function toggleShopping(){
+
+    const shopping =
+        document.getElementById(
+            "shoppingCategories"
+        );
+
+    const parking =
+        document.getElementById(
+            "parkingCategories"
+        );
+
+
+    const buttons =
+        document.querySelectorAll(
+            ".categoryScroll .categoryBtn"
+        );
+
+
+    const shoppingButton =
+        buttons[0];
+
+
+    const parkingButton =
+        buttons[1];
+
+
+    if(!shopping){
         return;
     }
 
 
-    /* ==========================================
-       ОЧИЩАЄМО ПОПЕРЕДНІ ТОЧКИ
-    ========================================== */
+    if(
+        shopping.classList.contains(
+            "show"
+        )
+    ){
 
-    roadParkingLayer.clearLayers();
+        shopping.classList.remove(
+            "show"
+        );
 
 
+        if(shoppingButton){
+
+            shoppingButton.classList.remove(
+                "active"
+            );
+
+        }
+
+    }else{
+
+        if(parking){
+
+            parking.classList.remove(
+                "show"
+            );
+
+        }
 
 
-    updateActiveCategoryIcons();
+        shopping.classList.add(
+            "show"
+        );
+
+
+        if(shoppingButton){
+
+            shoppingButton.classList.add(
+                "active"
+            );
+
+        }
+
+
+        if(parkingButton){
+
+            parkingButton.classList.remove(
+                "active"
+            );
+
+        }
+
+    }
 
 }
+
+
+/* =====================================================
+   ОНОВЛЕННЯ ІКОНOК АКТИВНИХ КАТЕГОРІЙ
+===================================================== */
+
+function updateActiveCategoryIcons(){
+
+    const container =
+        document.getElementById(
+            "activeCategoryIcons"
+        );
+
+
+    if(!container){
+        return;
+    }
+
+
+    container.innerHTML = "";
+
+
+    const icons = [
+
+        {
+            selector:
+                '#shoppingCategories button[onclick*="toggleGroceryStores"]',
+
+            image:
+                "maarket_map.svg",
+
+            title:
+                "Продуктові магазини"
+        },
+
+        {
+            selector:
+                "#parkingCategories .subCategoryBtn:nth-child(1)",
+
+            image:
+                "promzona_map.svg",
+
+            title:
+                "Промислова зона"
+        },
+
+        {
+            selector:
+                "#parkingCategories .subCategoryBtn:nth-child(2)",
+
+            image:
+                "pocket_map.svg",
+
+            title:
+                "Паркування при дорозі"
+        }
+
+    ];
+
+
+    icons.forEach(item => {
+
+        const button =
+            document.querySelector(
+                item.selector
+            );
+
+
+        if(
+            !button ||
+            !button.classList.contains(
+                "active"
+            )
+        ){
+
+            return;
+
+        }
+
+
+        const img =
+            document.createElement(
+                "img"
+            );
+
+
+        img.src =
+            item.image;
+
+
+        img.title =
+            item.title;
+
+
+        img.className =
+            "activeMapCategoryIcon";
+
+
+        container.appendChild(
+            img
+        );
+
+    });
+
+}
+
+
+/* =====================================================
+   ПОЧАТКОВЕ ЗАВАНТАЖЕННЯ
+===================================================== */
+
+/*
+   Точки НЕ завантажуються автоматично.
+
+   Вони з'являться тільки після
+   натискання кнопки категорії.
+*/
+
+
+lastPointsCenter = {
+
+    lat:map.getCenter().lat,
+
+    lng:map.getCenter().lng
+
+};
+
+
+console.log(
+    "🗺 Система точок готова."
+);
+
+console.log(
+    "📍 Радіус:",
+    POINTS_RADIUS_KM,
+    "км"
+);
+
+console.log(
+    "📏 Перезавантаження після:",
+    RELOAD_DISTANCE_KM,
+    "км"
+);
 </script>
 
 </body>
