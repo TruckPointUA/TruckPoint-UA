@@ -1694,8 +1694,9 @@ body.night-mode .sheetHandle{
         font-size:19px;
     }
 
+  /* Розмір координат в описі */
     .pointInfoCoordinates{
-        font-size:11px;
+        font-size:15px;
     }
 
     .pointInfoContent{
@@ -2015,13 +2016,13 @@ body.night-mode .sheetHandle{
         Координати
     </div>
 
-    <button
-        id="sharePointButton"
-        class="sharePointButton"
-        onclick="shareCurrentPoint()"
-    >
-        ↗ Поділитися
-    </button>
+<button
+    id="sharePointButton"
+    class="sharePointButton"
+    onclick="shareCurrentPoint()"
+>
+    Поділитися
+</button>
 
 </div>
 
@@ -3002,76 +3003,217 @@ function closePointInfo(){
 }
 
 
-/* =========================
+/* =====================================================
    ПОДІЛИТИСЯ ТОЧКОЮ
-========================= */
+===================================================== */
 
-function shareCurrentPoint(){
+async function shareCurrentPoint(){
 
     if(!currentPointData){
+
         alert("Точку не вибрано.");
+
         return;
     }
 
-    const lat = Number(currentPointData.lat);
-    const lng = Number(currentPointData.lng);
+
+    const lat =
+        Number(currentPointData.lat);
+
+    const lng =
+        Number(currentPointData.lng);
+
+
+    if(
+        !Number.isFinite(lat) ||
+        !Number.isFinite(lng)
+    ){
+
+        alert(
+            "Координати точки некоректні."
+        );
+
+        return;
+    }
+
 
     const name =
         currentPointData.name ||
         "Точка TruckPoint UA";
 
+
+    /* Посилання Google Maps */
+
     const shareUrl =
         `https://www.google.com/maps?q=${lat},${lng}`;
 
+
     const shareText =
-        `${name}\n📍 ${lat.toFixed(6)}, ${lng.toFixed(6)}\n${shareUrl}`;
+        `${name}\n` +
+        `📍 ${lat.toFixed(6)}, ${lng.toFixed(6)}\n` +
+        `${shareUrl}`;
 
-    /* Якщо телефон підтримує Web Share */
 
-    if(navigator.share){
+    /* =================================================
+       1. Мобільний телефон — системне меню Поділитися
+    ================================================= */
 
-        navigator.share({
+    if(
+        navigator.share &&
+        typeof navigator.share === "function"
+    ){
 
-            title:name,
+        try{
 
-            text:
-                `${name}\n📍 ${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+            await navigator.share({
 
-            url:shareUrl
+                title:name,
 
-        }).catch(error => {
+                text:
+                    `${name}\n` +
+                    `📍 ${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+
+                url:shareUrl
+
+            });
 
             console.log(
-                "Поділитися скасовано:",
+                "✅ Точку успішно передано."
+            );
+
+            return;
+
+        }
+
+        catch(error){
+
+            /* Користувач просто закрив меню */
+
+            if(
+                error &&
+                error.name === "AbortError"
+            ){
+
+                console.log(
+                    "ℹ️ Поділитися скасовано."
+                );
+
+                return;
+
+            }
+
+            console.warn(
+                "⚠️ Web Share недоступний:",
                 error
             );
 
-        });
+        }
 
-        return;
     }
 
 
-    /* Якщо Web Share не підтримується */
+    /* =================================================
+       2. Якщо Web Share немає — копіюємо посилання
+    ================================================= */
 
-    navigator.clipboard.writeText(shareText)
+    try{
 
-        .then(() => {
+        if(
+            navigator.clipboard &&
+            window.isSecureContext
+        ){
+
+            await navigator.clipboard.writeText(
+                shareText
+            );
 
             alert(
                 "Посилання на точку скопійовано."
             );
 
-        })
+            return;
 
-        .catch(() => {
+        }
 
-            prompt(
-                "Скопіюйте посилання:",
-                shareUrl
+    }
+
+    catch(error){
+
+        console.warn(
+            "⚠️ Clipboard не працює:",
+            error
+        );
+
+    }
+
+
+    /* =================================================
+       3. Резервний варіант для старих браузерів
+    ================================================= */
+
+    try{
+
+        const textarea =
+            document.createElement("textarea");
+
+        textarea.value =
+            shareText;
+
+        textarea.style.position =
+            "fixed";
+
+        textarea.style.left =
+            "-9999px";
+
+        textarea.style.top =
+            "0";
+
+        document.body.appendChild(
+            textarea
+        );
+
+        textarea.focus();
+
+        textarea.select();
+
+        const copied =
+            document.execCommand("copy");
+
+        document.body.removeChild(
+            textarea
+        );
+
+
+        if(copied){
+
+            alert(
+                "Посилання на точку скопійовано."
             );
 
-        });
+            return;
+
+        }
+
+    }
+
+    catch(error){
+
+        console.warn(
+            "⚠️ Резервне копіювання не працює:",
+            error
+        );
+
+    }
+
+
+    /* =================================================
+       4. Останній варіант — показати посилання
+    ================================================= */
+
+    prompt(
+        "Скопіюйте посилання на точку:",
+        shareUrl
+    );
 
 }
 
@@ -3216,15 +3358,17 @@ function loadPointReviews(pointId){
 }
 
 
-/* =========================
-   ДОДАТИ ВІДГУК
-========================= */
+/* =====================================================
+   ДОДАТИ ВІДГУК ВІД ІМЕНІ КОРИСТУВАЧА
+===================================================== */
 
-function addPointReview(){
+async function addPointReview(){
 
     if(!currentPointId){
 
-        alert("Точку не вибрано.");
+        alert(
+            "Точку не вибрано."
+        );
 
         return;
     }
@@ -3252,24 +3396,84 @@ function addPointReview(){
     }
 
 
+    /* =================================================
+       Отримуємо поточного користувача Firebase
+    ================================================= */
 
+    const firebaseUser =
+        firebase.auth().currentUser;
+
+
+    if(!firebaseUser){
+
+        alert(
+            "Користувач не авторизований."
+        );
+
+        return;
+    }
+
+
+    /* =================================================
+       Ім'я користувача
+    ================================================= */
+
+    let authorName =
+        window.currentUserName ||
+        "";
+
+
+    /* Якщо ім'я не знайдено — пробуємо localStorage */
+
+    if(!authorName){
+
+        authorName =
+            localStorage.getItem(
+                "userName"
+            ) ||
+            localStorage.getItem(
+                "currentUserName"
+            ) ||
+            "";
+    }
+
+
+    /* Останній резерв */
+
+    if(!authorName){
+
+        authorName =
+            firebaseUser.displayName ||
+            "Користувач";
+    }
+
+
+    /* =================================================
+       ID користувача
+    ================================================= */
+
+    const userId =
+        firebaseUser.uid;
+
+
+    /* =================================================
+       Створюємо відгук
+    ================================================= */
 
     const reviewRef =
         db.ref(
             "pointReviews/" +
             currentPointId
-        )
-        .push();
+        ).push();
 
 
     const review = {
 
         author:
-            currentUserName ||
-            "Користувач",
+            authorName,
 
         userId:
-            USER_ID,
+            userId,
 
         text:
             text,
@@ -3280,172 +3484,51 @@ function addPointReview(){
     };
 
 
-    reviewRef
-    .set(review)
-    .then(() => {
+    try{
+
+        await reviewRef.set(
+            review
+        );
+
+
+        console.log(
+            "✅ Відгук додано:",
+            review
+        );
+
+
+        /* Очищаємо поле */
 
         textarea.value = "";
 
-        loadPointReviews(
+
+        /* Оновлюємо список */
+
+        await loadPointReviews(
             currentPointId
         );
 
-    })
-    .catch(error => {
+
+        alert(
+            `Відгук додано від імені: ${authorName}`
+        );
+
+    }
+
+    catch(error){
 
         console.error(
-            "Помилка додавання відгуку:",
+            "❌ Помилка додавання відгуку:",
             error
         );
 
+
         alert(
-            "Не вдалося додати відгук."
+            "Не вдалося додати відгук.\n\n" +
+            "Перевірте права Firebase Database."
         );
 
-    });
-
-}
-
-/* =========================
-   ШАПКА
-========================= */
-
-function updateHeader(){
-
-    Promise.all([
-
-        db.ref("users").once("value"),
-
-        db.ref("usersLocation").once("value")
-
-    ])
-
-    .then(([usersSnap, locationSnap]) => {
-
-
-        /* Кількість користувачів */
-
-        const usersCount =
-            usersSnap.numChildren();
-
-
-        /* Кількість онлайн */
-
-        let onlineCount = 0;
-
-
-        locationSnap.forEach(child => {
-
-            const d =
-                child.val();
-
-
-            if(
-
-                d.online === true &&
-
-                d.showLocation === true &&
-
-                Date.now() -
-                (d.lastUpdate || 0)
-                < 120000
-
-            ){
-
-                onlineCount++;
-
-            }
-
-        });
-
-
-        /* Аватар */
-
-        document.getElementById(
-            "userAvatar"
-        ).src =
-            currentAvatar ||
-            "avatars/avatar1.png";
-
-
-        /* Шапка */
-
-        const box =
-            document.getElementById(
-                "userInfo"
-            );
-
-
-        box.innerHTML = `
-
-            <div style="
-                display:flex;
-                flex-direction:column;
-                align-items:center;
-                line-height:1.15;
-            ">
-
-
-                <div style="
-                    font-size:13px;
-                    color:rgba(255,255,255,.85);
-                    letter-spacing:2px;
-                    text-transform:uppercase;
-                    font-weight:600;
-                ">
-
-                    Truck Point UA
-
-                </div>
-
-
-                <div
-                    id="headerUserName"
-                    style="
-                        font-size:21px;
-                        color:#fff;
-                        font-weight:700;
-                        margin-top:2px;
-                    "
-                >
-
-                    ${currentUserName}
-
-                </div>
-
-
-                <div
-                    id="headerStats"
-                    style="
-                        margin-top:4px;
-                        font-size:13px;
-                        color:rgba(255,255,255,.95);
-                        background:rgba(255,255,255,.15);
-                        padding:3px 10px;
-                        border-radius:20px;
-                        backdrop-filter:blur(8px);
-                    "
-                >
-
-                    👥 ${usersCount}
-
-                    &nbsp;&nbsp;|&nbsp;&nbsp;
-
-                    🟢 ${onlineCount} онлайн
-
-                </div>
-
-
-            </div>
-
-        `;
-
-
-        box.style.visibility =
-            "visible";
-
-
-    });
+    }
 
 }
 
