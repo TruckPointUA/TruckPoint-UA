@@ -2202,8 +2202,13 @@ body.night-mode .sheetHandle{
 /* =========================
    FIREBASE
 ========================= */
+
+/* ==========================================
+   1. ОСНОВНИЙ FIREBASE — ТОЧКИ
+   ========================================== */
+
 const firebaseConfig = {
-    apiKey: "AIzaSyBC2dtlKJSJqW2mNirMm2LVs61OQpnbPuU",
+    apiKey: "AIzaSyAzOpcu7kdg0y8xwqD0oKk4eMfFSK946n4",
     authDomain: "truckpointua-magazyny.firebaseapp.com",
     projectId: "truckpointua-magazyny",
     storageBucket: "truckpointua-magazyny.firebasestorage.app",
@@ -2217,6 +2222,28 @@ firebase.initializeApp(firebaseConfig);
 
 const db = firebase.database();
 
+
+/* ==========================================
+   2. FIREBASE КОРИСТУВАЧІ
+   ========================================== */
+
+const firebaseConfigUsers = {
+    apiKey: "AIzaSyAzOpcu7kdg0y8xwqD0oKk4eMfFSK946n4",
+    authDomain: "truckpoint-ua.firebaseapp.com",
+    databaseURL: "https://truckpoint-ua-default-rtdb.firebaseio.com",
+    projectId: "truckpoint-ua",
+    storageBucket: "truckpoint-ua.firebasestorage.app",
+    messagingSenderId: "992372126132",
+    appId: "1:992372126132:web:3378b6b1794066132d42e1"
+};
+
+const usersApp = firebase.initializeApp(
+    firebaseConfigUsers,
+    "usersApp"
+);
+
+const usersAuth = usersApp.auth();
+const usersDb = usersApp.database();
 
 /* =====================================================
    ЗБЕРЕГТИ ГЕОЛОКАЦІЮ КОРИСТУВАЧА
@@ -3217,41 +3244,88 @@ async function shareCurrentPoint(){
 
 }
 
-/* =========================
-   ВІДГУКИ
-========================= */
 
-function loadPointReviews(pointId){
+/* =====================================================
+   ЗАВАНТАЖИТИ ВІДГУКИ ТОЧКИ
+===================================================== */
 
-    const container =
-        document.getElementById(
-            "pointReviews"
-        );
+async function loadPointReviews(pointId) {
 
+    try {
 
-    container.innerHTML = `
-        <div class="noReviews">
-            Завантаження відгуків...
-        </div>
-    `;
+        if (!pointId) {
+            console.warn(
+                "⚠️ Не передано ID точки"
+            );
+            return;
+        }
 
 
-    db.ref(
-        "pointReviews/" + pointId
-    )
-    .orderByChild("createdAt")
-    .once("value")
-    .then(snapshot => {
+        /* ---------------------------------------------
+           Контейнер відгуків
+        --------------------------------------------- */
+
+        const container =
+            document.getElementById(
+                "pointReviews"
+            );
+
+
+        if (!container) {
+
+            console.error(
+                "❌ Не знайдено контейнер #pointReviews"
+            );
+
+            return;
+        }
+
+
+        /* ---------------------------------------------
+           Очищаємо список
+        --------------------------------------------- */
+
+        container.innerHTML = `
+            <div style="
+                text-align:center;
+                padding:15px;
+                color:#78909c;
+            ">
+                Завантаження відгуків...
+            </div>
+        `;
+
+
+        /* ---------------------------------------------
+           Відгуки знаходяться в БД ТОЧОК
+           truckpointua-magazyny
+        --------------------------------------------- */
+
+        const snapshot =
+            await db
+                .ref(
+                    "pointReviews/" +
+                    pointId
+                )
+                .once("value");
+
 
         container.innerHTML = "";
 
 
-        if(!snapshot.exists()){
+        /* ---------------------------------------------
+           Відгуків немає
+        --------------------------------------------- */
+
+        if (!snapshot.exists()) {
 
             container.innerHTML = `
-                <div class="noReviews">
-                    Поки що відгуків немає.
-                    Будьте першим!
+                <div style="
+                    text-align:center;
+                    padding:20px;
+                    color:#78909c;
+                ">
+                    Відгуків поки немає.
                 </div>
             `;
 
@@ -3259,173 +3333,264 @@ function loadPointReviews(pointId){
         }
 
 
+        /* ---------------------------------------------
+           Формуємо список
+        --------------------------------------------- */
+
         const reviews = [];
 
 
         snapshot.forEach(child => {
 
+            const review =
+                child.val() || {};
+
             reviews.push({
-                id:child.key,
-                ...child.val()
+
+                id:
+                    child.key,
+
+                author:
+                    review.author ||
+                    "Користувач",
+
+                userId:
+                    review.userId ||
+                    "",
+
+                text:
+                    review.text ||
+                    "",
+
+                createdAt:
+                    review.createdAt ||
+                    0
+
             });
 
         });
 
 
-        /* Нові зверху */
+        /* ---------------------------------------------
+           Нові відгуки зверху
+        --------------------------------------------- */
 
-        reviews.reverse();
+        reviews.sort(
+            (a, b) =>
+                b.createdAt -
+                a.createdAt
+        );
 
+
+        /* ---------------------------------------------
+           Виводимо відгуки
+        --------------------------------------------- */
 
         reviews.forEach(review => {
 
             const item =
                 document.createElement("div");
 
-            item.className =
-                "reviewItem";
 
-
-            const author =
-                document.createElement("div");
-
-            author.className =
-                "reviewAuthor";
-
-            author.textContent =
-                "👤 " +
-                (
-                    review.author ||
-                    "Користувач"
-                );
+            item.style.cssText = `
+                background:#e8f1f5;
+                border:1px solid #b0bec5;
+                border-radius:12px;
+                padding:12px;
+                margin-bottom:10px;
+                color:#263238;
+            `;
 
 
             const date =
-                document.createElement("div");
-
-            date.className =
-                "reviewDate";
-
-
-            if(review.createdAt){
-
-                date.textContent =
-                    new Date(
+                review.createdAt
+                    ? new Date(
                         review.createdAt
                     ).toLocaleString(
                         "uk-UA"
-                    );
-
-            }
-
-
-            const text =
-                document.createElement("div");
-
-            text.className =
-                "reviewText";
-
-            text.textContent =
-                review.text || "";
+                    )
+                    : "";
 
 
-            item.appendChild(author);
+            item.innerHTML = `
 
-            item.appendChild(date);
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                    gap:10px;
+                    margin-bottom:7px;
+                ">
 
-            item.appendChild(text);
+                    <div style="
+                        font-weight:700;
+                        color:#455a64;
+                    ">
+                        👤 ${escapeHtml(
+                            review.author
+                        )}
+                    </div>
 
-            container.appendChild(item);
+                    <div style="
+                        font-size:11px;
+                        color:#78909c;
+                    ">
+                        ${escapeHtml(date)}
+                    </div>
+
+                </div>
+
+
+                <div style="
+                    color:#37474f;
+                    line-height:1.5;
+                    white-space:pre-wrap;
+                    word-break:break-word;
+                ">
+                    ${escapeHtml(
+                        review.text
+                    )}
+                </div>
+
+            `;
+
+
+            container.appendChild(
+                item
+            );
 
         });
 
-    })
-    .catch(error => {
+
+        console.log(
+            `✅ Завантажено відгуків: ${reviews.length}`
+        );
+
+
+    } catch (error) {
 
         console.error(
-            "Помилка завантаження відгуків:",
+            "❌ Помилка завантаження відгуків:",
             error
         );
 
-        container.innerHTML = `
-            <div class="noReviews">
-                Не вдалося завантажити відгуки.
-            </div>
-        `;
 
-    });
+        const container =
+            document.getElementById(
+                "pointReviews"
+            );
 
+
+        if (container) {
+
+            container.innerHTML = `
+                <div style="
+                    color:#c62828;
+                    text-align:center;
+                    padding:15px;
+                ">
+                    Не вдалося завантажити відгуки.
+                </div>
+            `;
+        }
+    }
+}
+
+
+/* =====================================================
+   БЕЗПЕЧНЕ ВИВЕДЕННЯ ТЕКСТУ
+===================================================== */
+
+function escapeHtml(value) {
+
+    return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 /* =====================================================
-   ОТРИМАННЯ ІМЕНІ ПОТОЧНОГО КОРИСТУВАЧА
+   ОТРИМАТИ ІМ'Я ПОТОЧНОГО КОРИСТУВАЧА
+   КОРИСТУВАЧІ ЗБЕРІГАЮТЬСЯ В truckpoint-ua
 ===================================================== */
 
-function getCurrentUserName(){
+async function getCurrentUserName() {
 
-    const firebaseUser =
-        firebase.auth().currentUser;
+    try {
 
-    if(!firebaseUser){
+        const firebaseUser =
+            usersAuth.currentUser;
+
+        if (!firebaseUser) {
+            return "Користувач";
+        }
+
+        const uid =
+            firebaseUser.uid;
+
+        const snapshot =
+            await usersDb
+                .ref("users/" + uid)
+                .once("value");
+
+        if (snapshot.exists()) {
+
+            const user =
+                snapshot.val();
+
+            const name =
+                (user.name || "").trim();
+
+            const surname =
+                (user.surname || "").trim();
+
+            const fullName =
+                [name, surname]
+                    .filter(Boolean)
+                    .join(" ")
+                    .trim();
+
+            if (fullName) {
+                return fullName;
+            }
+        }
+
+        /* Якщо ім'я не знайдено */
+        return (
+            firebaseUser.displayName ||
+            firebaseUser.email ||
+            "Користувач"
+        );
+
+    } catch (error) {
+
+        console.error(
+            "❌ Помилка отримання імені:",
+            error
+        );
+
         return "Користувач";
     }
-
-    /* 1. Ім'я, яке вже є в глобальній змінній */
-    if(
-        window.currentUserName &&
-        String(window.currentUserName).trim()
-    ){
-
-        return String(
-            window.currentUserName
-        ).trim();
-
-    }
-
-    /* 2. Ім'я з localStorage */
-    const savedName =
-        localStorage.getItem("userName") ||
-        localStorage.getItem("currentUserName");
-
-    if(
-        savedName &&
-        String(savedName).trim()
-    ){
-
-        return String(
-            savedName
-        ).trim();
-
-    }
-
-    /* 3. Ім'я Firebase Auth */
-    if(
-        firebaseUser.displayName &&
-        String(firebaseUser.displayName).trim()
-    ){
-
-        return String(
-            firebaseUser.displayName
-        ).trim();
-
-    }
-
-    /* 4. Якщо імені немає */
-    return "Користувач";
 }
+
+
 /* =====================================================
    ДОДАТИ ВІДГУК ВІД ІМЕНІ ПОТОЧНОГО КОРИСТУВАЧА
 ===================================================== */
 
-async function addPointReview(){
+async function addPointReview() {
 
     /* ---------------------------------------------
        Перевірка вибраної точки
     --------------------------------------------- */
 
-    if(!currentPointId){
+    if (!currentPointId) {
 
-        alert("Точку не вибрано.");
+        alert(
+            "Точку не вибрано."
+        );
 
         return;
     }
@@ -3436,15 +3601,30 @@ async function addPointReview(){
     --------------------------------------------- */
 
     const textarea =
-        document.getElementById("reviewText");
+        document.getElementById(
+            "reviewText"
+        );
+
+
+    if (!textarea) {
+
+        console.error(
+            "❌ Не знайдено поле #reviewText"
+        );
+
+        return;
+    }
+
 
     const text =
         textarea.value.trim();
 
 
-    if(!text){
+    if (!text) {
 
-        alert("Напишіть текст відгуку.");
+        alert(
+            "Напишіть текст відгуку."
+        );
 
         textarea.focus();
 
@@ -3453,54 +3633,30 @@ async function addPointReview(){
 
 
     /* ---------------------------------------------
-       Поточний Firebase користувач
+       Поточний користувач
+       ВАЖЛИВО: беремо з truckpoint-ua
     --------------------------------------------- */
 
     const firebaseUser =
-        firebase.auth().currentUser;
+        usersAuth.currentUser;
 
 
-    if(!firebaseUser){
+    if (!firebaseUser) {
 
-        alert("Користувач не авторизований.");
+        alert(
+            "Користувач не авторизований."
+        );
 
         return;
     }
 
 
     /* ---------------------------------------------
-       ОТРИМУЄМО ІМ'Я КОРИСТУВАЧА
-       з localStorage
+       Отримуємо ім'я та прізвище
     --------------------------------------------- */
 
-    const userName =
-        localStorage.getItem("userName") || "";
-
-    const userSurname =
-        localStorage.getItem("userSurname") || "";
-
-
-    /* ---------------------------------------------
-       Формуємо повне ім'я
-    --------------------------------------------- */
-
-    let authorName =
-        (userName + " " + userSurname).trim();
-
-
-    /* ---------------------------------------------
-       Якщо ім'я не знайдено —
-       використовуємо Email
-    --------------------------------------------- */
-
-    if(!authorName){
-
-        authorName =
-            firebaseUser.displayName ||
-            firebaseUser.email ||
-            "Користувач";
-
-    }
+    const authorName =
+        await getCurrentUserName();
 
 
     /* ---------------------------------------------
@@ -3512,7 +3668,9 @@ async function addPointReview(){
 
 
     /* ---------------------------------------------
-       Створюємо новий відгук
+       Створюємо відгук
+       ВАЖЛИВО:
+       db = база truckpointua-magazyny
     --------------------------------------------- */
 
     const reviewRef =
@@ -3540,12 +3698,14 @@ async function addPointReview(){
 
 
     /* ---------------------------------------------
-       Зберігаємо у Firebase
+       Зберігаємо відгук
     --------------------------------------------- */
 
-    try{
+    try {
 
-        await reviewRef.set(review);
+        await reviewRef.set(
+            review
+        );
 
 
         console.log(
@@ -3562,7 +3722,7 @@ async function addPointReview(){
 
 
         /* -----------------------------------------
-           Оновлюємо відгуки
+           Оновлюємо список відгуків
         ----------------------------------------- */
 
         await loadPointReviews(
@@ -3571,21 +3731,12 @@ async function addPointReview(){
 
 
         console.log(
-            `✅ Відгук додано від: ${authorName}`
+            "✅ Відгук додано від:",
+            authorName
         );
 
 
-        /* -----------------------------------------
-           Повідомлення
-        ----------------------------------------- */
-
-        alert(
-            `Відгук додано від імені: ${authorName}`
-        );
-
-
-    }
-    catch(error){
+    } catch (error) {
 
         console.error(
             "❌ Помилка додавання відгуку:",
@@ -3595,12 +3746,11 @@ async function addPointReview(){
 
         alert(
             "Не вдалося додати відгук.\n\n" +
-            "Перевірте авторизацію та права Firebase Database."
+            error.message
         );
-
     }
-
 }
+
 
 /* =====================================================
    ШТОРКА — ПОВНЕ КЕРУВАННЯ ВГОРУ / ВНИЗ
