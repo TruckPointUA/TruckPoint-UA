@@ -292,22 +292,32 @@ body.night-mode .sheetHandle{
 
 
 .sheetHandle{
-    width:50px;
-    height:4px;
+    width:100px;
+    height:10px;
+
     background:#777;
+
     border-radius:10px;
+
     margin:8px auto;
+
     cursor:grab;
+
     touch-action:none;
+
     position:relative;
 }
+
 .sheetHandle::after{
     content:"";
+
     position:absolute;
-    left:-25px;
-    right:-25px;
-    top:-15px;
-    bottom:-15px;
+
+    left:-30px;
+    right:-30px;
+
+    top:-18px;
+    bottom:-18px;
 }
 
 .sheetContent{
@@ -424,16 +434,6 @@ body.night-mode .sheetHandle{
     transform:scale(.98);
 }
 
-
-.subCategoryBtn.active{
-    background:#0d6efd !important;
-    color:#fff !important;
-
-    box-shadow:
-        0 4px 12px rgba(13,110,253,.40);
-
-    transform:scale(1.02);
-}
 
 /* =========================
    ІКОНКИ ВИБРАНИХ КАТЕГОРІЙ
@@ -1723,6 +1723,7 @@ body.night-mode .sheetHandle{
 
 }
 
+
 /* =====================================================
    OVERLAY — ПОВНИЙ ЕКРАН
 ===================================================== */
@@ -1748,6 +1749,163 @@ body.night-mode .sheetHandle{
     overflow:hidden;
 }
 
+
+/* =====================================================
+   ШТОРКА — СІРО-СИНІ КОЛЬОРИ ЯК У ВІКНІ ТОЧКИ
+===================================================== */
+
+.bottomSheet{
+    background:#eef3f7;
+    color:#263746;
+
+    box-shadow:
+        0 -4px 15px rgba(55,71,79,.25);
+
+    border-top:1px solid #d3dde3;
+}
+
+
+/* Ручка шторки */
+
+.sheetHandle{
+    background:#78909c;
+
+    box-shadow:
+        0 1px 4px rgba(55,71,79,.25);
+}
+
+
+/* Кнопки категорій */
+
+.categoryBtn{
+
+    background:#607d8b;
+    color:#ffffff;
+
+    box-shadow:
+        0 4px 10px rgba(55,71,79,.20);
+}
+
+
+/* Підкатегорії */
+
+.subCategoryBtn{
+
+    background:#f8fafb;
+    color:#37474f;
+
+    border:1px solid #d3dde3;
+
+    box-shadow:
+        0 4px 10px rgba(55,71,79,.12);
+}
+
+
+/* При натисканні */
+
+.categoryBtn:active,
+.subCategoryBtn:active{
+
+    transform:scale(.98);
+
+}
+
+/* =====================================================
+   АКТИВНА КАТЕГОРІЯ ШТОРКИ
+===================================================== */
+
+.categoryBtn.active{
+    background:#455a64 !important;
+    color:#ffffff !important;
+
+    border:2px solid #90caf9 !important;
+
+    box-shadow:
+        0 0 0 2px rgba(144,202,249,.25),
+        0 0 12px rgba(144,202,249,.75),
+        0 5px 15px rgba(55,71,79,.35),
+        inset 0 0 8px rgba(255,255,255,.12);
+
+    transform:scale(1.03);
+}
+
+
+/* =========================
+   АКТИВНА ПІДКАТЕГОРІЯ
+========================= */
+
+.subCategoryBtn.active{
+    background:#607d8b !important;
+    color:#ffffff !important;
+
+    border:2px solid #90caf9 !important;
+
+    box-shadow:
+        0 0 0 2px rgba(144,202,249,.20),
+        0 0 14px rgba(144,202,249,.65),
+        0 5px 14px rgba(55,71,79,.30),
+        inset 0 0 8px rgba(255,255,255,.10);
+
+    transform:scale(1.02);
+}
+
+
+/* =========================
+   НЕАКТИВНА ПІДКАТЕГОРІЯ
+========================= */
+
+.subCategoryBtn{
+    background:#f8fafb;
+    color:#37474f;
+
+    border:1px solid #c7d3da;
+
+    box-shadow:
+        0 3px 8px rgba(55,71,79,.12);
+
+    transition:
+        background .2s ease,
+        border .2s ease,
+        box-shadow .2s ease,
+        transform .2s ease;
+}
+
+
+/* =========================
+   АКТИВНА ВЕРХНЯ КАТЕГОРІЯ
+========================= */
+
+.categoryBtn{
+    background:#607d8b;
+    color:#ffffff;
+
+    border:1px solid #78909c;
+
+    transition:
+        background .2s ease,
+        border .2s ease,
+        box-shadow .2s ease,
+        transform .2s ease;
+}
+
+
+/* Натискання */
+
+.categoryBtn:active,
+.subCategoryBtn:active{
+    transform:scale(.97);
+}
+
+
+/* Неактивні кнопки */
+
+.categoryBtn{
+    border:1px solid transparent;
+    transition:
+        background .2s ease,
+        box-shadow .2s ease,
+        transform .2s ease;
+}
 </style>
 
 </head>
@@ -3298,7 +3456,7 @@ const activeCategoryIconsElement =
    НАЛАШТУВАННЯ
 ========================= */
 
-const CLOSED_HEIGHT = 24;
+const CLOSED_HEIGHT = 30;
 
 let dragging = false;
 let moved = false;
@@ -3617,22 +3775,38 @@ function toggleShopping(){
     const parking =
         document.getElementById("parkingCategories");
 
+    const buttons =
+        document.querySelectorAll(".categoryScroll .categoryBtn");
+
+    const shoppingButton = buttons[0];
+    const parkingButton = buttons[1];
+
     if(!shopping) return;
 
+
     /* Якщо Закупи вже відкриті — закриваємо */
+
     if(shopping.classList.contains("show")){
 
         shopping.classList.remove("show");
 
+        shoppingButton.classList.remove("active");
+
     }else{
 
-        /* Закриваємо всі інші категорії */
+        /* Закриваємо Паркування */
+
         if(parking){
             parking.classList.remove("show");
         }
 
-        /* Відкриваємо тільки Закупи */
+        /* Відкриваємо Закупи */
+
         shopping.classList.add("show");
+
+        shoppingButton.classList.add("active");
+
+        parkingButton.classList.remove("active");
 
     }
 
@@ -4911,22 +5085,38 @@ function toggleParking(){
     const shopping =
         document.getElementById("shoppingCategories");
 
+    const buttons =
+        document.querySelectorAll(".categoryScroll .categoryBtn");
+
+    const shoppingButton = buttons[0];
+    const parkingButton = buttons[1];
+
     if(!parking) return;
 
+
     /* Якщо Паркування вже відкриті — закриваємо */
+
     if(parking.classList.contains("show")){
 
         parking.classList.remove("show");
 
+        parkingButton.classList.remove("active");
+
     }else{
 
         /* Закриваємо Закупи */
+
         if(shopping){
             shopping.classList.remove("show");
         }
 
-        /* Відкриваємо тільки Паркування */
+        /* Відкриваємо Паркування */
+
         parking.classList.add("show");
+
+        parkingButton.classList.add("active");
+
+        shoppingButton.classList.remove("active");
 
     }
 
