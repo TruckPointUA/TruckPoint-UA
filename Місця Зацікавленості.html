@@ -2787,10 +2787,10 @@ const industrialIcon = L.icon({
 ========================= */
 
 const roadLayer = L.tileLayer(
-    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
     {
-        maxZoom:19,
-        attribution:'© OpenStreetMap'
+        maxZoom:20,
+        attribution:'© Google Maps'
     }
 );
 
@@ -3357,28 +3357,86 @@ function loadPointReviews(pointId){
 
 }
 
-
 /* =====================================================
-   ДОДАТИ ВІДГУК ВІД ІМЕНІ КОРИСТУВАЧА
+   ОТРИМАННЯ ІМЕНІ ПОТОЧНОГО КОРИСТУВАЧА
+===================================================== */
+
+function getCurrentUserName(){
+
+    const firebaseUser =
+        firebase.auth().currentUser;
+
+    if(!firebaseUser){
+        return "Користувач";
+    }
+
+    /* 1. Ім'я, яке вже є в глобальній змінній */
+    if(
+        window.currentUserName &&
+        String(window.currentUserName).trim()
+    ){
+
+        return String(
+            window.currentUserName
+        ).trim();
+
+    }
+
+    /* 2. Ім'я з localStorage */
+    const savedName =
+        localStorage.getItem("userName") ||
+        localStorage.getItem("currentUserName");
+
+    if(
+        savedName &&
+        String(savedName).trim()
+    ){
+
+        return String(
+            savedName
+        ).trim();
+
+    }
+
+    /* 3. Ім'я Firebase Auth */
+    if(
+        firebaseUser.displayName &&
+        String(firebaseUser.displayName).trim()
+    ){
+
+        return String(
+            firebaseUser.displayName
+        ).trim();
+
+    }
+
+    /* 4. Якщо імені немає */
+    return "Користувач";
+}
+/* =====================================================
+   ДОДАТИ ВІДГУК ВІД ІМЕНІ ПОТОЧНОГО КОРИСТУВАЧА
 ===================================================== */
 
 async function addPointReview(){
 
+    /* ---------------------------------------------
+       Перевірка вибраної точки
+    --------------------------------------------- */
+
     if(!currentPointId){
 
-        alert(
-            "Точку не вибрано."
-        );
+        alert("Точку не вибрано.");
 
         return;
     }
 
 
-    const textarea =
-        document.getElementById(
-            "reviewText"
-        );
+    /* ---------------------------------------------
+       Поле відгуку
+    --------------------------------------------- */
 
+    const textarea =
+        document.getElementById("reviewText");
 
     const text =
         textarea.value.trim();
@@ -3386,9 +3444,7 @@ async function addPointReview(){
 
     if(!text){
 
-        alert(
-            "Напишіть текст відгуку."
-        );
+        alert("Напишіть текст відгуку.");
 
         textarea.focus();
 
@@ -3396,9 +3452,9 @@ async function addPointReview(){
     }
 
 
-    /* =================================================
-       Отримуємо поточного користувача Firebase
-    ================================================= */
+    /* ---------------------------------------------
+       Поточний Firebase користувач
+    --------------------------------------------- */
 
     const firebaseUser =
         firebase.auth().currentUser;
@@ -3406,59 +3462,58 @@ async function addPointReview(){
 
     if(!firebaseUser){
 
-        alert(
-            "Користувач не авторизований."
-        );
+        alert("Користувач не авторизований.");
 
         return;
     }
 
 
-    /* =================================================
-       Ім'я користувача
-    ================================================= */
+    /* ---------------------------------------------
+       ОТРИМУЄМО ІМ'Я КОРИСТУВАЧА
+       з localStorage
+    --------------------------------------------- */
+
+    const userName =
+        localStorage.getItem("userName") || "";
+
+    const userSurname =
+        localStorage.getItem("userSurname") || "";
+
+
+    /* ---------------------------------------------
+       Формуємо повне ім'я
+    --------------------------------------------- */
 
     let authorName =
-        window.currentUserName ||
-        "";
+        (userName + " " + userSurname).trim();
 
 
-    /* Якщо ім'я не знайдено — пробуємо localStorage */
-
-    if(!authorName){
-
-        authorName =
-            localStorage.getItem(
-                "userName"
-            ) ||
-            localStorage.getItem(
-                "currentUserName"
-            ) ||
-            "";
-    }
-
-
-    /* Останній резерв */
+    /* ---------------------------------------------
+       Якщо ім'я не знайдено —
+       використовуємо Email
+    --------------------------------------------- */
 
     if(!authorName){
 
         authorName =
             firebaseUser.displayName ||
+            firebaseUser.email ||
             "Користувач";
+
     }
 
 
-    /* =================================================
+    /* ---------------------------------------------
        ID користувача
-    ================================================= */
+    --------------------------------------------- */
 
     const userId =
         firebaseUser.uid;
 
 
-    /* =================================================
-       Створюємо відгук
-    ================================================= */
+    /* ---------------------------------------------
+       Створюємо новий відгук
+    --------------------------------------------- */
 
     const reviewRef =
         db.ref(
@@ -3484,11 +3539,13 @@ async function addPointReview(){
     };
 
 
+    /* ---------------------------------------------
+       Зберігаємо у Firebase
+    --------------------------------------------- */
+
     try{
 
-        await reviewRef.set(
-            review
-        );
+        await reviewRef.set(review);
 
 
         console.log(
@@ -3497,24 +3554,37 @@ async function addPointReview(){
         );
 
 
-        /* Очищаємо поле */
+        /* -----------------------------------------
+           Очищаємо поле
+        ----------------------------------------- */
 
         textarea.value = "";
 
 
-        /* Оновлюємо список */
+        /* -----------------------------------------
+           Оновлюємо відгуки
+        ----------------------------------------- */
 
         await loadPointReviews(
             currentPointId
         );
 
 
+        console.log(
+            `✅ Відгук додано від: ${authorName}`
+        );
+
+
+        /* -----------------------------------------
+           Повідомлення
+        ----------------------------------------- */
+
         alert(
             `Відгук додано від імені: ${authorName}`
         );
 
-    }
 
+    }
     catch(error){
 
         console.error(
@@ -3525,13 +3595,12 @@ async function addPointReview(){
 
         alert(
             "Не вдалося додати відгук.\n\n" +
-            "Перевірте права Firebase Database."
+            "Перевірте авторизацію та права Firebase Database."
         );
 
     }
 
 }
-
 
 /* =====================================================
    ШТОРКА — ПОВНЕ КЕРУВАННЯ ВГОРУ / ВНИЗ
