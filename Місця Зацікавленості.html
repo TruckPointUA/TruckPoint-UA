@@ -1906,6 +1906,17 @@ body.night-mode .sheetHandle{
         box-shadow .2s ease,
         transform .2s ease;
 }
+
+/* ===== ВЕЛИКІ ІКОНКИ В ШТОРЦІ ===== */
+
+.categoryIcon {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
 </style>
 
 </head>
@@ -2131,11 +2142,11 @@ body.night-mode .sheetHandle{
 </button>
 
 <button class="subCategoryBtn" onclick="selectCategory(this)">
-    🚛 Магазини ТІР
+    Магазини ТІР
 </button>
 
 <button class="subCategoryBtn" onclick="selectCategory(this)">
-    🏷️ Блошиний ринок
+     Блошиний ринок
 </button>
 
     </div>
@@ -2154,7 +2165,7 @@ body.night-mode .sheetHandle{
     onclick="toggleRoadParking(this)" 
 >
     <img src="pocket_map.svg" class="categoryIcon">
-    Паркування при дорозі
+     Паркування при дорозі
 </button>
  
 
@@ -2162,21 +2173,21 @@ body.night-mode .sheetHandle{
         class="subCategoryBtn"
         onclick="selectParking(this)"
     >
-        🅿️ Паркування безкоштовне
+         Паркування безкоштовне
     </button>
 
     <button
         class="subCategoryBtn"
         onclick="selectParking(this)"
     >
-        💳 Паркування платне
+         Паркування платне
     </button>
 
     <button
         class="subCategoryBtn"
         onclick="selectParking(this)"
     >
-        🏢 Паркування біля фірми
+          Паркування біля фірми
     </button>
 
 </div>
@@ -2306,7 +2317,7 @@ function getCategoryFromIcon(icon){
 // ======================================================
 
 const points = [
-
+//Вставити координати точок
 ];
 
 
@@ -3734,6 +3745,99 @@ handle.addEventListener(
     "pointercancel",
     finishSheetDrag
 );
+
+
+/* ===== СВАЙП ШТОРКИ ВНИЗ ===== */
+
+
+let touchStartY = 0;
+let lastTouchY = 0;
+let isSheetDragging = false;
+
+sheet.addEventListener("touchstart", function(e) {
+
+    if (e.touches.length !== 1) return;
+
+    touchStartY = e.touches[0].clientY;
+    lastTouchY = touchStartY;
+    isSheetDragging = true;
+
+    sheet.style.transition = "none";
+
+}, { passive: true });
+
+
+sheet.addEventListener("touchmove", function(e) {
+
+    if (!isSheetDragging) return;
+
+    const y = e.touches[0].clientY;
+    const move = y - lastTouchY;
+
+    /* Тільки рух вниз */
+    if (move > 0) {
+
+        const currentHeight = sheet.offsetHeight;
+
+        sheet.style.height =
+            Math.max(
+                CLOSED_HEIGHT,
+                currentHeight - move
+            ) + "px";
+    }
+
+    lastTouchY = y;
+
+}, { passive: true });
+
+
+sheet.addEventListener("touchend", function() {
+
+    if (!isSheetDragging) return;
+
+    isSheetDragging = false;
+
+    const totalMove =
+        lastTouchY - touchStartY;
+
+    sheet.style.transition =
+        "height .3s ease";
+
+    /* ===== ЗАКРИВАЄМО ===== */
+
+    if (totalMove > 70) {
+
+        sheet.classList.remove("open");
+
+        sheet.style.height =
+            CLOSED_HEIGHT + "px";
+
+        if (myLocationButtonElement) {
+            myLocationButtonElement.style.visibility =
+                "visible";
+        }
+
+        if (mapControlsElement) {
+            mapControlsElement.style.visibility =
+                "visible";
+        }
+
+        if (activeCategoryIconsElement) {
+            activeCategoryIconsElement.style.visibility =
+                "visible";
+        }
+
+    } 
+    
+    /* ===== НЕ ДОТЯГНУЛИ — ПОВЕРТАЄМО ===== */
+
+    else {
+
+        sheet.style.height = "";
+
+    }
+
+});
 
 
 /* =====================================================
