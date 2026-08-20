@@ -2198,14 +2198,9 @@ body.night-mode .sheetHandle{
 </div>
 <script>
 
-
 /* =========================
    FIREBASE
 ========================= */
-
-/* ==========================================
-   1. ОСНОВНИЙ FIREBASE — ТОЧКИ
-   ========================================== */
 
 const firebaseConfig = {
     apiKey: "AIzaSyAzOpcu7kdg0y8xwqD0oKk4eMfFSK946n4",
@@ -2218,32 +2213,102 @@ const firebaseConfig = {
     databaseURL: "https://truckpointua-magazyny-default-rtdb.europe-west1.firebasedatabase.app"
 };
 
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 
-const db = firebase.database();
+/* Основний App — ТОЧКИ */
+
+const pointsApp =
+    firebase.initializeApp(
+        firebaseConfig
+    );
 
 
-/* ==========================================
+/* База точок */
+
+const db =
+    pointsApp.database();
+
+
+
+/* =====================================================
    2. FIREBASE КОРИСТУВАЧІ
-   ========================================== */
+===================================================== */
 
 const firebaseConfigUsers = {
-    apiKey: "AIzaSyAzOpcu7kdg0y8xwqD0oKk4eMfFSK946n4",
-    authDomain: "truckpoint-ua.firebaseapp.com",
-    databaseURL: "https://truckpoint-ua-default-rtdb.firebaseio.com",
-    projectId: "truckpoint-ua",
-    storageBucket: "truckpoint-ua.firebasestorage.app",
-    messagingSenderId: "992372126132",
-    appId: "1:992372126132:web:3378b6b1794066132d42e1"
+
+    apiKey:
+        "AIzaSyAzOpcu7kdg0y8xwqD0oKk4eMfFSK946n4",
+
+    authDomain:
+        "truckpoint-ua.firebaseapp.com",
+
+    databaseURL:
+        "https://truckpoint-ua-default-rtdb.firebaseio.com",
+
+    projectId:
+        "truckpoint-ua",
+
+    storageBucket:
+        "truckpoint-ua.firebasestorage.app",
+
+    messagingSenderId:
+        "992372126132",
+
+    appId:
+        "1:992372126132:web:3378b6b1794066132d42e1"
 };
 
-const usersApp = firebase.initializeApp(
-    firebaseConfigUsers,
-    "usersApp"
+
+/* Окремий Firebase App користувачів */
+
+const usersApp =
+    firebase.initializeApp(
+        firebaseConfigUsers,
+        "usersApp"
+    );
+
+
+/* Авторизація користувачів */
+
+const usersAuth =
+    usersApp.auth();
+
+
+/* База користувачів */
+
+const usersDb =
+    usersApp.database();
+
+
+
+/* =====================================================
+   ПЕРЕВІРКА
+===================================================== */
+
+usersAuth.onAuthStateChanged(
+    (user) => {
+
+        if (user) {
+
+            console.log(
+                "✅ Користувач авторизований:",
+                user.uid,
+                user.email
+            );
+
+        } else {
+
+            console.warn(
+                "⚠️ Користувач не авторизований"
+            );
+
+        }
+
+    }
 );
 
-const usersAuth = usersApp.auth();
-const usersDb = usersApp.database();
 
 /* =====================================================
    ЗБЕРЕГТИ ГЕОЛОКАЦІЮ КОРИСТУВАЧА
