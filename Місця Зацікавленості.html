@@ -1,3 +1,1672 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Місця Зацікавленості</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Montserrat',sans-serif;
+}
+
+body{
+    background:#edf3ff;
+    min-height:100vh;
+    padding-top:0;
+    transition:background .4s ease;
+    padding-top:74px;
+}
+
+
+/* =========================
+   ДЕННИЙ РЕЖИМ
+========================= */
+
+body.day-mode .header{
+    background:#ffffff;
+    color:#111;
+
+    border-bottom:1px solid rgba(0,123,255,.20);
+
+    box-shadow:
+        0 6px 18px rgba(0,0,0,.15),
+        0 3px 12px rgba(0,123,255,.18);
+}
+
+body.day-mode .header::before{
+    background:
+        linear-gradient(
+            90deg,
+            rgba(0,153,255,.08),
+            rgba(0,191,255,.03),
+            rgba(0,153,255,.08)
+        );
+}
+
+body.day-mode .logo{
+    color:#111;
+}
+
+body.day-mode #userInfo > div > div:first-child{
+    color:#087eff !important;
+}
+
+body.day-mode #headerUserName{
+    color:#111 !important;
+}
+
+body.day-mode #headerStats{
+    color:#111 !important;
+    background:rgba(0,123,255,.10) !important;
+    border:1px solid rgba(0,123,255,.15);
+}
+
+body.day-mode .bottomSheet{
+    background:#ffffff;
+    color:#111;
+
+    box-shadow:
+        0 -5px 18px rgba(0,0,0,.18);
+}
+
+body.day-mode .sheetHandle{
+    background:#888;
+}
+
+
+/* =========================
+   НІЧНИЙ РЕЖИМ
+========================= */
+
+body.night-mode{
+    background:#080d14;
+}
+
+body.night-mode .header{
+    background:#10151d;
+    color:#fff;
+
+    border-bottom:1px solid rgba(0,191,255,.25);
+
+    box-shadow:
+        0 8px 18px rgba(0,0,0,.55),
+        0 3px 12px rgba(0,191,255,.20);
+}
+
+body.night-mode .header::before{
+    background:
+        linear-gradient(
+            90deg,
+            rgba(0,153,255,.12),
+            rgba(0,191,255,.04),
+            rgba(0,153,255,.12)
+        );
+}
+
+body.night-mode .logo{
+    color:#fff;
+}
+
+body.night-mode #userInfo > div > div:first-child{
+    color:#00bfff !important;
+}
+
+body.night-mode #headerUserName{
+    color:#fff !important;
+}
+
+body.night-mode #headerStats{
+    color:#fff !important;
+    background:rgba(0,191,255,.12) !important;
+    border:1px solid rgba(0,191,255,.18);
+}
+
+body.night-mode .bottomSheet{
+    background:#10151d;
+    color:#fff;
+
+    box-shadow:
+        0 -5px 20px rgba(0,0,0,.55);
+}
+
+body.night-mode .sheetHandle{
+    background:#777;
+}
+
+/* світловий фон */
+
+.header::before{
+    content:"";
+    position:absolute;
+    inset:0;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(0,153,255,.10),
+            rgba(0,191,255,.04),
+            rgba(0,153,255,.10)
+        );
+
+    pointer-events:none;
+}
+
+
+/* фоновий логотип */
+
+.header::after{
+    content:"";
+
+    position:absolute;
+
+    right:18px;
+    top:50%;
+
+    transform:translateY(-50%);
+
+    width:58px;
+    height:58px;
+
+    background:url("logo.png") center/contain no-repeat;
+
+    opacity:.10;
+
+    pointer-events:none;
+}
+
+/* Truck Point UA */
+
+#userInfo > div > div:first-child{
+    color:#00bfff !important;
+
+    letter-spacing:1.5px !important;
+
+    font-size:11px !important;
+
+    font-weight:600;
+}
+
+
+/* =========================
+   ТЕЛЕФОН
+========================= */
+
+@media(max-width:480px){
+
+
+    .header{
+        height:74px;
+    }
+
+
+
+    #userInfo > div > div:first-child{
+        font-size:9px !important;
+
+        letter-spacing:1.2px !important;
+    }
+
+    .header::after{
+        right:8px;
+
+        width:46px;
+        height:46px;
+    }
+
+}
+
+
+/* =========================
+   ОСНОВНА СТОРІНКА
+========================= */
+
+.container{
+    max-width:600px;
+    margin:auto;
+    padding:15px;
+}
+
+#map{
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    width:100%;
+    z-index:1;
+}
+
+.bottomSheet{
+    position:fixed;
+
+    left:0;
+    right:0;
+    bottom:0;
+
+    height:24px;
+
+    background:#161b22;
+    color:white;
+
+    border-radius:16px 16px 0 0;
+
+    z-index:20000;
+
+    box-shadow:
+        0 -4px 15px rgba(0,0,0,.35);
+
+    overflow:hidden;
+
+    transition:height .3s ease;
+
+    touch-action:none;
+}
+
+
+
+.sheetHandle{
+    width:100px;
+    height:10px;
+
+    background:#777;
+
+    border-radius:10px;
+
+    margin:8px auto;
+
+    cursor:grab;
+
+    touch-action:none;
+
+    position:relative;
+}
+
+.sheetHandle::after{
+    content:"";
+
+    position:absolute;
+
+    left:-30px;
+    right:-30px;
+
+    top:-18px;
+    bottom:-18px;
+}
+
+.sheetContent{
+    height:calc(100% - 30px);
+    overflow-y:auto;
+    overflow-x:hidden;
+    padding:14px;
+
+    -webkit-overflow-scrolling:touch;
+}
+
+.bottomSheet.open{
+    height:100dvh;
+    border-radius:0;
+
+    z-index:99999;
+
+    transition:height .3s ease;
+}
+
+.categoryScroll{
+    display:flex;
+    gap:10px;
+
+    overflow-x:auto;
+    overflow-y:hidden;
+
+    padding:4px 12px 10px;
+
+    white-space:nowrap;
+
+    scrollbar-width:none;
+
+    touch-action:pan-x;
+
+    -webkit-overflow-scrolling:touch;
+}
+
+.categoryScroll::-webkit-scrollbar{
+    display:none;
+}
+
+.categoryBtn:active,
+.subCategoryBtn:active{
+    transform:scale(.97);
+}
+
+.subCategories{
+    display:none;
+    flex-direction:column;
+    gap:14px;
+    padding:8px 5px 25px;
+}
+
+.subCategories.show{
+    display:flex;
+}
+
+
+
+.subCategoryBtn:active{
+    transform:scale(.98);
+}
+
+
+/* =========================
+   ІКОНКИ ВИБРАНИХ КАТЕГОРІЙ
+========================= */
+
+#activeCategoriesBar{
+    position:fixed;
+
+    top:90px;
+    left:10px;
+
+    display:flex;
+    flex-direction:row;
+
+    gap:8px;
+
+    align-items:center;
+
+    z-index:5000;
+
+    pointer-events:none;
+
+    max-width:calc(100vw - 20px);
+
+    overflow:hidden;
+
+    padding:3px;
+}
+
+/* одна іконка */
+
+.activeCategoryIcon{
+    width:42px;
+    height:42px;
+
+    flex:0 0 42px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:50%;
+
+    background:rgba(16,21,29,.88);
+
+    border:2px solid #00bfff;
+
+    box-shadow:
+        0 0 8px rgba(0,191,255,.65),
+        0 0 18px rgba(0,191,255,.35);
+
+    font-size:22px;
+
+    animation:
+        categoryBlink 1.2s infinite ease-in-out;
+}
+
+/* плавне блимання */
+
+@keyframes categoryBlink{
+
+    0%{
+        opacity:.45;
+
+        transform:scale(.92);
+
+        box-shadow:
+            0 0 5px rgba(0,191,255,.35);
+    }
+
+    50%{
+        opacity:1;
+
+        transform:scale(1.08);
+
+        box-shadow:
+            0 0 12px rgba(0,191,255,.9),
+            0 0 25px rgba(0,191,255,.55);
+    }
+
+    100%{
+        opacity:.45;
+
+        transform:scale(.92);
+
+        box-shadow:
+            0 0 5px rgba(0,191,255,.35);
+    }
+
+}
+
+
+
+/* телефон */
+
+@media(max-width:480px){
+
+    #activeCategoriesBar{
+
+        top:81px;
+
+        left:8px;
+
+        gap:6px;
+
+    }
+
+    .activeCategoryIcon{
+
+        width:38px;
+        height:38px;
+
+        flex-basis:38px;
+
+        font-size:20px;
+
+    }
+
+}
+
+/* =========================
+   ВЕРХНІЙ ПРАВИЙ КУТ
+========================= */
+
+#mapControls{
+    position:fixed;
+
+    top:62px;
+    right:12px;
+
+    z-index:10001;
+
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+
+    gap:8px;
+
+    pointer-events:none;
+}
+
+
+/* =========================
+   БЛИМАЮЧІ ІКОНКИ ЗЛІВА
+========================= */
+
+#activeCategoryIcons{
+
+    position:fixed;
+
+    top:12px;
+    left:12px;
+
+    z-index:10001;
+
+    display:flex;
+
+    flex-direction:row;
+
+    align-items:center;
+
+    gap:7px;
+
+    min-height:40px;
+
+    padding:0;
+
+    background:transparent;
+
+    pointer-events:none;
+
+    max-width:calc(100vw - 75px);
+
+    overflow:hidden;
+}
+
+
+.activeMapCategoryIcon{
+
+    width:42px;
+    height:42px;
+
+    object-fit:contain;
+
+    background:transparent !important;
+
+    border:none !important;
+
+    box-shadow:none !important;
+
+    border-radius:0;
+
+    animation:
+        categoryBlink 1.1s infinite ease-in-out;
+
+    filter:
+        drop-shadow(0 2px 3px rgba(0,0,0,.35))
+        drop-shadow(0 0 5px rgba(0,191,255,.8));
+
+    flex:0 0 42px;
+}
+
+/* =========================
+   КНОПКА ШАРІВ
+========================= */
+
+.layerControl{
+    position:relative;
+
+    pointer-events:auto;
+}
+
+
+/* =========================
+   КНОПКА ШАРІВ
+   СТИЛЬ GOOGLE MAPS
+========================= */
+
+.layerButton{
+
+    width:48px;
+    height:48px;
+
+    border:none;
+
+    border-radius:50%;
+
+    background:#fff;
+
+    color:#3c4043;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    cursor:pointer;
+
+    box-shadow:
+        0 1px 4px rgba(0,0,0,.30),
+        0 2px 8px rgba(0,0,0,.18);
+
+    transition:
+        transform .15s ease,
+        box-shadow .15s ease;
+
+    padding:0;
+}
+
+
+
+
+/* іконка шарів */
+
+.layersIcon{
+
+    position:relative;
+
+    width:25px;
+    height:25px;
+
+    display:block;
+
+    font-size:0;
+}
+
+
+/* нижній шар */
+
+.layersIcon::before{
+
+    content:"";
+
+    position:absolute;
+
+    left:3px;
+    top:10px;
+
+    width:19px;
+    height:11px;
+
+    border:2px solid #5f6368;
+
+    border-radius:3px;
+
+    transform:
+        skewY(-25deg)
+        rotate(-25deg);
+}
+
+
+/* верхній шар */
+
+.layersIcon::after{
+
+    content:"";
+
+    position:absolute;
+
+    left:3px;
+    top:4px;
+
+    width:19px;
+    height:11px;
+
+    border:2px solid #5f6368;
+
+    border-radius:3px;
+
+    transform:
+        skewY(-25deg)
+        rotate(-25deg);
+
+    background:#fff;
+}
+
+
+.layerButton:active{
+    transform:scale(.94);
+    box-shadow:
+        0 1px 3px rgba(0,0,0,.35);
+}
+
+
+/* =========================
+   МЕНЮ ШАРІВ
+========================= */
+
+.layerMenu{
+
+    position:absolute;
+
+    top:56px;
+    right:0;
+
+    display:none;
+
+    flex-direction:column;
+
+    gap:5px;
+
+    padding:8px;
+
+    width:150px;
+
+    background:#fff;
+
+    border-radius:14px;
+
+    box-shadow:
+        0 2px 8px rgba(0,0,0,.25),
+        0 4px 18px rgba(0,0,0,.18);
+
+    overflow:hidden;
+}
+
+.layerMenu.show{
+    display:flex;
+}
+
+
+/* =========================
+   ВАРІАНТИ
+========================= */
+
+.layerOption{
+
+    width:100%;
+
+    border:none;
+
+    background:#fff;
+
+    color:#3c4043;
+
+    border-radius:10px;
+
+    padding:6px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:9px;
+
+    font-family:'Montserrat',sans-serif;
+
+    font-size:11px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    text-align:left;
+
+    transition:.15s;
+}
+
+
+.layerOption:hover{
+
+    background:#f1f3f4;
+}
+
+
+.layerOption.active{
+
+    background:#e8f1ff;
+
+    color:#0867d8;
+}
+
+
+.layerOption:active{
+    transform:scale(.97);
+}
+
+
+/* =========================
+   МІНІ-ПРЕВ'Ю КАРТИ
+========================= */
+
+.layerPreview{
+
+    width:42px;
+    height:34px;
+
+    border-radius:7px;
+
+    flex-shrink:0;
+
+    background-size:cover;
+    background-position:center;
+
+    border:1px solid rgba(0,0,0,.15);
+}
+
+
+.roadPreview{
+
+    background-image:
+        url("https://tile.openstreetmap.org/6/37/22.png");
+}
+
+
+.satellitePreview{
+
+    background-image:
+        url("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/22/37");
+}
+
+
+/* =========================
+   ТЕЛЕФОН
+========================= */
+
+@media(max-width:480px){
+
+    #mapControls{
+
+        top:58px;
+        right:9px;
+    }
+
+
+    #activeCategoryIcons{
+
+        top:9px;
+        left:9px;
+
+        gap:5px;
+
+        max-width:calc(100vw - 65px);
+    }
+
+
+    .activeMapCategoryIcon{
+
+        width:38px;
+        height:38px;
+
+        flex-basis:38px;
+    }
+
+
+    .layerButton{
+
+        width:44px;
+        height:44px;
+    }
+
+
+    .layerMenu{
+
+        top:51px;
+
+        width:140px;
+    }
+
+}
+
+/* =========================
+   ГЕОЛОКАЦІЯ КОРИСТУВАЧА
+========================= */
+
+.userLocationMarker{
+    width:18px;
+    height:18px;
+
+    background:#1976ff;
+
+    border:3px solid #fff;
+
+    border-radius:50%;
+
+    box-shadow:
+        0 0 0 4px rgba(25,118,255,.25),
+        0 2px 8px rgba(0,0,0,.4);
+}
+
+/* =========================
+   КНОПКА МОЄ МІСЦЕ
+========================= */
+
+.myLocationButton{
+    width:48px;
+    height:48px;
+
+    border:none;
+    border-radius:50%;
+
+    background:#fff;
+    color:#1976ff;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:23px;
+
+    cursor:pointer;
+
+    box-shadow:
+        0 1px 4px rgba(0,0,0,.30),
+        0 2px 8px rgba(0,0,0,.18);
+
+    transition:
+        transform .15s ease,
+        box-shadow .15s ease;
+
+    pointer-events:auto;
+}
+
+.myLocationButton:active{
+    transform:scale(.92);
+}
+
+@media(max-width:480px){
+
+    .myLocationButton{
+        width:44px;
+        height:44px;
+        font-size:21px;
+    }
+
+}
+
+/* =========================
+   МОЄ МІСЦЕ — GOOGLE MAPS
+========================= */
+
+#myLocationButton{
+
+    position:fixed;
+
+    right:12px;
+    bottom:85px;
+
+    width:48px;
+    height:48px;
+
+    border:none;
+    border-radius:50%;
+
+    background:#fff;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    cursor:pointer;
+
+    z-index:15000;
+
+    box-shadow:
+        0 1px 3px rgba(60,64,67,.30),
+        0 3px 8px rgba(60,64,67,.20);
+
+    transition:
+        transform .15s ease,
+        box-shadow .15s ease;
+
+    padding:0;
+}
+
+
+/* =========================
+   ІКОНКА GOOGLE MAPS
+========================= */
+
+#myLocationButton::before{
+
+    content:"";
+
+    position:absolute;
+
+    width:20px;
+    height:20px;
+
+    border:3px solid #1a73e8;
+
+    border-radius:50%;
+
+    box-sizing:border-box;
+}
+
+
+/* центральна точка */
+
+#myLocationButton::after{
+
+    content:"";
+
+    position:absolute;
+
+    width:7px;
+    height:7px;
+
+    background:#1a73e8;
+
+    border-radius:50%;
+}
+
+
+/* чотири маленькі напрямки */
+
+#myLocationButton{
+
+    --location-blue:#1a73e8;
+}
+
+
+/* натискання */
+
+#myLocationButton:active{
+
+    transform:scale(.92);
+
+    box-shadow:
+        0 1px 2px rgba(60,64,67,.35);
+}
+
+
+/* телефон */
+
+@media(max-width:480px){
+
+    #myLocationButton{
+
+        right:10px;
+
+        bottom:70px;
+
+        width:44px;
+        height:44px;
+
+    }
+
+    #myLocationButton::before{
+
+        width:19px;
+        height:19px;
+
+        border-width:3px;
+
+    }
+
+    #myLocationButton::after{
+
+        width:7px;
+        height:7px;
+
+    }
+
+}
+/* =========================
+   ІКОНКА МОГО МІСЦЯ
+========================= */
+
+.googleLocationIcon{
+
+    position:relative;
+
+    width:24px;
+    height:24px;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+}
+
+
+/* зовнішнє коло */
+
+.googleLocationIcon::before{
+
+    content:"";
+
+    position:absolute;
+
+    width:18px;
+    height:18px;
+
+    border:3px solid #1a73e8;
+
+    border-radius:50%;
+
+    box-sizing:border-box;
+}
+
+
+/* центральна точка */
+
+.locationCenter{
+
+    width:7px;
+    height:7px;
+
+    background:#1a73e8;
+
+    border-radius:50%;
+
+    position:relative;
+
+    z-index:2;
+}
+
+
+
+/* =====================================================
+   ПОВНОЕКРАННЕ ВІКНО ІНФОРМАЦІЇ ПРО ТОЧКУ
+===================================================== */
+
+.pointInfoWindow{
+
+    width:100%;
+    height:100dvh;
+
+    max-width:none;
+    max-height:none;
+
+    background:#eef3f7;
+    color:#263746;
+
+    display:flex;
+    flex-direction:column;
+
+    overflow:hidden;
+
+    border-radius:0;
+}
+
+
+/* =====================================================
+   ШАПКА ПОВНОЕКРАННОГО ВІКНА
+===================================================== */
+
+.pointInfoHeader{
+
+    flex-shrink:0;
+
+    min-height:115px;
+
+    padding:18px 55px 15px 18px;
+
+    background:linear-gradient(
+        135deg,
+        #607d8b,
+        #78909c
+    );
+
+    color:#ffffff;
+
+    position:relative;
+
+    box-shadow:
+        0 3px 12px rgba(55,71,79,.25);
+
+}
+
+
+/* =====================================================
+   ВМІСТ — ЗАЙМАЄ ВСЕ ЩО ЗАЛИШИЛОСЯ
+===================================================== */
+
+.pointInfoContent{
+
+    flex:1;
+
+    min-height:0;
+
+    overflow-y:auto;
+    overflow-x:hidden;
+
+    padding:18px;
+
+    background:#eef3f7;
+
+    -webkit-overflow-scrolling:touch;
+
+}
+
+
+/* =====================================================
+   ТЕЛЕФОН
+===================================================== */
+
+@media(max-width:480px){
+
+    .pointInfoTitle{
+
+        font-size:19px;
+
+    }
+
+    .pointInfoCoordinates{
+
+        font-size:14px;
+
+    }
+
+
+
+}
+
+
+.pointInfoTitle{
+    font-size:22px;
+    font-weight:800;
+    margin-bottom:8px;
+    line-height:1.2;
+    color:#ffffff;
+}
+
+
+.pointInfoCoordinates{
+    font-size:15px;
+    opacity:.95;
+    line-height:1.5;
+    color:#eef5f8;
+}
+
+
+/* =========================
+   КНОПКА ЗАКРИТТЯ
+========================= */
+
+.pointInfoClose{
+    position:absolute;
+
+    right:12px;
+    top:12px;
+
+    width:42px;
+    height:42px;
+
+    border:none;
+    border-radius:50%;
+
+    background:rgba(255,255,255,.18);
+
+    color:#ffffff;
+
+    font-size:28px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    cursor:pointer;
+}
+
+
+
+
+/* =========================
+   БЛОКИ
+========================= */
+
+.pointInfoBlock{
+    background:#f8fafb;
+
+    border-radius:16px;
+
+    padding:16px;
+
+    margin-bottom:14px;
+
+    border:1px solid #d3dde3;
+
+    box-shadow:
+        0 2px 8px rgba(55,71,79,.10);
+}
+
+
+/* =========================
+   ЗАГОЛОВКИ
+========================= */
+
+.pointInfoLabel{
+    font-size:12px;
+
+    color:#607d8b;
+
+    font-weight:700;
+
+    margin-bottom:5px;
+
+    text-transform:uppercase;
+}
+
+
+/* =========================
+   ЗНАЧЕННЯ
+========================= */
+
+.pointInfoValue{
+    font-size:16px;
+
+    color:#37474f;
+
+    font-weight:600;
+
+    line-height:1.45;
+}
+
+
+/* =========================
+   ОПИС
+========================= */
+
+.pointDescription{
+    white-space:pre-wrap;
+
+    font-size:15px;
+
+    line-height:1.55;
+
+    color:#607d8b !important;
+
+    font-weight:500;
+}
+
+
+/* =========================
+   ВІДГУКИ
+========================= */
+
+.reviewsTitle{
+    font-size:20px;
+
+    font-weight:800;
+
+    margin-bottom:12px;
+
+    color:#455a64;
+}
+
+
+.reviewItem{
+    background:#edf2f5;
+
+    border-radius:13px;
+
+    padding:12px;
+
+    margin-bottom:10px;
+
+    border:1px solid #d2dce2;
+}
+
+
+.reviewAuthor{
+    font-size:14px;
+
+    font-weight:800;
+
+    color:#546e7a;
+
+    margin-bottom:4px;
+}
+
+
+.reviewDate{
+    font-size:11px;
+
+    color:#78909c;
+
+    margin-bottom:7px;
+}
+
+
+.reviewText{
+    font-size:14px;
+
+    line-height:1.45;
+
+    color:#455a64;
+
+    white-space:pre-wrap;
+}
+
+
+/* =========================
+   ПОЛЕ НОВОГО ВІДГУКУ
+========================= */
+
+.reviewTextarea{
+    width:100%;
+
+    min-height:100px;
+
+    resize:none;
+
+    border:1px solid #c5d2d9;
+
+    border-radius:13px;
+
+    padding:12px;
+
+    font-family:'Montserrat',sans-serif;
+
+    font-size:14px;
+
+    outline:none;
+
+    background:#f8fafb;
+
+    color:#37474f;
+}
+
+
+.reviewTextarea:focus{
+    border-color:#78909c;
+
+    box-shadow:
+        0 0 0 2px rgba(96,125,139,.15);
+}
+
+
+/* =========================
+   КНОПКА ВІДГУКУ
+========================= */
+
+.addReviewButton{
+    width:100%;
+
+    margin-top:10px;
+
+    padding:14px;
+
+    border:none;
+
+    border-radius:13px;
+
+    background:#607d8b;
+
+    color:#ffffff;
+
+    font-family:'Montserrat',sans-serif;
+
+    font-size:15px;
+
+    font-weight:700;
+
+    cursor:pointer;
+}
+
+
+/* =========================
+   КНОПКА ПОДІЛИТИСЯ
+========================= */
+
+.sharePointButton{
+    flex-shrink:0;
+
+    border:none;
+
+    padding:8px 12px;
+
+    border-radius:10px;
+
+    background:rgba(255,255,255,.18);
+
+    color:#ffffff;
+
+    font-family:'Montserrat',sans-serif;
+
+    font-size:12px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    backdrop-filter:blur(6px);
+}
+
+
+.pointInfoCoordinatesRow{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+}
+
+.sharePointButton:active{
+    transform:scale(.94);
+}
+
+
+
+/* =====================================================
+   OVERLAY — ПОВНИЙ ЕКРАН
+===================================================== */
+
+.pointInfoOverlay{
+    position:fixed;
+    inset:0;
+    width:100vw;
+    height:100dvh;
+    background:rgba(0,0,0,.55);
+    z-index:999999;
+    display:none;
+    align-items:stretch;
+    justify-content:stretch;
+    overflow:hidden;
+}
+
+.pointInfoOverlay.show{
+    display:flex;
+}
+
+
+/* =====================================================
+   ШТОРКА — СІРО-СИНІ КОЛЬОРИ ЯК У ВІКНІ ТОЧКИ
+===================================================== */
+
+.bottomSheet{
+    background:#eef3f7;
+    color:#263746;
+
+    box-shadow:
+        0 -4px 15px rgba(55,71,79,.25);
+
+    border-top:1px solid #d3dde3;
+}
+
+
+/* Ручка шторки */
+
+.sheetHandle{
+    background:#78909c;
+
+    box-shadow:
+        0 1px 4px rgba(55,71,79,.25);
+}
+
+
+
+
+
+
+
+
+
+/* =====================================================
+   АКТИВНА КАТЕГОРІЯ ШТОРКИ
+===================================================== */
+
+.categoryBtn.active{
+    background:#455a64 !important;
+    color:#ffffff !important;
+
+    border:2px solid #90caf9 !important;
+
+    box-shadow:
+        0 0 0 2px rgba(144,202,249,.25),
+        0 0 12px rgba(144,202,249,.75),
+        0 5px 15px rgba(55,71,79,.35),
+        inset 0 0 8px rgba(255,255,255,.12);
+
+    transform:scale(1.03);
+}
+
+
+/* =========================
+   АКТИВНА ПІДКАТЕГОРІЯ
+========================= */
+
+.subCategoryBtn.active{
+    background:#607d8b !important;
+    color:#ffffff !important;
+
+    border:2px solid #90caf9 !important;
+
+    box-shadow:
+        0 0 0 2px rgba(144,202,249,.20),
+        0 0 14px rgba(144,202,249,.65),
+        0 5px 14px rgba(55,71,79,.30),
+        inset 0 0 8px rgba(255,255,255,.10);
+
+    transform:scale(1.02);
+}
+
+.subCategoryBtn{
+    width:100%;
+    border:1px solid #c7d3da;
+    padding:18px 20px;
+    border-radius:16px;
+    background:#f8fafb;
+    color:#37474f;
+    font-family:'Montserrat',sans-serif;
+    font-size:17px;
+    font-weight:700;
+    text-align:left;
+    box-shadow:0 3px 8px rgba(55,71,79,.12);
+    cursor:pointer;
+    transition:
+        background .2s ease,
+        border .2s ease,
+        box-shadow .2s ease,
+        transform .2s ease;
+}
+
+
+
+
+
+
+
+
+/* Неактивні кнопки */
+
+.categoryBtn{
+    flex:0 0 auto;
+    border:1px solid transparent;
+    padding:13px 20px;
+    border-radius:22px;
+    background:#607d8b;
+    color:#ffffff;
+    font-family:'Montserrat',sans-serif;
+    font-size:16px;
+    font-weight:700;
+    box-shadow:0 4px 10px rgba(55,71,79,.20);
+    cursor:pointer;
+    white-space:nowrap;
+    user-select:none;
+    -webkit-user-select:none;
+    transition:
+        background .2s ease,
+        border .2s ease,
+        box-shadow .2s ease,
+        transform .2s ease;
+}
+
+/* ===== ВЕЛИКІ ІКОНКИ В ШТОРЦІ ===== */
+
+.categoryIcon {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+</style>
+
+</head>
+
+
 <body>
 
 
@@ -266,3 +1935,3526 @@
 </div>
 
 </div>
+<script>
+
+/* =====================================================
+   FIREBASE
+   2 ОКРЕМІ ПРОЕКТИ:
+   1. truckpointua-magazyny — точки та відгуки
+   2. truckpoint-ua — користувачі та авторизація
+===================================================== */
+
+
+/* =====================================================
+   1. FIREBASE — ТОЧКИ
+===================================================== */
+
+const firebaseConfig = {
+
+    apiKey:
+        "AIzaSyBC2dtlKJSJqW2mNirMm2LVs61OQpnbPuU",
+
+    authDomain:
+        "truckpointua-magazyny.firebaseapp.com",
+
+    projectId:
+        "truckpointua-magazyny",
+
+    storageBucket:
+        "truckpointua-magazyny.firebasestorage.app",
+
+    messagingSenderId:
+        "107043584267",
+
+    appId:
+        "1:107043584267:web:7e9e0fd643c193c5834a0e",
+
+    measurementId:
+        "G-Y8Q7605L32",
+
+    databaseURL:
+        "https://truckpointua-magazyny-default-rtdb.europe-west1.firebasedatabase.app"
+
+};
+
+
+/* Створюємо основний Firebase App */
+
+if (!firebase.apps.length) {
+
+    firebase.initializeApp(
+        firebaseConfig
+    );
+
+}
+
+
+/* База точок */
+
+const db =
+    firebase.database();
+
+
+/* =====================================================
+   2. FIREBASE — КОРИСТУВАЧІ
+===================================================== */
+
+const firebaseConfigUsers = {
+
+    apiKey:
+        "AIzaSyAzOpcu7kdg0y8xwqD0oKk4eMfFSK946n4",
+
+    authDomain:
+        "truckpoint-ua.firebaseapp.com",
+
+    databaseURL:
+        "https://truckpoint-ua-default-rtdb.firebaseio.com",
+
+    projectId:
+        "truckpoint-ua",
+
+    storageBucket:
+        "truckpoint-ua.firebasestorage.app",
+
+    messagingSenderId:
+        "992372126132",
+
+    appId:
+        "1:992372126132:web:3378b6b1794066132d42e1"
+
+};
+
+
+/* =====================================================
+   ОКРЕМИЙ FIREBASE APP КОРИСТУВАЧІВ
+===================================================== */
+
+const usersApp =
+    firebase.initializeApp(
+        firebaseConfigUsers,
+        "usersApp"
+    );
+
+
+/* Авторизація */
+
+const usersAuth =
+    usersApp.auth();
+
+
+/* База користувачів */
+
+const usersDb =
+    usersApp.database();
+
+
+/* =====================================================
+   ПОТОЧНИЙ КОРИСТУВАЧ
+===================================================== */
+
+window.currentFirebaseUser = null;
+
+
+usersAuth.onAuthStateChanged(
+    function(user){
+
+        if(!user){
+
+            console.warn(
+                "⚠️ Користувач не авторизований"
+            );
+
+            window.currentFirebaseUser =
+                null;
+
+            return;
+
+        }
+
+
+        console.log(
+            "✅ Користувач авторизований"
+        );
+
+        console.log(
+            "UID:",
+            user.uid
+        );
+
+        console.log(
+            "Email:",
+            user.email
+        );
+
+
+        window.currentFirebaseUser =
+            user;
+
+    }
+);
+
+
+
+/* =====================================================
+   ПЕРЕВІРКА
+===================================================== */
+
+usersAuth.onAuthStateChanged(
+    (user) => {
+
+        if (user) {
+
+            console.log(
+                "✅ Користувач авторизований:",
+                user.uid,
+                user.email
+            );
+
+        } else {
+
+            console.warn(
+                "⚠️ Користувач не авторизований"
+            );
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   ЗБЕРЕГТИ ГЕОЛОКАЦІЮ КОРИСТУВАЧА
+   Геолокація використовується ТІЛЬКИ для маркера "Моє місце"
+   На завантаження точок НЕ впливає
+===================================================== */
+
+function setUserLocation(lat, lng){
+
+    userLatitude = Number(lat);
+    userLongitude = Number(lng);
+
+    console.log(
+        `📍 Геолокація:
+${userLatitude}, ${userLongitude}`
+    );
+
+    console.log(
+        "ℹ️ Геолокація збережена."
+    );
+
+    console.log(
+        "ℹ️ Завантаження точок виконується від центру карти."
+    );
+}
+/* =====================================================
+   ВИЗНАЧЕННЯ КАТЕГОРІЇ ТОЧКИ ЗА ІКОНКОЮ
+===================================================== */
+
+function getCategoryFromIcon(icon){
+
+    const name = String(icon || "").toLowerCase();
+
+    /* Продуктові магазини */
+    if(
+        name.includes("maarket") ||
+        name.includes("market")
+    ){
+        return "market";
+    }
+
+    /* Паркування при дорозі */
+    if(
+        name.includes("pocket")
+    ){
+        return "road_parking";
+    }
+
+    /* Промислова зона */
+    if(
+        name.includes("promzona") ||
+        name.includes("industrial")
+    ){
+        return "industrial";
+    }
+
+    /* Мийки */
+    if(
+        name.includes("wash") ||
+        name.includes("miyka")
+    ){
+        return "wash";
+    }
+
+    /* АЗС */
+    if(
+        name.includes("gas") ||
+        name.includes("azs") ||
+        name.includes("fuel")
+    ){
+        return "gas_station";
+    }
+
+    /* Звичайне паркування */
+    if(
+        name.includes("parking")
+    ){
+        return "parking";
+    }
+
+    /* Магазини ТІР */
+    if(
+        name.includes("truck_shop") ||
+        name.includes("tir_shop")
+    ){
+        return "truck_shop";
+    }
+
+    /* Блошиний ринок */
+    if(
+        name.includes("flea") ||
+        name.includes("market_flea")
+    ){
+        return "flea_market";
+    }
+
+    return "other";
+}
+
+
+// ======================================================
+//                     ТОЧКИ
+// ======================================================
+
+const points = [
+//Вставити координати точок
+];
+
+
+// ======================================================
+//              ОДНОРАЗОВИЙ ІМПОРТ У FIREBASE
+// ======================================================
+
+async function importPointsToFirebase(){
+
+    console.log("🚀 Початок імпорту точок...");
+
+    for(let index = 0; index < points.length; index++){
+
+        const point = points[index];
+
+        const id =
+            point.id ||
+            `old_point_${index}`;
+
+        /* ==========================================
+           КАТЕГОРІЯ ВИЗНАЧАЄТЬСЯ ТІЛЬКИ ЗА ІКОНКОЮ
+        ========================================== */
+
+        const category =
+            getCategoryFromIcon(point.icon);
+
+        const pointData = {
+
+            id:id,
+
+            /* категорія автоматично */
+            category:category,
+
+            name:point.name || "",
+
+            lat:Number(point.lat),
+
+            lng:Number(point.lng),
+
+            author:point.author || "",
+
+            description:point.description || "",
+
+            reviews:point.reviews || [],
+
+            icon:point.icon || "maarket_map.svg"
+
+        };
+
+        try{
+
+            await db
+                .ref(`points/${category}/${id}`)
+                .set(pointData);
+
+            console.log(
+                `✅ [${category}] ${id} — ${point.name} — ${point.icon}`
+            );
+
+        }
+
+        catch(error){
+
+            console.error(
+                `❌ Помилка точки ${id}:`,
+                error
+            );
+
+        }
+
+    }
+
+    console.log(
+        "🎉 Імпорт завершено!"
+    );
+
+}
+
+
+// ======================================================
+//        УВІМКНУТИ ПІСЛЯ ПЕРЕВІРКИ КОДУ
+// ======================================================
+
+ //importPointsToFirebase();
+
+
+const map = L.map('map', {
+    zoomControl:false
+}).setView(
+    [49.0,31.0],
+    6
+);
+/* =========================
+   ГЕОЛОКАЦІЯ КОРИСТУВАЧА
+========================= */
+
+let userLocationMarker = null;
+let userLocationCircle = null;
+/* =========================
+   КНОПКА "МОЄ МІСЦЕ"
+========================= */
+
+const myLocationButton =
+    document.getElementById("myLocationButton");
+
+myLocationButton.addEventListener("click", function(){
+
+    if(!navigator.geolocation){
+
+        alert("Геолокація не підтримується вашим пристроєм.");
+
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+
+        function(position){
+
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+
+            setUserLocation(lat, lng);
+
+            /* Якщо маркер вже існує — переміщуємо його */
+
+            if(userLocationMarker){
+
+                userLocationMarker.setLatLng([lat,lng]);
+
+            }else{
+
+                const userIcon = L.divIcon({
+
+                    className:"",
+
+                    html:`
+                        <div class="userLocationMarker"></div>
+                    `,
+
+                    iconSize:[18,18],
+
+                    iconAnchor:[9,9]
+
+                });
+
+                userLocationMarker = L.marker(
+
+                    [lat,lng],
+
+                    {
+                        icon:userIcon,
+                        zIndexOffset:10000
+                    }
+
+                ).addTo(map);
+
+            }
+
+
+            /* Переходимо на моє місце */
+
+            map.setView(
+
+                [lat,lng],
+
+                15,
+
+                {
+                    animate:true
+                }
+
+            );
+
+        },
+
+        function(error){
+
+            alert(
+                "Не вдалося визначити ваше місце.\n\n" +
+                "Перевірте, чи дозволена геолокація."
+            );
+
+            console.log(
+                "Помилка геолокації:",
+                error.message
+            );
+
+        },
+
+        {
+
+            enableHighAccuracy:true,
+
+            timeout:10000,
+
+            maximumAge:0
+
+        }
+
+    );
+
+});
+
+/* Отримання геолокації */
+
+if ("geolocation" in navigator) {
+
+    navigator.geolocation.getCurrentPosition(
+
+        function(position){
+
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+
+
+
+            setUserLocation(lat, lng);
+
+            /* Іконка користувача */
+
+            const userIcon = L.divIcon({
+
+                className:"",
+
+                html:`
+                    <div class="userLocationMarker"></div>
+                `,
+
+                iconSize:[18,18],
+
+                iconAnchor:[9,9]
+
+            });
+
+
+/* =====================================================
+   ОТРИМАННЯ ГЕОЛОКАЦІЇ
+===================================================== */
+
+            /* Створюємо точку */
+
+            userLocationMarker = L.marker(
+
+                [lat,lng],
+
+                {
+                    icon:userIcon,
+                    zIndexOffset:10000
+                }
+
+            ).addTo(map);
+
+
+     
+
+
+            /* Автоматично центруємо карту */
+
+            map.setView(
+
+                [lat,lng],
+
+                15,
+
+                {
+                    animate:true
+                }
+
+            );
+
+        },
+
+
+        function(error){
+
+            console.log(
+                "Не вдалося отримати геолокацію:",
+                error.message
+            );
+
+        },
+
+
+        {
+
+            enableHighAccuracy:true,
+
+            timeout:10000,
+
+            maximumAge:0
+
+        }
+
+    );
+
+}
+
+
+/* =========================
+   ШАР КАРТИ
+========================= */
+
+const roadLayer = L.tileLayer(
+    'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+    {
+        maxZoom:20,
+        attribution:'© Google Maps'
+    }
+);
+
+
+const satelliteLayer = L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    {
+        maxZoom:19,
+        attribution:'© Esri'
+    }
+);
+
+
+/* Спочатку звичайна карта */
+
+roadLayer.addTo(map);
+
+
+/* =========================
+   МЕНЮ ШАРІВ
+========================= */
+
+const layerButton =
+    document.getElementById("layerButton");
+
+const layerMenu =
+    document.getElementById("layerMenu");
+
+const roadLayerBtn =
+    document.getElementById("roadLayerBtn");
+
+const satelliteLayerBtn =
+    document.getElementById("satelliteLayerBtn");
+
+
+/* Відкрити / закрити меню */
+
+layerButton.addEventListener("click", function(e){
+
+    e.stopPropagation();
+
+    layerMenu.classList.toggle("show");
+
+});
+
+
+/* Карта */
+
+roadLayerBtn.addEventListener("click", function(){
+
+    if(map.hasLayer(satelliteLayer)){
+
+        map.removeLayer(satelliteLayer);
+
+    }
+
+    if(!map.hasLayer(roadLayer)){
+
+        roadLayer.addTo(map);
+
+    }
+
+    roadLayerBtn.classList.add("active");
+
+    satelliteLayerBtn.classList.remove("active");
+
+    layerMenu.classList.remove("show");
+
+});
+
+
+/* Супутник */
+
+satelliteLayerBtn.addEventListener("click", function(){
+
+    if(map.hasLayer(roadLayer)){
+
+        map.removeLayer(roadLayer);
+
+    }
+
+    if(!map.hasLayer(satelliteLayer)){
+
+        satelliteLayer.addTo(map);
+
+    }
+
+    satelliteLayerBtn.classList.add("active");
+
+    roadLayerBtn.classList.remove("active");
+
+    layerMenu.classList.remove("show");
+
+});
+
+
+/* Закрити меню при натисканні на карту */
+
+map.on("click", function(){
+
+    layerMenu.classList.remove("show");
+
+});
+
+
+
+/* =====================================================
+   ІНФОРМАЦІЯ ПРО ТОЧКУ
+===================================================== */
+
+let currentPointId = null;
+let currentPointData = null;
+
+
+/* =========================
+   ВІДКРИТТЯ ТОЧКИ
+========================= */
+
+
+
+function openPointInfo(pointId, pointData){
+
+    
+    currentPointId = pointId;
+
+    currentPointData = pointData || {};
+
+
+    const overlay =
+        document.getElementById("pointInfoOverlay");
+
+
+    /* Назва */
+
+    document.getElementById(
+        "pointInfoTitle"
+    ).textContent =
+        currentPointData.name ||
+        "Точка";
+
+
+    /* Координати */
+
+    const lat =
+        Number(currentPointData.lat);
+
+    const lng =
+        Number(currentPointData.lng);
+
+
+    document.getElementById(
+        "pointInfoCoordinates"
+    ).textContent =
+        `📍 ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+
+
+    /* Автор */
+
+    document.getElementById(
+        "pointInfoAuthor"
+    ).textContent =
+        currentPointData.author ||
+        currentPointData.createdByName ||
+        "Невідомий користувач";
+
+
+    /* Опис */
+
+  const descriptionElement =
+    document.getElementById("pointInfoDescription");
+
+descriptionElement.textContent =
+    currentPointData.description ||
+    "Опис відсутній";
+
+descriptionElement.style.color = "#557568";
+descriptionElement.style.fontWeight = "500";
+
+
+    /* Відкрити */
+
+    overlay.classList.add("show");
+
+    document.body.style.overflow = "hidden";
+
+
+    /* Завантажити відгуки */
+
+    loadPointReviews(pointId);
+
+}
+
+
+/* =========================
+   ЗАКРИТТЯ
+========================= */
+
+function closePointInfo(){
+
+    const overlay =
+        document.getElementById(
+            "pointInfoOverlay"
+        );
+
+    overlay.classList.remove("show");
+
+    document.body.style.overflow = "";
+
+    currentPointId = null;
+
+    currentPointData = null;
+
+}
+
+
+/* =====================================================
+   ПОДІЛИТИСЯ ТОЧКОЮ
+===================================================== */
+
+async function shareCurrentPoint(){
+
+    if(!currentPointData){
+        alert("Точку для поширення не вибрано.");
+        return;
+    }
+
+    const lat = Number(currentPointData.lat);
+    const lng = Number(currentPointData.lng);
+
+    if(!Number.isFinite(lat) || !Number.isFinite(lng)){
+        alert("У точки немає правильних координат.");
+        return;
+    }
+
+    const title =
+        currentPointData.name ||
+        currentPointData.title ||
+        "Місце на карті";
+
+    const description =
+        currentPointData.description ||
+        "";
+
+    /* =========================
+       ПОСИЛАННЯ GOOGLE MAPS
+    ========================= */
+
+    const googleMapsUrl =
+        `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+
+    /* =========================
+       ТЕКСТ ДЛЯ ПОШИРЕННЯ
+    ========================= */
+
+    const shareText =
+        `${title}\n` +
+        `${description ? description + "\n" : ""}` +
+        `📍 Координати: ${lat}, ${lng}\n` +
+        `🗺 Google Maps: ${googleMapsUrl}`;
+
+    /* =========================
+       СТАНДАРТНЕ МЕНЮ ПОШИРЕННЯ
+    ========================= */
+
+    if(navigator.share){
+
+        try{
+
+            await navigator.share({
+
+                title: title,
+
+                text: shareText,
+
+                url: googleMapsUrl
+
+            });
+
+            console.log("✅ Точку поширено");
+
+        }
+        catch(error){
+
+            if(error.name !== "AbortError"){
+
+                console.error(
+                    "Помилка поширення:",
+                    error
+                );
+
+            }
+
+        }
+
+        return;
+    }
+
+    /* =========================
+       ЯКЩО WEB SHARE НЕ ПІДТРИМУЄТЬСЯ
+    ========================= */
+
+    const encodedText =
+        encodeURIComponent(shareText);
+
+    const encodedUrl =
+        encodeURIComponent(googleMapsUrl);
+
+
+    /* =========================
+       ВИБІР МЕСЕНДЖЕРА
+    ========================= */
+
+    const messengerChoice = confirm(
+        "Натисніть «ОК» — відкрити Viber.\n" +
+        "Натисніть «Скасувати» — відкрити Google Maps."
+    );
+
+
+    if(messengerChoice){
+
+        window.open(
+            `viber://forward?text=${encodedText}`,
+            "_blank"
+        );
+
+    }else{
+
+        window.open(
+            googleMapsUrl,
+            "_blank"
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   ЗАВАНТАЖИТИ ВІДГУКИ ТОЧКИ
+===================================================== */
+
+async function loadPointReviews(pointId) {
+
+    try {
+
+        if (!pointId) {
+            console.warn(
+                "⚠️ Не передано ID точки"
+            );
+            return;
+        }
+
+
+        /* ---------------------------------------------
+           Контейнер відгуків
+        --------------------------------------------- */
+
+        const container =
+            document.getElementById(
+                "pointReviews"
+            );
+
+
+        if (!container) {
+
+            console.error(
+                "❌ Не знайдено контейнер #pointReviews"
+            );
+
+            return;
+        }
+
+
+        /* ---------------------------------------------
+           Очищаємо список
+        --------------------------------------------- */
+
+        container.innerHTML = `
+            <div style="
+                text-align:center;
+                padding:15px;
+                color:#78909c;
+            ">
+                Завантаження відгуків...
+            </div>
+        `;
+
+
+        /* ---------------------------------------------
+           Відгуки знаходяться в БД ТОЧОК
+           truckpointua-magazyny
+        --------------------------------------------- */
+
+        const snapshot =
+            await db
+                .ref(
+                    "pointReviews/" +
+                    pointId
+                )
+                .once("value");
+
+
+        container.innerHTML = "";
+
+
+        /* ---------------------------------------------
+           Відгуків немає
+        --------------------------------------------- */
+
+        if (!snapshot.exists()) {
+
+            container.innerHTML = `
+                <div style="
+                    text-align:center;
+                    padding:20px;
+                    color:#78909c;
+                ">
+                    Відгуків поки немає.
+                </div>
+            `;
+
+            return;
+        }
+
+
+        /* ---------------------------------------------
+           Формуємо список
+        --------------------------------------------- */
+
+        const reviews = [];
+
+
+        snapshot.forEach(child => {
+
+            const review =
+                child.val() || {};
+
+            reviews.push({
+
+                id:
+                    child.key,
+
+                author:
+                    review.author ||
+                    "Користувач",
+
+                userId:
+                    review.userId ||
+                    "",
+
+                text:
+                    review.text ||
+                    "",
+
+                createdAt:
+                    review.createdAt ||
+                    0
+
+            });
+
+        });
+
+
+        /* ---------------------------------------------
+           Нові відгуки зверху
+        --------------------------------------------- */
+
+        reviews.sort(
+            (a, b) =>
+                b.createdAt -
+                a.createdAt
+        );
+
+
+        /* ---------------------------------------------
+           Виводимо відгуки
+        --------------------------------------------- */
+
+        reviews.forEach(review => {
+
+            const item =
+                document.createElement("div");
+
+
+            item.style.cssText = `
+                background:#e8f1f5;
+                border:1px solid #b0bec5;
+                border-radius:12px;
+                padding:12px;
+                margin-bottom:10px;
+                color:#263238;
+            `;
+
+
+            const date =
+                review.createdAt
+                    ? new Date(
+                        review.createdAt
+                    ).toLocaleString(
+                        "uk-UA"
+                    )
+                    : "";
+
+
+            item.innerHTML = `
+
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                    gap:10px;
+                    margin-bottom:7px;
+                ">
+
+                    <div style="
+                        font-weight:700;
+                        color:#455a64;
+                    ">
+                        👤 ${escapeHtml(
+                            review.author
+                        )}
+                    </div>
+
+                    <div style="
+                        font-size:11px;
+                        color:#78909c;
+                    ">
+                        ${escapeHtml(date)}
+                    </div>
+
+                </div>
+
+
+                <div style="
+                    color:#37474f;
+                    line-height:1.5;
+                    white-space:pre-wrap;
+                    word-break:break-word;
+                ">
+                    ${escapeHtml(
+                        review.text
+                    )}
+                </div>
+
+            `;
+
+
+            container.appendChild(
+                item
+            );
+
+        });
+
+
+        console.log(
+            `✅ Завантажено відгуків: ${reviews.length}`
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "❌ Помилка завантаження відгуків:",
+            error
+        );
+
+
+        const container =
+            document.getElementById(
+                "pointReviews"
+            );
+
+
+        if (container) {
+
+            container.innerHTML = `
+                <div style="
+                    color:#c62828;
+                    text-align:center;
+                    padding:15px;
+                ">
+                    Не вдалося завантажити відгуки.
+                </div>
+            `;
+        }
+    }
+}
+
+
+/* =====================================================
+   БЕЗПЕЧНЕ ВИВЕДЕННЯ ТЕКСТУ
+===================================================== */
+
+function escapeHtml(value) {
+
+    return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+/* =====================================================
+   ОТРИМАТИ ІМ'Я ПОТОЧНОГО КОРИСТУВАЧА
+   КОРИСТУВАЧІ ЗБЕРІГАЮТЬСЯ В truckpoint-ua
+===================================================== */
+
+async function getCurrentUserName() {
+
+    const user =
+        usersAuth.currentUser;
+
+    if (!user) {
+        return "Користувач";
+    }
+
+    try {
+
+        const snap =
+            await usersDb
+                .ref("users/" + user.uid)
+                .once("value");
+
+        if (snap.exists()) {
+
+            const data =
+                snap.val();
+
+            const name =
+                (data.name || "").trim();
+
+            const surname =
+                (data.surname || "").trim();
+
+            const fullName =
+                (name + " " + surname).trim();
+
+            if(fullName){
+                return fullName;
+            }
+
+            if(name){
+                return name;
+            }
+
+        }
+
+    } catch(error){
+
+        console.error(
+            "❌ Помилка отримання профілю:",
+            error
+        );
+
+    }
+
+    return (
+        user.displayName ||
+        user.email ||
+        "Користувач"
+    );
+}
+
+/* =====================================================
+   ДОДАТИ ВІДГУК ВІД ІМЕНІ ПОТОЧНОГО КОРИСТУВАЧА
+===================================================== */
+
+async function addPointReview() {
+
+    /* ---------------------------------------------
+       Перевірка вибраної точки
+    --------------------------------------------- */
+
+    if (!currentPointId) {
+
+        alert(
+            "Точку не вибрано."
+        );
+
+        return;
+    }
+
+
+    /* ---------------------------------------------
+       Поле відгуку
+    --------------------------------------------- */
+
+    const textarea =
+        document.getElementById(
+            "reviewText"
+        );
+
+
+    if (!textarea) {
+
+        console.error(
+            "❌ Не знайдено поле #reviewText"
+        );
+
+        return;
+    }
+
+
+    const text =
+        textarea.value.trim();
+
+
+    if (!text) {
+
+        alert(
+            "Напишіть текст відгуку."
+        );
+
+        textarea.focus();
+
+        return;
+    }
+
+
+    /* ---------------------------------------------
+       Поточний користувач
+       ВАЖЛИВО: беремо з truckpoint-ua
+    --------------------------------------------- */
+
+    const firebaseUser =
+        usersAuth.currentUser;
+
+
+    if (!firebaseUser) {
+
+        alert(
+            "Користувач не авторизований."
+        );
+
+        return;
+    }
+
+
+    /* ---------------------------------------------
+       Отримуємо ім'я та прізвище
+    --------------------------------------------- */
+
+    const authorName =
+        await getCurrentUserName();
+
+
+    /* ---------------------------------------------
+       ID користувача
+    --------------------------------------------- */
+
+    const userId =
+        firebaseUser.uid;
+
+
+    /* ---------------------------------------------
+       Створюємо відгук
+       ВАЖЛИВО:
+       db = база truckpointua-magazyny
+    --------------------------------------------- */
+
+    const reviewRef =
+        db.ref(
+            "pointReviews/" +
+            currentPointId
+        ).push();
+
+
+    const review = {
+
+        author:
+            authorName,
+
+        userId:
+            userId,
+
+        text:
+            text,
+
+        createdAt:
+            firebase.database.ServerValue.TIMESTAMP
+
+    };
+
+
+    /* ---------------------------------------------
+       Зберігаємо відгук
+    --------------------------------------------- */
+
+    try {
+
+        await reviewRef.set(
+            review
+        );
+
+
+        console.log(
+            "✅ Відгук додано:",
+            review
+        );
+
+
+        /* -----------------------------------------
+           Очищаємо поле
+        ----------------------------------------- */
+
+        textarea.value = "";
+
+
+        /* -----------------------------------------
+           Оновлюємо список відгуків
+        ----------------------------------------- */
+
+        await loadPointReviews(
+            currentPointId
+        );
+
+
+        console.log(
+            "✅ Відгук додано від:",
+            authorName
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "❌ Помилка додавання відгуку:",
+            error
+        );
+
+
+        alert(
+            "Не вдалося додати відгук.\n\n" +
+            error.message
+        );
+    }
+}
+
+
+/* =====================================================
+   ШТОРКА — ПОВНЕ КЕРУВАННЯ ВГОРУ / ВНИЗ
+===================================================== */
+
+const sheet = document.getElementById("bottomSheet");
+const handle = document.getElementById("sheetHandle");
+
+const myLocationButtonElement =
+    document.getElementById("myLocationButton");
+
+const mapControlsElement =
+    document.getElementById("mapControls");
+
+const activeCategoryIconsElement =
+    document.getElementById("activeCategoryIcons");
+
+
+/* =========================
+   НАЛАШТУВАННЯ
+========================= */
+
+const CLOSED_HEIGHT = 30;
+
+let dragging = false;
+let moved = false;
+
+let startY = 0;
+let startHeight = CLOSED_HEIGHT;
+
+
+/* =========================
+   ПОЧАТКОВИЙ СТАН
+========================= */
+
+sheet.style.height = CLOSED_HEIGHT + "px";
+sheet.classList.remove("open");
+
+
+/* =========================
+   ВІДКРИТИ ШТОРКУ
+========================= */
+
+function openSheet(){
+
+    if(!sheet){
+        console.error("❌ Не знайдено #bottomSheet");
+        return;
+    }
+
+    console.log("📂 Відкриваємо шторку");
+
+    sheet.classList.add("open");
+
+    sheet.style.transition = "height .3s ease";
+    sheet.style.height = window.innerHeight + "px";
+
+
+    /* Ховаємо кнопки карти */
+
+    if(myLocationButtonElement){
+        myLocationButtonElement.style.visibility = "hidden";
+    }
+
+    if(mapControlsElement){
+        mapControlsElement.style.visibility = "hidden";
+    }
+
+    if(activeCategoryIconsElement){
+        activeCategoryIconsElement.style.visibility = "hidden";
+    }
+
+
+    /* =========================
+       ЗАВЖДИ ВІДКРИВАЄМО ЗАКУПИ
+    ========================= */
+
+    openDefaultCategory();
+
+}
+
+/* =========================
+   ПЕРША КАТЕГОРІЯ — ЗАКУПИ
+========================= */
+
+function openDefaultCategory(){
+
+    const shoppingCategories =
+        document.getElementById("shoppingCategories");
+
+    const parkingCategories =
+        document.getElementById("parkingCategories");
+
+    const categoryButtons =
+        document.querySelectorAll(
+            ".categoryScroll .categoryBtn"
+        );
+
+    if(!shoppingCategories){
+        console.error(
+            "❌ Не знайдено #shoppingCategories"
+        );
+        return;
+    }
+
+
+    /* =========================
+       ЗАКРИВАЄМО ПАРКУВАННЯ
+    ========================= */
+
+    if(parkingCategories){
+
+        parkingCategories.classList.remove("show");
+        parkingCategories.classList.remove("open");
+
+        parkingCategories.style.display = "none";
+    }
+
+
+    /* =========================
+       ВІДКРИВАЄМО ЗАКУПИ
+    ========================= */
+
+    shoppingCategories.classList.add("show");
+    shoppingCategories.classList.remove("open");
+
+    shoppingCategories.style.display = "flex";
+
+
+    /* =========================
+       КНОПКА "ЗАКУПИ" ACTIVE
+    ========================= */
+
+    categoryButtons.forEach(button => {
+
+        button.classList.remove("active");
+
+    });
+
+
+    /* Перша кнопка категорій = Закупи */
+
+    if(categoryButtons[0]){
+
+        categoryButtons[0].classList.add("active");
+
+    }
+
+
+    console.log(
+        "🛒 Відкрито категорію: Закупи"
+    );
+
+}
+
+/* =========================
+   ЗАКРИТИ ШТОРКУ
+========================= */
+
+function closeSheet(){
+
+    sheet.classList.remove("open");
+
+    sheet.style.transition = "height .3s ease";
+
+    sheet.style.height =
+        CLOSED_HEIGHT + "px";
+
+
+    if(myLocationButtonElement){
+        myLocationButtonElement.style.visibility = "visible";
+    }
+
+    if(mapControlsElement){
+        mapControlsElement.style.visibility = "visible";
+    }
+
+    if(activeCategoryIconsElement){
+        activeCategoryIconsElement.style.visibility = "visible";
+    }
+
+}
+
+
+/* =====================================================
+   ПОЧАТОК ПЕРЕТЯГУВАННЯ
+===================================================== */
+
+handle.addEventListener("pointerdown", function(e){
+
+    dragging = true;
+    moved = false;
+
+    startY = e.clientY;
+
+    startHeight =
+        sheet.getBoundingClientRect().height;
+
+
+    /* прибираємо анімацію під час руху */
+
+    sheet.style.transition = "none";
+
+
+    /* дуже важливо для телефону */
+
+    handle.setPointerCapture(e.pointerId);
+
+
+    e.preventDefault();
+
+});
+
+
+/* =====================================================
+   РУХ ШТОРКИ
+===================================================== */
+
+handle.addEventListener("pointermove", function(e){
+
+    if(!dragging){
+        return;
+    }
+
+
+    /*
+       Якщо палець рухається ВГОРУ:
+       startY - e.clientY стає позитивним
+       => шторка збільшується.
+
+       Якщо палець рухається ВНИЗ:
+       startY - e.clientY стає негативним
+       => шторка зменшується.
+    */
+
+    const movement =
+        startY - e.clientY;
+
+
+    if(Math.abs(movement) > 5){
+        moved = true;
+    }
+
+
+    let newHeight =
+        startHeight + movement;
+
+
+    /* мінімум */
+
+    newHeight =
+        Math.max(
+            CLOSED_HEIGHT,
+            newHeight
+        );
+
+
+    /* максимум — весь екран */
+
+    newHeight =
+        Math.min(
+            window.innerHeight,
+            newHeight
+        );
+
+
+    /*
+       Дозволяємо тягнути шторку
+       на ЛЮБУ висоту.
+    */
+
+    sheet.style.height =
+        newHeight + "px";
+
+
+    e.preventDefault();
+
+});
+
+/* =====================================================
+   ЗАВЕРШЕННЯ ПЕРЕТЯГУВАННЯ
+===================================================== */
+
+function finishSheetDrag(e){
+
+    if(!dragging){
+        return;
+    }
+
+    dragging = false;
+
+    const currentHeight =
+        sheet.getBoundingClientRect().height;
+
+    const screenHeight =
+        window.innerHeight;
+
+    /* Поріг відкриття */
+
+    if(currentHeight >= screenHeight * 0.5){
+
+        /* Відкриваємо */
+
+        sheet.classList.add("open");
+
+        sheet.style.transition =
+            "height .3s ease";
+
+        sheet.style.height =
+            "100dvh";
+
+        if(myLocationButtonElement){
+            myLocationButtonElement.style.visibility =
+                "hidden";
+        }
+
+        if(mapControlsElement){
+            mapControlsElement.style.visibility =
+                "hidden";
+        }
+
+        if(activeCategoryIconsElement){
+            activeCategoryIconsElement.style.visibility =
+                "hidden";
+        }
+
+    }else{
+
+        /* Закриваємо */
+
+        sheet.classList.remove("open");
+
+        sheet.style.transition =
+            "height .3s ease";
+
+        sheet.style.height =
+            CLOSED_HEIGHT + "px";
+
+        if(myLocationButtonElement){
+            myLocationButtonElement.style.visibility =
+                "visible";
+        }
+
+        if(mapControlsElement){
+            mapControlsElement.style.visibility =
+                "visible";
+        }
+
+        if(activeCategoryIconsElement){
+            activeCategoryIconsElement.style.visibility =
+                "visible";
+        }
+
+    }
+
+
+    /* Відпускаємо pointer capture */
+
+    if(
+        e &&
+        e.pointerId !== undefined &&
+        handle.hasPointerCapture(e.pointerId)
+    ){
+
+        handle.releasePointerCapture(
+            e.pointerId
+        );
+
+    }
+
+}
+
+
+/* =========================
+   ВІДПУСКАННЯ ПАЛЬЦЯ / МИШІ
+========================= */
+
+handle.addEventListener(
+    "pointerup",
+    finishSheetDrag
+);
+
+
+handle.addEventListener(
+    "pointercancel",
+    finishSheetDrag
+);
+
+
+/* ===== СВАЙП ШТОРКИ ВНИЗ У БУДЬ-ЯКОМУ МІСЦІ ===== */
+
+let touchStartY = 0;
+let lastTouchY = 0;
+let isSheetDragging = false;
+
+sheet.addEventListener("touchstart", function(e) {
+
+    if (e.touches.length !== 1) return;
+
+    touchStartY = e.touches[0].clientY;
+    lastTouchY = touchStartY;
+    isSheetDragging = true;
+
+    sheet.style.transition = "none";
+
+}, { passive: true });
+
+
+sheet.addEventListener("touchmove", function(e) {
+
+    if (!isSheetDragging) return;
+
+    const y = e.touches[0].clientY;
+    const move = y - lastTouchY;
+
+    if (move > 0) {
+
+        const currentHeight = sheet.offsetHeight;
+
+        sheet.style.height =
+            Math.max(
+                CLOSED_HEIGHT,
+                currentHeight - move
+            ) + "px";
+    }
+
+    lastTouchY = y;
+
+}, { passive: true });
+
+
+sheet.addEventListener("touchend", function() {
+
+    if (!isSheetDragging) return;
+
+    isSheetDragging = false;
+
+    const totalMove =
+        lastTouchY - touchStartY;
+
+    sheet.style.transition =
+        "height .3s ease";
+
+    /* ===== ЗАКРИТИ ===== */
+
+    if (totalMove > 70) {
+
+        sheet.classList.remove("open");
+
+        sheet.style.height =
+            CLOSED_HEIGHT + "px";
+
+        if (myLocationButtonElement) {
+            myLocationButtonElement.style.visibility =
+                "visible";
+        }
+
+        if (mapControlsElement) {
+            mapControlsElement.style.visibility =
+                "visible";
+        }
+
+        if (activeCategoryIconsElement) {
+            activeCategoryIconsElement.style.visibility =
+                "visible";
+        }
+
+    } else {
+
+        /* Повернути шторку */
+        sheet.style.height = "";
+
+    }
+
+});
+
+
+/* =====================================================
+   ПОВОРОТ ТЕЛЕФОНУ / ЗМІНА РОЗМІРУ
+===================================================== */
+
+window.addEventListener("resize", function(){
+
+    /*
+       Якщо шторка повністю відкрита —
+       вона завжди займає весь новий екран.
+    */
+
+    if(sheet.classList.contains("open")){
+
+        sheet.style.height =
+            window.innerHeight + "px";
+
+    }else{
+
+        /*
+           Закрита шторка завжди 24 px.
+        */
+
+        sheet.style.height =
+            CLOSED_HEIGHT + "px";
+
+    }
+
+});
+
+
+
+function selectCategory(button){ 
+
+    button.classList.toggle("active");
+
+    updateActiveCategoryIcons();
+
+}
+
+/* =========================
+   ІКОНКИ АКТИВНИХ КАТЕГОРІЙ
+========================= */
+
+function updateActiveCategoryIcons(){
+
+    const container =
+        document.getElementById("activeCategoryIcons");
+
+    if(!container) return;
+
+    container.innerHTML = "";
+
+
+    /* =========================
+       ПРОДУКТОВІ МАГАЗИНИ
+    ========================= */
+
+    const groceryButton =
+        document.querySelector(
+            '#shoppingCategories button[onclick*="toggleGroceryStores"]'
+        );
+
+    if(
+        groceryButton &&
+        groceryButton.classList.contains("active")
+    ){
+
+        const img =
+            document.createElement("img");
+
+        img.src = "maarket_map.svg";
+
+        img.className =
+            "activeMapCategoryIcon";
+
+        img.title =
+            "Продуктові магазини";
+
+        container.appendChild(img);
+
+    }
+
+
+    /* =========================
+       ПРОМИСЛОВА ЗОНА
+    ========================= */
+
+    const parkingButtons =
+        document.querySelectorAll(
+            "#parkingCategories .subCategoryBtn"
+        );
+
+
+    if(
+        parkingButtons[0] &&
+        parkingButtons[0].classList.contains("active")
+    ){
+
+        const img =
+            document.createElement("img");
+
+        img.src =
+            "promzona_map.svg";
+
+        img.className =
+            "activeMapCategoryIcon";
+
+        img.title =
+            "Промислова зона";
+
+        container.appendChild(img);
+
+    }
+
+
+    /* =========================
+       ПАРКУВАННЯ ПРИ ДОРОЗІ
+    ========================= */
+
+    if(
+        parkingButtons[1] &&
+        parkingButtons[1].classList.contains("active")
+    ){
+
+        const img =
+            document.createElement("img");
+
+        img.src =
+            "pocket_map.svg";
+
+        img.className =
+            "activeMapCategoryIcon";
+
+        img.title =
+            "Паркування при дорозі";
+
+        container.appendChild(img);
+
+    }
+
+
+    /* =========================
+       БЕЗКОШТОВНЕ ПАРКУВАННЯ
+    ========================= */
+
+    if(
+        parkingButtons[2] &&
+        parkingButtons[2].classList.contains("active")
+    ){
+
+        addActiveMapEmojiIcon(
+            "🅿️",
+            "Паркування безкоштовне"
+        );
+
+    }
+
+
+    /* =========================
+       ПЛАТНЕ ПАРКУВАННЯ
+    ========================= */
+
+    if(
+        parkingButtons[3] &&
+        parkingButtons[3].classList.contains("active")
+    ){
+
+        addActiveMapEmojiIcon(
+            "💳",
+            "Паркування платне"
+        );
+
+    }
+
+
+    /* =========================
+       ПАРКУВАННЯ БІЛЯ ФІРМИ
+    ========================= */
+
+    if(
+        parkingButtons[4] &&
+        parkingButtons[4].classList.contains("active")
+    ){
+
+        addActiveMapEmojiIcon(
+            "🏢",
+            "Паркування біля фірми"
+        );
+
+    }
+
+}
+
+function addActiveMapEmojiIcon(icon, title){
+
+    const container =
+        document.getElementById("activeCategoryIcons");
+
+    if(!container) return;
+
+    const element =
+        document.createElement("div");
+
+    element.className =
+        "activeMapCategoryIcon";
+
+    element.textContent =
+        icon;
+
+    element.title =
+        title;
+
+    element.style.display = "flex";
+    element.style.alignItems = "center";
+    element.style.justifyContent = "center";
+    element.style.fontSize = "28px";
+
+    container.appendChild(element);
+
+}
+
+
+/* =========================
+   ОНОВЛЕННЯ ІКОНOК ВИБРАНИХ
+   КАТЕГОРІЙ
+========================= */
+
+function updateActiveCategories(){
+
+    const bar =
+        document.getElementById("activeCategoriesBar");
+
+    if(!bar) return;
+
+    bar.innerHTML = "";
+
+    /* =====================
+       ЗАКУПИ
+    ===================== */
+
+    const groceryButton =
+        document.querySelector(
+            '#shoppingCategories button[onclick*="toggleGroceryStores"]'
+        );
+
+    if(
+        groceryButton &&
+        groceryButton.classList.contains("active")
+    ){
+
+        addActiveCategoryIcon(
+            "🛒"
+        );
+
+    }
+
+
+    /* =====================
+       МАГАЗИНИ ТІР
+    ===================== */
+
+    const shoppingButtons =
+        document.querySelectorAll(
+            "#shoppingCategories .subCategoryBtn"
+        );
+
+    if(
+        shoppingButtons[1] &&
+        shoppingButtons[1].classList.contains("active")
+    ){
+
+        addActiveCategoryIcon(
+            "🚛"
+        );
+
+    }
+
+
+    /* =====================
+       БЛОШИНИЙ РИНОК
+    ===================== */
+
+    if(
+        shoppingButtons[2] &&
+        shoppingButtons[2].classList.contains("active")
+    ){
+
+        addActiveCategoryIcon(
+            "🏷️"
+        );
+
+    }
+
+
+    /* =====================
+       ПАРКУВАННЯ
+    ===================== */
+
+    const parkingButtons =
+        document.querySelectorAll(
+            "#parkingCategories .subCategoryBtn"
+        );
+
+
+    /* Промислова зона */
+
+    if(
+        parkingButtons[0] &&
+        parkingButtons[0].classList.contains("active")
+    ){
+
+        addActiveCategoryIcon(
+            "🏭"
+        );
+
+    }
+
+
+   /* =========================
+       ПАРКУВАННЯ ПРИ ДОРОЗІ
+    ========================= */
+
+    if(
+        parkingButtons[1] &&
+        parkingButtons[1].classList.contains("active")
+    ){
+
+        const bar =
+    document.getElementById("activeCategoriesBar");
+
+const img =
+    document.createElement("img");
+
+img.src = "pocket_map.svg";
+img.className = "activeMapCategoryIcon";
+img.title = "Паркування при дорозі";
+
+        if(bar){
+    bar.appendChild(img);
+}
+    }
+
+
+    /* Безкоштовне */
+
+    if(
+        parkingButtons[2] &&
+        parkingButtons[2].classList.contains("active")
+    ){
+
+        addActiveCategoryIcon(
+            "🅿️"
+        );
+
+    }
+
+
+    /* Платне */
+
+    if(
+        parkingButtons[3] &&
+        parkingButtons[3].classList.contains("active")
+    ){
+
+        addActiveCategoryIcon(
+            "💳"
+        );
+
+    }
+
+
+    /* Біля фірми */
+
+    if(
+        parkingButtons[4] &&
+        parkingButtons[4].classList.contains("active")
+    ){
+
+        addActiveCategoryIcon(
+            "🏢"
+        );
+
+    }
+
+}
+
+
+/* =========================
+   ДОДАТИ ІКОНКУ
+========================= */
+
+function addActiveCategoryIcon(icon){
+
+    const bar =
+        document.getElementById(
+            "activeCategoriesBar"
+        );
+
+    const element =
+        document.createElement("div");
+
+    element.className =
+        "activeCategoryIcon";
+
+    element.textContent =
+        icon;
+
+    bar.appendChild(element);
+
+}
+
+
+/* =====================================================
+   ПРАВИЛЬНА ЛОГІКА ТОЧОК НА КАРТІ
+===================================================== */
+
+/*
+   ЛОГІКА:
+
+   • точки НЕ залежать від геолокації
+   • точки залежать від центру карти
+   • радіус = 20 км
+   • точки показуються тільки активних категорій
+   • при русі карти точки НЕ очищуються
+   • нове завантаження тільки після зміщення >= 5 км
+   • вже показані точки не створюються повторно
+   • далекі точки видаляються
+*/
+
+
+/* =====================================================
+   НАЛАШТУВАННЯ
+===================================================== */
+
+const POINTS_RADIUS_KM = 20;
+
+/* після якого переміщення карти перевіряти нову область */
+const RELOAD_DISTANCE_KM = 5;
+
+
+/* =====================================================
+   СТАН
+===================================================== */
+
+let pointMarkers = {};
+
+let lastPointsCenter = null;
+
+let pointsLoading = false;
+
+let pointsReloadTimer = null;
+
+
+/* =====================================================
+   ВІДСТАНЬ МІЖ ДВОМА ТОЧКАМИ
+===================================================== */
+
+function distanceBetweenPoints(
+    lat1,
+    lng1,
+    lat2,
+    lng2
+){
+
+    const R = 6371;
+
+    const dLat =
+        (lat2 - lat1) *
+        Math.PI / 180;
+
+    const dLng =
+        (lng2 - lng1) *
+        Math.PI / 180;
+
+    const a =
+        Math.sin(dLat / 2) *
+        Math.sin(dLat / 2) +
+
+        Math.cos(lat1 * Math.PI / 180) *
+        Math.cos(lat2 * Math.PI / 180) *
+
+        Math.sin(dLng / 2) *
+        Math.sin(dLng / 2);
+
+    const c =
+        2 *
+        Math.atan2(
+            Math.sqrt(a),
+            Math.sqrt(1 - a)
+        );
+
+    return R * c;
+}
+
+
+/* =====================================================
+   ІКОНКА КАТЕГОРІЇ
+===================================================== */
+
+function getCategoryIcon(category, data = {}){
+
+    const iconFile =
+        String(data.icon || "").toLowerCase();
+
+
+    /* -------------------------
+       Іконка з Firebase
+    ------------------------- */
+
+    if(iconFile.includes("maarket_map")){
+
+        return L.icon({
+            iconUrl:"maarket_map.svg",
+            iconSize:[40,40],
+            iconAnchor:[20,40],
+            popupAnchor:[0,-40]
+        });
+
+    }
+
+
+    if(iconFile.includes("pocket_map")){
+
+        return L.icon({
+            iconUrl:"pocket_map.svg",
+            iconSize:[40,40],
+            iconAnchor:[20,40],
+            popupAnchor:[0,-40]
+        });
+
+    }
+
+
+    if(iconFile.includes("promzona_map")){
+
+        return L.icon({
+            iconUrl:"promzona_map.svg",
+            iconSize:[40,40],
+            iconAnchor:[20,40],
+            popupAnchor:[0,-40]
+        });
+
+    }
+
+
+    /* -------------------------
+       Іконка за категорією
+    ------------------------- */
+
+    const icons = {
+
+        market:"maarket_map.svg",
+
+        road_parking:"pocket_map.svg",
+
+        industrial:"promzona_map.svg",
+
+        parking:"parking_map.svg",
+
+        wash:"wash_map.svg",
+
+        gas_station:"gas_map.svg",
+
+        restaurant:"restaurant_map.svg",
+
+        hotel:"hotel_map.svg",
+
+        service:"service_map.svg",
+
+        tire:"tire_map.svg",
+
+        truck_service:"truck_service_map.svg"
+
+    };
+
+
+    const iconUrl =
+        icons[category] ||
+        "maarket_map.svg";
+
+
+    return L.icon({
+
+        iconUrl:iconUrl,
+
+        iconSize:[40,40],
+
+        iconAnchor:[20,40],
+
+        popupAnchor:[0,-40]
+
+    });
+
+}
+
+
+/* =====================================================
+   ЧИ КАТЕГОРІЯ АКТИВНА
+===================================================== */
+
+function isCategoryActive(category){
+
+    const shoppingButtons =
+        document.querySelectorAll(
+            "#shoppingCategories .subCategoryBtn"
+        );
+
+    const parkingButtons =
+        document.querySelectorAll(
+            "#parkingCategories .subCategoryBtn"
+        );
+
+
+    /* -------------------------
+       Продуктові магазини
+    ------------------------- */
+
+    if(category === "market"){
+
+        const button =
+            document.querySelector(
+                '#shoppingCategories button[onclick*="toggleGroceryStores"]'
+            );
+
+        return !!(
+            button &&
+            button.classList.contains("active")
+        );
+
+    }
+
+
+    /* -------------------------
+       Магазини ТІР
+    ------------------------- */
+
+    if(category === "truck_shop"){
+
+        return !!(
+            shoppingButtons[1] &&
+            shoppingButtons[1].classList.contains("active")
+        );
+
+    }
+
+
+    /* -------------------------
+       Блошиний ринок
+    ------------------------- */
+
+    if(category === "flea_market"){
+
+        return !!(
+            shoppingButtons[2] &&
+            shoppingButtons[2].classList.contains("active")
+        );
+
+    }
+
+
+    /* -------------------------
+       Промислова зона
+    ------------------------- */
+
+    if(category === "industrial"){
+
+        return !!(
+            parkingButtons[0] &&
+            parkingButtons[0].classList.contains("active")
+        );
+
+    }
+
+
+    /* -------------------------
+       Паркування при дорозі
+    ------------------------- */
+
+    if(category === "road_parking"){
+
+        return !!(
+            parkingButtons[1] &&
+            parkingButtons[1].classList.contains("active")
+        );
+
+    }
+
+
+    /* -------------------------
+       Інші типи паркування
+    ------------------------- */
+
+    if(category === "parking"){
+
+        return !!(
+            parkingButtons[2] &&
+            parkingButtons[2].classList.contains("active")
+        );
+
+    }
+
+
+    return false;
+
+}
+
+
+/* =====================================================
+   СТВОРЕННЯ МАРКЕРА
+===================================================== */
+
+function createPointMarker(
+    category,
+    pointId,
+    data,
+    lat,
+    lng
+){
+
+    const marker =
+        L.marker(
+            [lat,lng],
+            {
+                icon:
+                    getCategoryIcon(
+                        category,
+                        data
+                    )
+            }
+        );
+
+
+    /* -------------------------
+       Відкриття інформації
+    ------------------------- */
+
+    marker.on(
+        "click",
+        function(){
+
+            openPointInfo(
+
+                pointId,
+
+                {
+
+                    ...data,
+
+                    id:pointId,
+
+                    lat:lat,
+
+                    lng:lng,
+
+                    category:category
+
+                }
+
+            );
+
+        }
+    );
+
+
+    return marker;
+
+}
+
+
+/* =====================================================
+   ЗАВАНТАЖЕННЯ ОДНІЄЇ КАТЕГОРІЇ
+===================================================== */
+
+async function loadCategoryPoints(category){
+
+    /* категорія НЕ активна */
+    if(!isCategoryActive(category)){
+
+        return;
+
+    }
+
+
+    const center =
+        map.getCenter();
+
+
+    try{
+
+        console.log(
+            "📡 Завантаження:",
+            category
+        );
+
+
+        const snapshot =
+            await db
+                .ref("points/" + category)
+                .once("value");
+
+
+        if(!snapshot.exists()){
+
+            console.log(
+                "⚪ Немає точок:",
+                category
+            );
+
+            return;
+
+        }
+
+
+        let added = 0;
+
+
+        snapshot.forEach(child => {
+
+            const data =
+                child.val();
+
+
+            if(!data){
+                return;
+            }
+
+
+            /* -------------------------
+               Координати
+            ------------------------- */
+
+            let lat =
+                Number(
+                    data.lat ??
+                    data.latitude
+                );
+
+
+            let lng =
+                Number(
+                    data.lng ??
+                    data.lon ??
+                    data.longitude
+                );
+
+
+            if(
+                !Number.isFinite(lat) ||
+                !Number.isFinite(lng)
+            ){
+
+                return;
+
+            }
+
+
+            /* -------------------------
+               Відстань від центру карти
+            ------------------------- */
+
+            const distance =
+                distanceBetweenPoints(
+
+                    center.lat,
+                    center.lng,
+
+                    lat,
+                    lng
+
+                );
+
+
+            if(
+                distance >
+                POINTS_RADIUS_KM
+            ){
+
+                return;
+
+            }
+
+
+            /* -------------------------
+               Унікальний ID
+            ------------------------- */
+
+            const pointId =
+                category +
+                "_" +
+                child.key;
+
+
+            /* -------------------------
+               Якщо вже існує
+            ------------------------- */
+
+            if(pointMarkers[pointId]){
+
+                return;
+
+            }
+
+
+            /* -------------------------
+               Створюємо маркер
+            ------------------------- */
+
+            const marker =
+                createPointMarker(
+
+                    category,
+
+                    pointId,
+
+                    data,
+
+                    lat,
+
+                    lng
+
+                );
+
+
+            marker.addTo(map);
+
+
+            pointMarkers[pointId] =
+                {
+
+                    marker:marker,
+
+                    category:category,
+
+                    lat:lat,
+
+                    lng:lng
+
+                };
+
+
+            added++;
+
+        });
+
+
+        console.log(
+            `✅ ${category}: додано ${added}`
+        );
+
+    }
+
+    catch(error){
+
+        console.error(
+            "❌ Помилка:",
+            category,
+            error
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   ВИДАЛЕННЯ ДАЛЕКИХ ТОЧОК
+===================================================== */
+
+function removeFarPoints(){
+
+    const center =
+        map.getCenter();
+
+
+    Object.keys(pointMarkers)
+        .forEach(pointId => {
+
+            const item =
+                pointMarkers[pointId];
+
+
+            if(!item){
+                return;
+            }
+
+
+            /* -------------------------
+               Якщо категорія вже вимкнена
+            ------------------------- */
+
+            if(
+                !isCategoryActive(
+                    item.category
+                )
+            ){
+
+                map.removeLayer(
+                    item.marker
+                );
+
+                delete pointMarkers[
+                    pointId
+                ];
+
+                return;
+
+            }
+
+
+            /* -------------------------
+               Відстань
+            ------------------------- */
+
+            const distance =
+                distanceBetweenPoints(
+
+                    center.lat,
+                    center.lng,
+
+                    item.lat,
+                    item.lng
+
+                );
+
+
+            /*
+               Видаляємо тільки якщо
+               точка вийшла далеко за межі
+               радіуса.
+
+               Робимо запас 5 км,
+               щоб не було мерехтіння.
+            */
+
+            if(
+                distance >
+                POINTS_RADIUS_KM + RELOAD_DISTANCE_KM
+            ){
+
+                map.removeLayer(
+                    item.marker
+                );
+
+                delete pointMarkers[
+                    pointId
+                ];
+
+            }
+
+        });
+
+}
+
+
+/* =====================================================
+   ЗАВАНТАЖЕННЯ АКТИВНИХ КАТЕГОРІЙ
+===================================================== */
+
+async function loadActiveCategories(){
+
+    if(pointsLoading){
+        return;
+    }
+
+
+    pointsLoading = true;
+
+
+    try{
+
+        const categories = [
+
+            "market",
+
+            "truck_shop",
+
+            "flea_market",
+
+            "industrial",
+
+            "road_parking",
+
+            "parking",
+
+            "wash",
+
+            "gas_station",
+
+            "restaurant",
+
+            "hotel",
+
+            "service",
+
+            "tire",
+
+            "truck_service"
+
+        ];
+
+
+        for(
+            const category
+            of categories
+        ){
+
+            if(
+                isCategoryActive(
+                    category
+                )
+            ){
+
+                await loadCategoryPoints(
+                    category
+                );
+
+            }
+
+        }
+
+
+        /* прибираємо старі */
+
+        removeFarPoints();
+
+    }
+
+    finally{
+
+        pointsLoading = false;
+
+    }
+
+}
+
+
+/* =====================================================
+   ПЕРЕВІРКА РУХУ КАРТИ
+===================================================== */
+
+function shouldReloadPoints(){
+
+    if(!lastPointsCenter){
+
+        return true;
+
+    }
+
+
+    const center =
+        map.getCenter();
+
+
+    const distance =
+        distanceBetweenPoints(
+
+            lastPointsCenter.lat,
+            lastPointsCenter.lng,
+
+            center.lat,
+            center.lng
+
+        );
+
+
+    return (
+        distance >=
+        RELOAD_DISTANCE_KM
+    );
+
+}
+
+
+/* =====================================================
+   РУХ КАРТИ
+===================================================== */
+
+map.on(
+    "moveend",
+    function(){
+
+        /*
+           Якщо карта посунулась
+           менше 5 км —
+           НІЧОГО НЕ РОБИМО.
+        */
+
+        if(
+            !shouldReloadPoints()
+        ){
+
+            return;
+
+        }
+
+
+        clearTimeout(
+            pointsReloadTimer
+        );
+
+
+        pointsReloadTimer =
+            setTimeout(
+                async function(){
+
+                    const center =
+                        map.getCenter();
+
+
+                    lastPointsCenter = {
+
+                        lat:center.lat,
+
+                        lng:center.lng
+
+                    };
+
+
+                    console.log(
+                        "🗺 Нова область карти"
+                    );
+
+
+                    await loadActiveCategories();
+
+                },
+                300
+            );
+
+    }
+);
+
+
+/* =====================================================
+   ЗАВАНТАЖЕННЯ КАТЕГОРІЇ ПРИ НАТИСКАННІ
+===================================================== */
+
+async function reloadCategory(category){
+
+    /*
+       Якщо категорію вимкнули —
+       прибираємо її точки.
+    */
+
+    if(
+        !isCategoryActive(
+            category
+        )
+    ){
+
+        Object.keys(pointMarkers)
+            .forEach(id => {
+
+                const item =
+                    pointMarkers[id];
+
+
+                if(
+                    item.category ===
+                    category
+                ){
+
+                    map.removeLayer(
+                        item.marker
+                    );
+
+                    delete pointMarkers[
+                        id
+                    ];
+
+                }
+
+            });
+
+
+        updateActiveCategoryIcons();
+
+        return;
+
+    }
+
+
+    /*
+       Якщо категорію увімкнули —
+       завантажуємо її.
+    */
+
+    await loadCategoryPoints(
+        category
+    );
+
+
+    updateActiveCategoryIcons();
+
+}
+
+
+/* =====================================================
+   ПРОДУКТОВІ МАГАЗИНИ
+===================================================== */
+
+async function toggleGroceryStores(button){
+
+    const active =
+        button.classList.toggle(
+            "active"
+        );
+
+
+    if(active){
+
+        await reloadCategory(
+            "market"
+        );
+
+    }else{
+
+        await reloadCategory(
+            "market"
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   ПАРКУВАННЯ
+===================================================== */
+
+function toggleParking(){
+
+    const parking =
+        document.getElementById(
+            "parkingCategories"
+        );
+
+    const shopping =
+        document.getElementById(
+            "shoppingCategories"
+        );
+
+
+    const buttons =
+        document.querySelectorAll(
+            ".categoryScroll .categoryBtn"
+        );
+
+
+    const shoppingButton =
+        buttons[0];
+
+
+    const parkingButton =
+        buttons[1];
+
+
+    if(!parking){
+        return;
+    }
+
+
+    if(
+        parking.classList.contains(
+            "show"
+        )
+    ){
+
+        parking.classList.remove(
+            "show"
+        );
+
+        if(parkingButton){
+
+            parkingButton.classList.remove(
+                "active"
+            );
+
+        }
+
+    }else{
+
+        if(shopping){
+
+            shopping.classList.remove(
+                "show"
+            );
+
+        }
+
+
+        parking.classList.add(
+            "show"
+        );
+
+
+        if(parkingButton){
+
+            parkingButton.classList.add(
+                "active"
+            );
+
+        }
+
+
+        if(shoppingButton){
+
+            shoppingButton.classList.remove(
+                "active"
+            );
+
+        }
+
+    }
+
+}
+
+
+/* =====================================================
+   ПРОМИСЛОВА ЗОНА
+===================================================== */
+
+async function selectParking(button){
+
+    const active =
+        button.classList.toggle(
+            "active"
+        );
+
+
+    const text =
+        button.textContent
+            .trim();
+
+
+    if(
+        text.includes(
+            "Промислова зона"
+        )
+    ){
+
+        await reloadCategory(
+            "industrial"
+        );
+
+    }
+
+
+    updateActiveCategoryIcons();
+
+}
+
+
+/* =====================================================
+   ПАРКУВАННЯ ПРИ ДОРОЗІ
+===================================================== */
+
+async function toggleRoadParking(button){
+
+    button.classList.toggle(
+        "active"
+    );
+
+
+    await reloadCategory(
+        "road_parking"
+    );
+
+
+    updateActiveCategoryIcons();
+
+}
+
+
+/* =====================================================
+   ЗАКУПИ
+===================================================== */
+
+function toggleShopping(){
+
+    const shopping =
+        document.getElementById(
+            "shoppingCategories"
+        );
+
+    const parking =
+        document.getElementById(
+            "parkingCategories"
+        );
+
+
+    const buttons =
+        document.querySelectorAll(
+            ".categoryScroll .categoryBtn"
+        );
+
+
+    const shoppingButton =
+        buttons[0];
+
+
+    const parkingButton =
+        buttons[1];
+
+
+    if(!shopping){
+        return;
+    }
+
+
+    if(
+        shopping.classList.contains(
+            "show"
+        )
+    ){
+
+        shopping.classList.remove(
+            "show"
+        );
+
+
+        if(shoppingButton){
+
+            shoppingButton.classList.remove(
+                "active"
+            );
+
+        }
+
+    }else{
+
+        if(parking){
+
+            parking.classList.remove(
+                "show"
+            );
+
+        }
+
+
+        shopping.classList.add(
+            "show"
+        );
+
+
+        if(shoppingButton){
+
+            shoppingButton.classList.add(
+                "active"
+            );
+
+        }
+
+
+        if(parkingButton){
+
+            parkingButton.classList.remove(
+                "active"
+            );
+
+        }
+
+    }
+
+}
+
+
+
+/* =====================================================
+   ПОЧАТКОВЕ ЗАВАНТАЖЕННЯ
+===================================================== */
+
+/*
+   Точки НЕ завантажуються автоматично.
+
+   Вони з'являться тільки після
+   натискання кнопки категорії.
+*/
+
+
+lastPointsCenter = {
+
+    lat:map.getCenter().lat,
+
+    lng:map.getCenter().lng
+
+};
+
+
+console.log(
+    "🗺 Система точок готова."
+);
+
+console.log(
+    "📍 Радіус:",
+    POINTS_RADIUS_KM,
+    "км"
+);
+
+console.log(
+    "📏 Перезавантаження після:",
+    RELOAD_DISTANCE_KM,
+    "км"
+);
+</script>
+
+</body>
+</html>
