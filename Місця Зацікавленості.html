@@ -1782,6 +1782,869 @@ body.night-mode .sheetHandle{
 #layerMenu.show {
     display: block;
 }
+
+/* =====================================================
+   ВІКНО ДОДАВАННЯ ТОЧКИ
+===================================================== */
+
+#addPointOverlay {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 999999;
+
+    display: none;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(0,0,0,0.55);
+
+    backdrop-filter: blur(4px);
+
+    -webkit-backdrop-filter: blur(4px);
+}
+
+
+#addPointOverlay.show {
+
+    display: flex;
+}
+
+
+/* =====================================================
+   МОДАЛЬНЕ ВІКНО
+===================================================== */
+
+#addPointModal {
+
+    position: relative;
+
+    width: min(440px, 100%);
+
+    max-height: 90vh;
+
+    overflow-y: auto;
+
+    box-sizing: border-box;
+
+    padding: 24px;
+
+    border-radius: 22px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 20px 60px rgba(0,0,0,0.30);
+
+    font-family: Arial, sans-serif;
+}
+
+
+/* =====================================================
+   ЗАКРИТИ
+===================================================== */
+
+.addPointClose {
+
+    position: absolute;
+
+    top: 10px;
+    right: 12px;
+
+    width: 38px;
+    height: 38px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background: #f1f1f1;
+
+    color: #333;
+
+    font-size: 28px;
+
+    line-height: 38px;
+
+    cursor: pointer;
+}
+
+
+.addPointClose:active {
+
+    transform: scale(0.94);
+}
+
+
+/* =====================================================
+   ЗАГОЛОВОК
+===================================================== */
+
+.addPointTitle {
+
+    padding-right: 35px;
+
+    font-size: 24px;
+
+    font-weight: 700;
+
+    color: #1d1d1d;
+}
+
+
+.addPointSubtitle {
+
+    margin-top: 5px;
+
+    margin-bottom: 20px;
+
+    font-size: 14px;
+
+    color: #777;
+}
+
+
+/* =====================================================
+   LABEL
+===================================================== */
+
+.addPointLabel {
+
+    display: block;
+
+    margin-top: 15px;
+
+    margin-bottom: 7px;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    color: #333;
+}
+
+
+/* =====================================================
+   INPUT / SELECT / TEXTAREA
+===================================================== */
+
+.addPointInput {
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding: 12px 14px;
+
+    border: 1px solid #d5d5d5;
+
+    border-radius: 12px;
+
+    background: #fafafa;
+
+    color: #222;
+
+    font-size: 16px;
+
+    outline: none;
+
+    font-family: inherit;
+}
+
+
+.addPointInput:focus {
+
+    border-color: #1976d2;
+
+    background: #fff;
+
+    box-shadow:
+        0 0 0 3px rgba(25,118,210,0.10);
+}
+
+
+.addPointTextarea {
+
+    min-height: 100px;
+
+    resize: vertical;
+}
+
+
+/* =====================================================
+   КООРДИНАТИ
+===================================================== */
+
+.newPointCoordinates {
+
+    display: flex;
+
+    gap: 10px;
+
+    margin-top: 18px;
+}
+
+
+.newPointCoordinates > div {
+
+    flex: 1;
+
+    padding: 10px;
+
+    border-radius: 10px;
+
+    background: #f5f5f5;
+}
+
+
+.newPointCoordinates span {
+
+    display: block;
+
+    margin-bottom: 4px;
+
+    font-size: 11px;
+
+    color: #777;
+}
+
+
+.newPointCoordinates strong {
+
+    display: block;
+
+    font-size: 13px;
+
+    color: #222;
+
+    word-break: break-all;
+}
+
+
+/* =====================================================
+   ІНФОРМАЦІЯ ПРО ІКОНКУ
+===================================================== */
+
+.newPointIconInfo {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-top: 18px;
+
+    padding: 10px;
+
+    border-radius: 12px;
+
+    background: #f5f7fa;
+
+    font-size: 12px;
+
+    color: #666;
+}
+
+
+.newPointIconInfo img {
+
+    width: 38px;
+
+    height: 38px;
+
+    object-fit: contain;
+
+    flex-shrink: 0;
+}
+
+
+/* =====================================================
+   КНОПКА
+===================================================== */
+
+.saveNewPointButton {
+
+    width: 100%;
+
+    margin-top: 20px;
+
+    padding: 14px;
+
+    border: none;
+
+    border-radius: 14px;
+
+    background: linear-gradient(
+        135deg,
+        #1976d2,
+        #0d47a1
+    );
+
+    color: #fff;
+
+    font-size: 17px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 6px 16px rgba(25,118,210,0.25);
+}
+
+
+.saveNewPointButton:active {
+
+    transform: scale(0.98);
+}
+
+
+.saveNewPointButton:disabled {
+
+    opacity: 0.6;
+
+    cursor: not-allowed;
+}
+
+
+/* =====================================================
+   ПОВІДОМЛЕННЯ "ДЯКУЄМО"
+===================================================== */
+
+#pointAddedMessage {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 1000000;
+
+    display: none;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(0,0,0,0.55);
+}
+
+
+#pointAddedMessage.show {
+
+    display: flex;
+}
+
+
+.pointAddedBox {
+
+    width: min(380px, 100%);
+
+    box-sizing: border-box;
+
+    padding: 30px 24px;
+
+    border-radius: 22px;
+
+    background: #fff;
+
+    text-align: center;
+
+    box-shadow:
+        0 20px 60px rgba(0,0,0,0.30);
+}
+
+
+.pointAddedIcon {
+
+    width: 64px;
+    height: 64px;
+
+    margin: 0 auto 15px;
+
+    border-radius: 50%;
+
+    background: #2e7d32;
+
+    color: white;
+
+    font-size: 38px;
+
+    line-height: 64px;
+}
+
+
+.pointAddedTitle {
+
+    font-size: 24px;
+
+    font-weight: 700;
+
+    color: #222;
+}
+
+
+.pointAddedText {
+
+    margin-top: 10px;
+
+    font-size: 15px;
+
+    line-height: 1.5;
+
+    color: #666;
+}
+
+/* =====================================================
+   КНОПКА АДМІН-ПАНЕЛІ
+===================================================== */
+
+.new-points-admin-button {
+
+    position: fixed;
+
+    right: 15px;
+    top: 75px;
+
+    width: 52px;
+    height: 52px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: linear-gradient(
+        135deg,
+        #1565c0,
+        #2196f3
+    );
+
+    color: white;
+
+    font-size: 22px;
+
+    box-shadow:
+        0 4px 14px rgba(0,0,0,.25);
+
+    z-index: 9998;
+
+    cursor: pointer;
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 3px;
+}
+
+
+/* кількість */
+
+#newPointsCount {
+
+    position: absolute;
+
+    right: -4px;
+    top: -4px;
+
+    min-width: 20px;
+    height: 20px;
+
+    padding: 0 5px;
+
+    border-radius: 20px;
+
+    background: #e53935;
+
+    color: white;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+}
+
+
+/* =====================================================
+   ПАНЕЛЬ
+===================================================== */
+
+.new-points-admin-panel {
+
+    position: fixed;
+
+    top: 0;
+    right: 0;
+
+    width: min(430px, 100vw);
+
+    height: 100vh;
+
+    background: #ffffff;
+
+    z-index: 10000;
+
+    box-shadow:
+        -5px 0 25px rgba(0,0,0,.25);
+
+    transform: translateX(100%);
+
+    transition:
+        transform .25s ease;
+
+    overflow-y: auto;
+
+}
+
+
+/* відкрита */
+
+.new-points-admin-panel.show {
+
+    transform: translateX(0);
+
+}
+
+
+/* =====================================================
+   ШАПКА
+===================================================== */
+
+.new-points-admin-header {
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 2;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 18px;
+
+    background: linear-gradient(
+        135deg,
+        #1565c0,
+        #2196f3
+    );
+
+    color: white;
+
+}
+
+
+.new-points-admin-title {
+
+    font-size: 20px;
+
+    font-weight: 700;
+
+}
+
+
+.new-points-admin-subtitle {
+
+    margin-top: 4px;
+
+    font-size: 13px;
+
+    opacity: .85;
+
+}
+
+
+.new-points-close {
+
+    width: 38px;
+    height: 38px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background: rgba(255,255,255,.18);
+
+    color: white;
+
+    font-size: 28px;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+}
+
+
+/* =====================================================
+   СПИСОК
+===================================================== */
+
+#newPointsAdminList {
+
+    padding: 14px;
+
+}
+
+
+.new-point-card {
+
+    margin-bottom: 14px;
+
+    padding: 15px;
+
+    border-radius: 14px;
+
+    background: #f7f9fc;
+
+    border: 1px solid #e0e6ed;
+
+    box-shadow:
+        0 2px 8px rgba(0,0,0,.08);
+
+}
+
+
+.new-point-card-title {
+
+    font-size: 18px;
+
+    font-weight: 700;
+
+    color: #17212b;
+
+    margin-bottom: 8px;
+
+}
+
+
+.new-point-card-row {
+
+    margin-top: 7px;
+
+    font-size: 14px;
+
+    color: #4b5563;
+
+}
+
+
+.new-point-card-row strong {
+
+    color: #17212b;
+
+}
+
+
+.new-point-description {
+
+    margin-top: 10px;
+
+    padding: 10px;
+
+    border-radius: 9px;
+
+    background: white;
+
+    color: #374151;
+
+    font-size: 14px;
+
+    line-height: 1.45;
+
+}
+
+
+.new-point-coordinates {
+
+    margin-top: 10px;
+
+    padding: 8px;
+
+    border-radius: 8px;
+
+    background: #eef5ff;
+
+    color: #1565c0;
+
+    font-size: 13px;
+
+    font-family: monospace;
+
+}
+
+
+/* =====================================================
+   КНОПКИ
+===================================================== */
+
+.new-point-actions {
+
+    display: flex;
+
+    gap: 8px;
+
+    margin-top: 14px;
+
+}
+
+
+.new-point-action {
+
+    flex: 1;
+
+    min-height: 42px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+}
+
+
+.new-point-view {
+
+    background: #e3f2fd;
+
+    color: #1565c0;
+
+}
+
+
+.new-point-approve {
+
+    background: #2e7d32;
+
+    color: white;
+
+}
+
+
+.new-point-delete {
+
+    background: #d32f2f;
+
+    color: white;
+
+}
+
+
+.new-points-loading {
+
+    text-align: center;
+
+    padding: 30px;
+
+    color: #777;
+
+}
+
+
+.new-points-empty {
+
+    text-align: center;
+
+    padding: 40px 20px;
+
+    color: #777;
+
+    font-size: 15px;
+
+}
+
+
+/* =====================================================
+   ПОВІДОМЛЕННЯ
+===================================================== */
+
+.new-points-admin-message {
+
+    position: fixed;
+
+    left: 50%;
+
+    bottom: 25px;
+
+    transform:
+        translate(-50%, 100px);
+
+    z-index: 11000;
+
+    padding: 12px 18px;
+
+    border-radius: 10px;
+
+    background: #263238;
+
+    color: white;
+
+    font-size: 14px;
+
+    box-shadow:
+        0 4px 15px rgba(0,0,0,.25);
+
+    transition:
+        transform .25s ease;
+
+}
+
+
+.new-points-admin-message.show {
+
+    transform:
+        translate(-50%, 0);
+
+}
+
+
+/* =====================================================
+   МОБІЛЬНИЙ
+===================================================== */
+
+@media(max-width:600px){
+
+    .new-points-admin-button {
+
+        right: 12px;
+        top: 70px;
+
+    }
+
+    .new-points-admin-panel {
+
+        width: 100vw;
+
+    }
+
+    .new-point-actions {
+
+        flex-direction: column;
+
+    }
+
+}
 </style>
 
 </head>
@@ -2117,6 +2980,266 @@ body.night-mode .sheetHandle{
 </div>
 
 </div>
+<!-- =====================================================
+     ВІКНО — ДОДАТИ НОВУ ТОЧКУ
+===================================================== -->
+
+<div id="addPointOverlay">
+
+    <div id="addPointModal">
+
+        <button
+            type="button"
+            id="addPointClose"
+            class="addPointClose"
+        >
+            ×
+        </button>
+
+        <div class="addPointTitle">
+            📍 Додати точку
+        </div>
+
+        <div class="addPointSubtitle">
+            Заповніть інформацію про місце
+        </div>
+
+
+        <!-- НАЗВА -->
+
+        <label class="addPointLabel">
+            Назва точки
+        </label>
+
+        <input
+            type="text"
+            id="newPointName"
+            class="addPointInput"
+            placeholder="Наприклад: АТБ"
+            maxlength="100"
+        >
+
+
+        <!-- КАТЕГОРІЯ -->
+
+        <label class="addPointLabel">
+            Що це за точка?
+        </label>
+
+        <select
+            id="newPointCategory"
+            class="addPointInput"
+        >
+
+            <option value="">
+                Оберіть категорію
+            </option>
+
+            <option value="market">
+                🛒 Продуктовий магазин
+            </option>
+
+            <option value="truck_shop">
+                🚛 Магазин ТІР
+            </option>
+
+            <option value="parking">
+                🅿️ Паркування
+            </option>
+
+            <option value="road_parking">
+                🚛 Паркування при дорозі
+            </option>
+
+            <option value="wash">
+                🚿 Мийка
+            </option>
+
+            <option value="gas_station">
+                ⛽ АЗС
+            </option>
+
+            <option value="industrial">
+                🏭 Промислова зона
+            </option>
+
+            <option value="flea_market">
+                🛍 Блошиний ринок
+            </option>
+
+            <option value="other">
+                📍 Інше
+            </option>
+
+        </select>
+
+
+        <!-- ОПИС -->
+
+        <label class="addPointLabel">
+            Опис точки
+        </label>
+
+        <textarea
+            id="newPointDescription"
+            class="addPointInput addPointTextarea"
+            placeholder="Наприклад: велика парковка, є туалет..."
+            maxlength="1000"
+        ></textarea>
+
+
+        <!-- АВТОР -->
+
+        <label class="addPointLabel">
+            Автор
+        </label>
+
+        <input
+            type="text"
+            id="newPointAuthor"
+            class="addPointInput"
+            readonly
+            placeholder="Визначається автоматично"
+        >
+
+
+        <!-- КООРДИНАТИ -->
+
+        <div class="newPointCoordinates">
+
+            <div>
+                <span>Широта</span>
+                <strong id="newPointLat">—</strong>
+            </div>
+
+            <div>
+                <span>Довгота</span>
+                <strong id="newPointLng">—</strong>
+            </div>
+
+        </div>
+
+
+        <!-- ІНФОРМАЦІЯ ПРО ІКОНКУ -->
+
+        <div class="newPointIconInfo">
+
+            <img
+                src="newtochka.png"
+                alt="Нова точка"
+            >
+
+            <span>
+                Після перевірки розробник призначить
+                відповідну іконку.
+            </span>
+
+        </div>
+
+
+        <!-- КНОПКА -->
+
+        <button
+            type="button"
+            id="saveNewPointButton"
+            class="saveNewPointButton"
+        >
+            Додати точку
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     ПОДЯКА
+===================================================== -->
+
+<div id="pointAddedMessage">
+
+    <div class="pointAddedBox">
+
+        <div class="pointAddedIcon">
+            ✓
+        </div>
+
+        <div class="pointAddedTitle">
+            Дякуємо!
+        </div>
+
+        <div class="pointAddedText">
+            Вашу точку передано на перевірку.
+            <br>
+            Після перевірки вона з'явиться на карті.
+        </div>
+
+    </div>
+
+</div>
+<!-- =====================================================
+     АДМІН-ПАНЕЛЬ — НОВІ ТОЧКИ
+===================================================== -->
+
+<div id="newPointsAdminPanel" class="new-points-admin-panel">
+
+    <div class="new-points-admin-header">
+
+        <div>
+            <div class="new-points-admin-title">
+                🛠 Нові точки
+            </div>
+
+            <div class="new-points-admin-subtitle">
+                Точки, які очікують перевірки
+            </div>
+        </div>
+
+        <button
+            id="closeNewPointsAdmin"
+            class="new-points-close"
+            type="button"
+        >
+            ×
+        </button>
+
+    </div>
+
+
+    <div id="newPointsAdminList">
+
+        <div class="new-points-loading">
+            Завантаження...
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Кнопка відкриття адмін-панелі -->
+
+<button
+    id="openNewPointsAdmin"
+    class="new-points-admin-button"
+    type="button"
+>
+
+    🛠
+    
+    <span id="newPointsCount">
+        0
+    </span>
+
+</button>
+
+
+<!-- Повідомлення -->
+
+<div
+    id="newPointsAdminMessage"
+    class="new-points-admin-message"
+></div>
 <script>
 
 
@@ -2180,6 +3303,8 @@ ${userLatitude}, ${userLongitude}`
         "ℹ️ Завантаження точок виконується від центру карти."
     );
 }
+
+
 /* =====================================================
    ВИЗНАЧЕННЯ КАТЕГОРІЇ ТОЧКИ ЗА ІКОНКОЮ
 ===================================================== */
@@ -2364,12 +3489,1666 @@ const map = L.map('map', {
     [49.0,31.0],
     6
 );
+
+
+/* =====================================================
+   АДМІН-ПАНЕЛЬ — НОВІ ТОЧКИ
+===================================================== */
+
+(function(){
+
+    /* =================================================
+       НАЛАШТУВАННЯ РОЗРОБНИКА
+    ================================================= */
+
+    /*
+       СЮДИ ВПИШИ UID СВОГО АККАУНТА FIREBASE
+    */
+
+    const DEVELOPER_UID =
+        "R9LDnqVzlbdKgEIh0J0fufXlans1";
+
+
+    /* =================================================
+       ЕЛЕМЕНТИ
+    ================================================= */
+
+    const panel =
+        document.getElementById(
+            "newPointsAdminPanel"
+        );
+
+    const openButton =
+        document.getElementById(
+            "openNewPointsAdmin"
+        );
+
+    const closeButton =
+        document.getElementById(
+            "closeNewPointsAdmin"
+        );
+
+    const list =
+        document.getElementById(
+            "newPointsAdminList"
+        );
+
+    const countElement =
+        document.getElementById(
+            "newPointsCount"
+        );
+
+    const messageElement =
+        document.getElementById(
+            "newPointsAdminMessage"
+        );
+
+
+    /* =================================================
+       КАТЕГОРІЇ
+    ================================================= */
+
+    const categories = [
+
+        "market",
+        "industrial",
+        "parking",
+        "road_parking",
+        "wash",
+        "gas_station",
+        "truck_shop",
+        "flea_market",
+        "other"
+
+    ];
+
+
+    /* =================================================
+       ПЕРЕВІРКА РОЗРОБНИКА
+    ================================================= */
+
+    function isDeveloper(){
+
+        if(
+            typeof usersAuth === "undefined"
+        ){
+
+            return false;
+
+        }
+
+
+        const user =
+            usersAuth.currentUser;
+
+
+        if(!user){
+
+            return false;
+
+        }
+
+
+        return (
+            user.uid === DEVELOPER_UID
+        );
+
+    }
+
+
+    /* =================================================
+       ПОКАЗ ПОВІДОМЛЕННЯ
+    ================================================= */
+
+    function showMessage(text){
+
+        messageElement.textContent =
+            text;
+
+        messageElement.classList.add(
+            "show"
+        );
+
+
+        setTimeout(
+            function(){
+
+                messageElement.classList.remove(
+                    "show"
+                );
+
+            },
+            2500
+        );
+
+    }
+
+
+    /* =================================================
+       ВІДКРИТИ ПАНЕЛЬ
+    ================================================= */
+
+    openButton.addEventListener(
+        "click",
+        function(){
+
+            panel.classList.add(
+                "show"
+            );
+
+            loadNewPoints();
+
+        }
+    );
+
+
+    /* =================================================
+       ЗАКРИТИ
+    ================================================= */
+
+    closeButton.addEventListener(
+        "click",
+        function(){
+
+            panel.classList.remove(
+                "show"
+            );
+
+        }
+    );
+
+
+    /* =================================================
+       ЗАВАНТАЖЕННЯ НОВИХ ТОЧОК
+    ================================================= */
+
+    async function loadNewPoints(){
+
+        list.innerHTML =
+
+            `<div class="new-points-loading">
+                Завантаження...
+             </div>`;
+
+
+        let newPoints = [];
+
+
+        try{
+
+            /* =========================================
+               ПЕРЕВІРЯЄМО ВСІ КАТЕГОРІЇ
+            ========================================= */
+
+            for(
+                const category of categories
+            ){
+
+                const snapshot =
+                    await db
+                        .ref(
+                            `points/${category}`
+                        )
+                        .once("value");
+
+
+                if(!snapshot.exists()){
+
+                    continue;
+
+                }
+
+
+                snapshot.forEach(
+                    function(child){
+
+                        const point =
+                            child.val();
+
+
+                        if(
+                            point &&
+                            point.approved === false
+                        ){
+
+                            newPoints.push({
+
+                                ...point,
+
+                                category:
+                                    point.category ||
+                                    category
+
+                            });
+
+                        }
+
+                    }
+                );
+
+            }
+
+
+            /* =========================================
+               СОРТУВАННЯ — НОВІ ПЕРШІ
+            ========================================= */
+
+            newPoints.sort(
+                function(a,b){
+
+                    return (
+                        Number(b.createdAt || 0) -
+                        Number(a.createdAt || 0)
+                    );
+
+                }
+            );
+
+
+            countElement.textContent =
+                newPoints.length;
+
+
+            /* =========================================
+               ПОКАЗАТИ
+            ========================================= */
+
+            renderNewPoints(
+                newPoints
+            );
+
+        }
+        catch(error){
+
+            console.error(
+                "❌ Помилка завантаження нових точок:",
+                error
+            );
+
+
+            list.innerHTML =
+
+                `<div class="new-points-empty">
+                    ❌ Не вдалося завантажити точки.
+                 </div>`;
+
+        }
+
+    }
+
+
+    /* =================================================
+       ВІДОБРАЖЕННЯ
+    ================================================= */
+
+    function renderNewPoints(points){
+
+        if(!points.length){
+
+            list.innerHTML =
+
+                `<div class="new-points-empty">
+
+                    ✅ Нових точок немає.
+
+                    <br><br>
+
+                    Усі точки перевірені.
+
+                 </div>`;
+
+            return;
+
+        }
+
+
+        list.innerHTML = "";
+
+
+        points.forEach(
+            function(point){
+
+                const card =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                card.className =
+                    "new-point-card";
+
+
+                card.innerHTML = `
+
+                    <div class="new-point-card-title">
+
+                        📍 ${escapeHtml(
+                            point.name ||
+                            "Без назви"
+                        )}
+
+                    </div>
+
+
+                    <div class="new-point-card-row">
+
+                        <strong>Категорія:</strong>
+
+                        ${escapeHtml(
+                            point.category ||
+                            "Не вказано"
+                        )}
+
+                    </div>
+
+
+                    <div class="new-point-card-row">
+
+                        <strong>Автор:</strong>
+
+                        ${escapeHtml(
+                            point.author ||
+                            "Користувач"
+                        )}
+
+                    </div>
+
+
+                    <div class="new-point-description">
+
+                        ${
+                            escapeHtml(
+                                point.description ||
+                                "Опис відсутній"
+                            )
+                        }
+
+                    </div>
+
+
+                    <div class="new-point-coordinates">
+
+                        ${Number(point.lat).toFixed(6)},
+                        ${Number(point.lng).toFixed(6)}
+
+                    </div>
+
+
+                    <div class="new-point-actions">
+
+                        <button
+                            class="new-point-action new-point-view"
+                            data-action="view"
+                        >
+                            📍 Переглянути
+                        </button>
+
+
+                        <button
+                            class="new-point-action new-point-approve"
+                            data-action="approve"
+                        >
+                            ✅ Підтвердити
+                        </button>
+
+
+                        <button
+                            class="new-point-action new-point-delete"
+                            data-action="delete"
+                        >
+                            🗑 Видалити
+                        </button>
+
+                    </div>
+
+                `;
+
+
+                /* =====================================
+                   ПЕРЕГЛЯНУТИ
+                ===================================== */
+
+                card
+                    .querySelector(
+                        '[data-action="view"]'
+                    )
+                    .addEventListener(
+                        "click",
+                        function(){
+
+                            viewPoint(
+                                point
+                            );
+
+                        }
+                    );
+
+
+                /* =====================================
+                   ПІДТВЕРДИТИ
+                ===================================== */
+
+                card
+                    .querySelector(
+                        '[data-action="approve"]'
+                    )
+                    .addEventListener(
+                        "click",
+                        function(){
+
+                            approvePoint(
+                                point,
+                                card
+                            );
+
+                        }
+                    );
+
+
+                /* =====================================
+                   ВИДАЛИТИ
+                ===================================== */
+
+                card
+                    .querySelector(
+                        '[data-action="delete"]'
+                    )
+                    .addEventListener(
+                        "click",
+                        function(){
+
+                            deletePoint(
+                                point,
+                                card
+                            );
+
+                        }
+                    );
+
+
+                list.appendChild(
+                    card
+                );
+
+            }
+        );
+
+    }
+
+
+    /* =================================================
+       ПЕРЕГЛЯНУТИ ТОЧКУ НА КАРТІ
+    ================================================= */
+
+    function viewPoint(point){
+
+        panel.classList.remove(
+            "show"
+        );
+
+
+        const lat =
+            Number(point.lat);
+
+        const lng =
+            Number(point.lng);
+
+
+        map.setView(
+            [lat,lng],
+            Math.max(
+                map.getZoom(),
+                15
+            )
+        );
+
+
+        /* =============================================
+           Спроба знайти існуючий marker
+        ============================================= */
+
+        setTimeout(
+            function(){
+
+                if(
+                    typeof openPointInfo ===
+                    "function"
+                ){
+
+                    try{
+
+                        openPointInfo(
+                            point
+                        );
+
+                    }
+                    catch(error){
+
+                        console.warn(
+                            "⚠️ Не вдалося відкрити інформацію:",
+                            error
+                        );
+
+                    }
+
+                }
+
+            },
+            300
+        );
+
+    }
+
+
+    /* =================================================
+       ПІДТВЕРДИТИ
+    ================================================= */
+
+    async function approvePoint(
+        point,
+        card
+    ){
+
+        if(!isDeveloper()){
+
+            alert(
+                "❌ Доступ дозволений тільки розробнику."
+            );
+
+            return;
+
+        }
+
+
+        if(
+            !confirm(
+                `Підтвердити точку "${point.name}"?`
+            )
+        ){
+
+            return;
+
+        }
+
+
+        try{
+
+            const ref =
+                db.ref(
+                    `points/${point.category}/${point.id}`
+                );
+
+
+            /* =========================================
+               ВИБИРАЄМО ІКОНКУ КАТЕГОРІЇ
+            ========================================= */
+
+            const icon =
+                getApprovedIcon(
+                    point.category
+                );
+
+
+            await ref.update({
+
+                approved: true,
+
+                icon: icon,
+
+                approvedAt:
+                    firebase.database.ServerValue.TIMESTAMP
+
+            });
+
+
+            card.remove();
+
+
+            updateCount();
+
+
+            showMessage(
+                "✅ Точку підтверджено"
+            );
+
+
+            /* =========================================
+               ПЕРЕЗАВАНТАЖИТИ ТОЧКИ НА КАРТІ
+            ========================================= */
+
+            if(
+                typeof loadPointsFromFirebase ===
+                "function"
+            ){
+
+                loadPointsFromFirebase();
+
+            }
+
+        }
+        catch(error){
+
+            console.error(
+                "❌ Помилка підтвердження:",
+                error
+            );
+
+
+            alert(
+                "Не вдалося підтвердити точку."
+            );
+
+        }
+
+    }
+
+
+    /* =================================================
+       ВИДАЛИТИ
+    ================================================= */
+
+    async function deletePoint(
+        point,
+        card
+    ){
+
+        if(!isDeveloper()){
+
+            alert(
+                "❌ Доступ дозволений тільки розробнику."
+            );
+
+            return;
+
+        }
+
+
+        if(
+            !confirm(
+                `Видалити точку "${point.name}"?`
+            )
+        ){
+
+            return;
+
+        }
+
+
+        try{
+
+            await db
+                .ref(
+                    `points/${point.category}/${point.id}`
+                )
+                .remove();
+
+
+            card.remove();
+
+
+            updateCount();
+
+
+            showMessage(
+                "🗑 Точку видалено"
+            );
+
+        }
+        catch(error){
+
+            console.error(
+                "❌ Помилка видалення:",
+                error
+            );
+
+
+            alert(
+                "Не вдалося видалити точку."
+            );
+
+        }
+
+    }
+
+
+    /* =================================================
+       ОНОВИТИ ЛІЧИЛЬНИК
+    ================================================= */
+
+    function updateCount(){
+
+        const cards =
+            list.querySelectorAll(
+                ".new-point-card"
+            );
+
+
+        countElement.textContent =
+            cards.length;
+
+
+        if(cards.length === 0){
+
+            list.innerHTML =
+
+                `<div class="new-points-empty">
+
+                    ✅ Нових точок немає.
+
+                 </div>`;
+
+        }
+
+    }
+
+
+    /* =================================================
+       ІКОНКИ ПІСЛЯ ПІДТВЕРДЖЕННЯ
+    ================================================= */
+
+    function getApprovedIcon(category){
+
+        const icons = {
+
+            market:
+                "maarket_map.svg",
+
+            industrial:
+                "promzona_map.svg",
+
+            parking:
+                "parking_map.svg",
+
+            road_parking:
+                "pocket_map.svg",
+
+            wash:
+                "wash_map.svg",
+
+            gas_station:
+                "gas_map.svg",
+
+            truck_shop:
+                "truck_shop_map.svg",
+
+            flea_market:
+                "flea_market_map.svg",
+
+            other:
+                "maarket_map.svg"
+
+        };
+
+
+        return (
+            icons[category] ||
+            "maarket_map.svg"
+        );
+
+    }
+
+
+    /* =================================================
+       ЗАХИСТ HTML
+    ================================================= */
+
+    function escapeHtml(value){
+
+        return String(value || "")
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+            .replace(
+                /</g,
+                "&lt;"
+            )
+            .replace(
+                />/g,
+                "&gt;"
+            )
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+            .replace(
+                /'/g,
+                "&#039;"
+            );
+
+    }
+
+
+    /* =================================================
+       ПЕРЕВІРКА ПРИ ЗАПУСКУ
+    ================================================= */
+
+    if(
+        typeof usersAuth !== "undefined"
+    ){
+
+        usersAuth.onAuthStateChanged(
+            function(user){
+
+                if(
+                    user &&
+                    user.uid === DEVELOPER_UID
+                ){
+
+                    openButton.style.display =
+                        "flex";
+
+
+                    console.log(
+                        "🛠 Адмін-панель розробника активна."
+                    );
+
+
+                    loadNewPoints();
+
+                }
+                else{
+
+                    openButton.style.display =
+                        "none";
+
+                }
+
+            }
+        );
+
+    }
+
+
+    console.log(
+        "🛠 Адмін-панель нових точок готова."
+    );
+
+})();
+
+
 /* =========================
    ГЕОЛОКАЦІЯ КОРИСТУВАЧА
 ========================= */
 
 let userLocationMarker = null;
 let userLocationCircle = null;
+
+/* =====================================================
+   ДОДАВАННЯ НОВОЇ ТОЧКИ ДОВГИМ НАТИСКАННЯМ
+===================================================== */
+
+(function(){
+
+    /* =================================================
+       НАЛАШТУВАННЯ
+    ================================================= */
+
+    const LONG_PRESS_TIME = 600;
+
+    let longPressTimer = null;
+
+    let longPressStartX = 0;
+    let longPressStartY = 0;
+
+    let longPressLatLng = null;
+
+    let longPressTriggered = false;
+
+
+    /* =================================================
+       ЕЛЕМЕНТИ
+    ================================================= */
+
+    const overlay =
+        document.getElementById("addPointOverlay");
+
+    const closeButton =
+        document.getElementById("addPointClose");
+
+    const saveButton =
+        document.getElementById("saveNewPointButton");
+
+    const nameInput =
+        document.getElementById("newPointName");
+
+    const categoryInput =
+        document.getElementById("newPointCategory");
+
+    const descriptionInput =
+        document.getElementById("newPointDescription");
+
+    const authorInput =
+        document.getElementById("newPointAuthor");
+
+    const latElement =
+        document.getElementById("newPointLat");
+
+    const lngElement =
+        document.getElementById("newPointLng");
+
+    const successMessage =
+        document.getElementById("pointAddedMessage");
+
+
+    /* =================================================
+       ПЕРЕВІРКА
+    ================================================= */
+
+    if(
+        typeof map === "undefined"
+    ){
+
+        console.error(
+            "❌ Додавання точки: map не знайдено."
+        );
+
+        return;
+    }
+
+
+    if(
+        typeof db === "undefined"
+    ){
+
+        console.error(
+            "❌ Додавання точки: Firebase db не знайдено."
+        );
+
+        return;
+    }
+
+
+    /* =================================================
+       ОТРИМАННЯ АВТОРА
+    ================================================= */
+
+  /* =====================================================
+   ОТРИМАТИ АВТОРА
+   ІМ'Я + ПРІЗВИЩЕ З FIREBASE
+===================================================== */
+
+async function getCurrentAuthor(){
+
+    /* =================================================
+       КОРИСТУВАЧ FIREBASE
+    ================================================= */
+
+    if(
+        typeof usersAuth === "undefined" ||
+        !usersAuth.currentUser
+    ){
+
+        return "Користувач";
+
+    }
+
+
+    const user =
+        usersAuth.currentUser;
+
+
+    /* =================================================
+       UID КОРИСТУВАЧА
+    ================================================= */
+
+    const uid =
+        user.uid;
+
+
+    try{
+
+        /* =============================================
+           БЕРЕМО ПРОФІЛЬ:
+           users/UID
+        ============================================= */
+
+        const snapshot =
+            await usersDb
+                .ref("users/" + uid)
+                .once("value");
+
+
+        if(snapshot.exists()){
+
+            const data =
+                snapshot.val();
+
+
+            const name =
+                String(
+                    data.name || ""
+                ).trim();
+
+
+            const surname =
+                String(
+                    data.surname || ""
+                ).trim();
+
+
+            /* =========================================
+               ІМ'Я + ПРІЗВИЩЕ
+            ========================================= */
+
+            const fullName =
+                (name + " " + surname).trim();
+
+
+            if(fullName){
+
+                return fullName;
+
+            }
+
+
+            if(name){
+
+                return name;
+
+            }
+
+        }
+
+    }
+    catch(error){
+
+        console.error(
+            "❌ Помилка отримання імені автора:",
+            error
+        );
+
+    }
+
+
+    /* =================================================
+       ЗАПАСНИЙ ВАРІАНТ
+    ================================================= */
+
+    return (
+        user.displayName ||
+        "Користувач"
+    );
+
+}
+
+    /* =================================================
+       ВІДКРИТТЯ ВІКНА
+    ================================================= */
+async function openAddPointWindow(latlng){
+
+    if(!latlng){
+        return;
+    }
+
+
+    longPressLatLng =
+        latlng;
+
+
+    /* =================================================
+       КООРДИНАТИ
+    ================================================= */
+
+    latElement.textContent =
+        Number(latlng.lat).toFixed(6);
+
+    lngElement.textContent =
+        Number(latlng.lng).toFixed(6);
+
+
+    /* =================================================
+       АВТОР — ІМ'Я + ПРІЗВИЩЕ
+    ================================================= */
+
+    authorInput.value =
+        "Завантаження...";
+
+
+    const author =
+        await getCurrentAuthor();
+
+
+    authorInput.value =
+        author;
+
+
+    /* =================================================
+       ОЧИЩЕННЯ ФОРМИ
+    ================================================= */
+
+    nameInput.value = "";
+
+    categoryInput.value = "";
+
+    descriptionInput.value = "";
+
+
+    saveButton.disabled = false;
+
+
+    /* =================================================
+       ВІДКРИТИ ВІКНО
+    ================================================= */
+
+    overlay.classList.add("show");
+
+
+    setTimeout(
+        function(){
+
+            nameInput.focus();
+
+        },
+        100
+    );
+
+}
+
+    /* =================================================
+       ЗАКРИТТЯ
+    ================================================= */
+
+    function closeAddPointWindow(){
+
+        overlay.classList.remove("show");
+
+        longPressLatLng = null;
+
+        longPressTriggered = false;
+    }
+
+
+    closeButton.addEventListener(
+        "click",
+        closeAddPointWindow
+    );
+
+
+    /* =================================================
+       ЗАКРИТТЯ ПРИ НАТИСКАННІ ПОЗА ВІКНОМ
+    ================================================= */
+
+    overlay.addEventListener(
+        "click",
+        function(event){
+
+            if(
+                event.target === overlay
+            ){
+
+                closeAddPointWindow();
+
+            }
+
+        }
+    );
+
+
+    /* =================================================
+       ESC
+    ================================================= */
+
+    document.addEventListener(
+        "keydown",
+        function(event){
+
+            if(
+                event.key === "Escape" &&
+                overlay.classList.contains("show")
+            ){
+
+                closeAddPointWindow();
+
+            }
+
+        }
+    );
+
+
+    /* =================================================
+       ПОЧАТОК ДОВГОГО НАТИСКАННЯ
+    ================================================= */
+
+    map.getContainer().addEventListener(
+        "pointerdown",
+        function(event){
+
+            /*
+               Не запускаємо довге натискання,
+               якщо відкрите вікно.
+            */
+
+            if(
+                overlay.classList.contains("show")
+            ){
+
+                return;
+            }
+
+
+            /*
+               Права кнопка миші
+            */
+
+            if(
+                event.button !== undefined &&
+                event.button !== 0
+            ){
+
+                return;
+            }
+
+
+            longPressTriggered = false;
+
+
+            longPressStartX =
+                event.clientX;
+
+            longPressStartY =
+                event.clientY;
+
+
+            const rect =
+                map.getContainer().getBoundingClientRect();
+
+
+            const point =
+                L.point(
+                    event.clientX - rect.left,
+                    event.clientY - rect.top
+                );
+
+
+            const latlng =
+                map.containerPointToLatLng(point);
+
+
+            longPressLatLng =
+                latlng;
+
+
+            longPressTimer =
+                setTimeout(
+                    function(){
+
+                        longPressTriggered = true;
+
+
+                        /*
+                           Вібрація на телефоні
+                        */
+
+                        if(
+                            navigator.vibrate
+                        ){
+
+                            navigator.vibrate(40);
+
+                        }
+
+
+                        openAddPointWindow(
+                            latlng
+                        );
+
+
+                    },
+                    LONG_PRESS_TIME
+                );
+
+        },
+        {
+            passive: true
+        }
+    );
+
+
+    /* =================================================
+       РУХ — СКАСУВАТИ ДОВГЕ НАТИСКАННЯ
+    ================================================= */
+
+    map.getContainer().addEventListener(
+        "pointermove",
+        function(event){
+
+            if(
+                !longPressTimer
+            ){
+
+                return;
+            }
+
+
+            const moveX =
+                Math.abs(
+                    event.clientX -
+                    longPressStartX
+                );
+
+
+            const moveY =
+                Math.abs(
+                    event.clientY -
+                    longPressStartY
+                );
+
+
+            /*
+               Якщо палець/мишка сильно посунулися —
+               це вже не long press.
+            */
+
+            if(
+                moveX > 15 ||
+                moveY > 15
+            ){
+
+                clearTimeout(
+                    longPressTimer
+                );
+
+                longPressTimer = null;
+
+                longPressLatLng = null;
+
+            }
+
+        },
+        {
+            passive: true
+        }
+    );
+
+
+    /* =================================================
+       ВІДПУСКАННЯ
+    ================================================= */
+
+    map.getContainer().addEventListener(
+        "pointerup",
+        function(){
+
+            if(
+                longPressTimer
+            ){
+
+                clearTimeout(
+                    longPressTimer
+                );
+
+                longPressTimer = null;
+
+            }
+
+        },
+        {
+            passive: true
+        }
+    );
+
+
+    /* =================================================
+       ВИХІД З КАРТИ / POINTER CANCEL
+    ================================================= */
+
+    map.getContainer().addEventListener(
+        "pointercancel",
+        function(){
+
+            if(
+                longPressTimer
+            ){
+
+                clearTimeout(
+                    longPressTimer
+                );
+
+                longPressTimer = null;
+
+            }
+
+        },
+        {
+            passive: true
+        }
+    );
+
+
+    /* =================================================
+       ЗБЕРЕГТИ НОВУ ТОЧКУ
+    ================================================= */
+
+    saveButton.addEventListener(
+        "click",
+        async function(){
+
+            if(
+                !longPressLatLng
+            ){
+
+                alert(
+                    "Не визначено координати точки."
+                );
+
+                return;
+            }
+
+
+            const name =
+                nameInput.value.trim();
+
+
+            const category =
+                categoryInput.value;
+
+
+            const description =
+                descriptionInput.value.trim();
+
+
+            const author =
+                authorInput.value.trim() ||
+                "Користувач";
+
+
+            /* -----------------------------------------
+               ПЕРЕВІРКА НАЗВИ
+            ----------------------------------------- */
+
+            if(
+                !name
+            ){
+
+                alert(
+                    "Введіть назву точки."
+                );
+
+                nameInput.focus();
+
+                return;
+            }
+
+
+            /* -----------------------------------------
+               ПЕРЕВІРКА КАТЕГОРІЇ
+            ----------------------------------------- */
+
+            if(
+                !category
+            ){
+
+                alert(
+                    "Оберіть категорію точки."
+                );
+
+                categoryInput.focus();
+
+                return;
+            }
+
+
+            /* -----------------------------------------
+               БЛОКУЄМО КНОПКУ
+            ----------------------------------------- */
+
+            saveButton.disabled = true;
+
+            saveButton.textContent =
+                "Збереження...";
+
+
+            try{
+
+                const lat =
+                    Number(
+                        longPressLatLng.lat
+                    );
+
+
+                const lng =
+                    Number(
+                        longPressLatLng.lng
+                    );
+
+
+                /*
+                   Унікальний ID
+                */
+
+                const pointRef =
+                    db.ref(
+                        `points/${category}`
+                    ).push();
+
+
+                const pointId =
+                    pointRef.key;
+
+
+                /* -------------------------------------
+                   ДАНІ НОВОЇ ТОЧКИ
+                ------------------------------------- */
+
+                const pointData = {
+
+                    id: pointId,
+
+                    name: name,
+
+                    category: category,
+
+                    lat: lat,
+
+                    lng: lng,
+
+                    author: author,
+
+                    description: description,
+
+                    reviews: [],
+
+                    /*
+                       ТИМЧАСОВА ІКОНКА
+                    */
+
+                    icon: "newtochka.png",
+
+                    /*
+                       Точка очікує перевірки
+                    */
+
+                    approved: false,
+
+                    createdAt:
+                        firebase.database.ServerValue.TIMESTAMP
+
+                };
+
+
+                /* -------------------------------------
+                   ЗАПИС У FIREBASE
+                ------------------------------------- */
+
+                await pointRef.set(
+                    pointData
+                );
+
+
+                console.log(
+                    "✅ Нова точка додана:",
+                    pointData
+                );
+
+
+                /* -------------------------------------
+                   ЗАКРИВАЄМО ФОРМУ
+                ------------------------------------- */
+
+                closeAddPointWindow();
+
+
+                /* -------------------------------------
+                   ПОДЯКА
+                ------------------------------------- */
+
+                successMessage.classList.add(
+                    "show"
+                );
+
+
+                setTimeout(
+                    function(){
+
+                        successMessage.classList.remove(
+                            "show"
+                        );
+
+                    },
+                    3000
+                );
+
+
+            }
+            catch(error){
+
+                console.error(
+                    "❌ Помилка додавання точки:",
+                    error
+                );
+
+
+                alert(
+                    "Не вдалося додати точку.\n\n" +
+                    "Спробуйте ще раз."
+                );
+
+            }
+            finally{
+
+                saveButton.disabled = false;
+
+                saveButton.textContent =
+                    "Додати точку";
+
+            }
+
+        }
+    );
+
+
+    /* =================================================
+       ГОТОВО
+    ================================================= */
+
+    console.log(
+        "✅ Система додавання точок готова."
+    );
+
+})();
+
+
 /* =========================
    КНОПКА "МОЄ МІСЦЕ"
 ========================= */
