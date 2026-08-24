@@ -4710,99 +4710,142 @@ async function openAddPointWindow(latlng){
        ПОЧАТОК ДОВГОГО НАТИСКАННЯ
     ================================================= */
 
-    map.getContainer().addEventListener(
-        "pointerdown",
-        function(event){
+   map.getContainer().addEventListener(
+    "pointerdown",
+    function(event){
+
+        /* ==========================================
+           НЕ ЗАПУСКАТИ ДОДАВАННЯ ПРИ PINCH-ZOOM
+        ========================================== */
+
+        if(event.pointerType === "touch"){
 
             /*
-               Не запускаємо довге натискання,
-               якщо відкрите вікно.
+               Якщо на карті вже є інший палець —
+               це масштабування двома пальцями.
             */
 
-            if(
-                overlay.classList.contains("show")
-            ){
+            if(longPressActiveTouch){
 
                 return;
             }
 
-
-            /*
-               Права кнопка миші
-            */
-
-            if(
-                event.button !== undefined &&
-                event.button !== 0
-            ){
-
-                return;
-            }
-
-
-            longPressTriggered = false;
-
-
-            longPressStartX =
-                event.clientX;
-
-            longPressStartY =
-                event.clientY;
-
-
-            const rect =
-                map.getContainer().getBoundingClientRect();
-
-
-            const point =
-                L.point(
-                    event.clientX - rect.left,
-                    event.clientY - rect.top
-                );
-
-
-            const latlng =
-                map.containerPointToLatLng(point);
-
-
-            longPressLatLng =
-                latlng;
-
-
-            longPressTimer =
-                setTimeout(
-                    function(){
-
-                        longPressTriggered = true;
-
-
-                        /*
-                           Вібрація на телефоні
-                        */
-
-                        if(
-                            navigator.vibrate
-                        ){
-
-                            navigator.vibrate(40);
-
-                        }
-
-
-                        openAddPointWindow(
-                            latlng
-                        );
-
-
-                    },
-                    LONG_PRESS_TIME
-                );
-
-        },
-        {
-            passive: true
+            longPressActiveTouch = true;
         }
-    );
+
+
+        /* ==========================================
+           ЯКЩО ВІКНО ВЖЕ ВІДКРИТЕ
+        ========================================== */
+
+        if(
+            overlay.classList.contains("show")
+        ){
+
+            return;
+        }
+
+
+        /* ==========================================
+           ТІЛЬКИ ЛІВА КНОПКА МИШІ
+        ========================================== */
+
+        if(
+            event.pointerType === "mouse" &&
+            event.button !== 0
+        ){
+
+            return;
+        }
+
+
+        longPressTriggered = false;
+
+
+        longPressStartX =
+            event.clientX;
+
+        longPressStartY =
+            event.clientY;
+
+
+        const rect =
+            map.getContainer()
+                .getBoundingClientRect();
+
+
+        const point =
+            L.point(
+                event.clientX - rect.left,
+                event.clientY - rect.top
+            );
+
+
+        const latlng =
+            map.containerPointToLatLng(point);
+
+
+        longPressLatLng =
+            latlng;
+
+
+        console.log(
+            "📍 Початок довгого натискання:",
+            latlng.lat,
+            latlng.lng
+        );
+
+
+        longPressTimer =
+            setTimeout(
+                function(){
+
+                    /*
+                       Якщо під час очікування
+                       почалося pinch-zoom —
+                       нічого не робимо.
+                    */
+
+                    if(
+                        event.pointerType === "touch" &&
+                        activeTouchCount > 1
+                    ){
+
+                        return;
+                    }
+
+
+                    longPressTriggered = true;
+
+
+                    if(navigator.vibrate){
+
+                        navigator.vibrate(40);
+
+                    }
+
+
+                    console.log(
+                        "📍 Довге натискання:",
+                        latlng.lat,
+                        latlng.lng
+                    );
+
+
+                    openAddPointWindow(
+                        latlng
+                    );
+
+
+                },
+                LONG_PRESS_TIME
+            );
+
+    },
+    {
+        passive: true
+    }
+);
 
 
     /* =================================================
