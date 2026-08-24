@@ -6130,109 +6130,168 @@ usersAuth.onAuthStateChanged(
 
     }
 );
+const sharePointButton =
+    document.getElementById("sharePointButton");
 
-// --- Кнопка "Поділитися" ---
-const shareBtn = document.createElement('button');
+if (sharePointButton) {
 
-shareBtn.className = 'share-btn share';
+    sharePointButton.addEventListener("click", async function(e) {
 
-shareBtn.innerHTML = `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7a2.48 2.48 0 000-1.39l7.02-4.11A2.5 2.5 0 1014.5 5a2.5 2.5 0 00.04.42L7.53 9.53a2.5 2.5 0 100 4.94l7.01 4.12A2.5 2.5 0 1018 16.08z"/>
-    </svg>
-    Поділитися
-`;
-shareBtn.addEventListener('click', async function(e){
+        e.preventDefault();
+        e.stopPropagation();
 
-    e.preventDefault();
-    e.stopPropagation();
+        console.log("🔥 Натиснуто «Поділитися»");
 
-    if(!currentPointData){
-        alert("Точку для поширення не вибрано.");
-        return;
-    }
+        // Перевіряємо поточну точку
+        if (!currentPointData) {
 
-    const lat = Number(currentPointData.lat);
-    const lng = Number(currentPointData.lng);
+            alert("Точку для поширення не вибрано.");
 
-    if(!Number.isFinite(lat) || !Number.isFinite(lng)){
-        alert("У точки немає правильних координат.");
-        return;
-    }
+            return;
+        }
 
-    const title =
-        currentPointData.name ||
-        currentPointData.title ||
-        "Місце на карті";
+        const lat = Number(currentPointData.lat);
+        const lng = Number(currentPointData.lng);
 
-    const description =
-        currentPointData.description || "";
+        if (
+            !Number.isFinite(lat) ||
+            !Number.isFinite(lng)
+        ) {
 
-    const googleMapsUrl =
-        `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+            alert("У точки немає правильних координат.");
 
-    const shareText =
-        `${title}\n` +
-        `${description ? description + "\n" : ""}` +
-        `📍 Координати: ${lat}, ${lng}`;
+            return;
+        }
 
-    if(navigator.share){
+        const title =
+            currentPointData.name ||
+            currentPointData.title ||
+            "Місце на карті";
 
-        try{
+        const description =
+            currentPointData.description || "";
 
-            await navigator.share({
-                title: title,
-                text: shareText,
-                url: googleMapsUrl
-            });
+        // =========================
+        // GOOGLE MAPS
+        // =========================
 
-            console.log("✅ Точку поширено");
+        const googleMapsUrl =
+            `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
 
-        }catch(error){
+        // =========================
+        // ТЕКСТ
+        // =========================
 
-            if(error.name !== "AbortError"){
-                console.error("❌ Помилка поширення:", error);
+        const shareText =
+            `${title}\n` +
+            `${description ? description + "\n" : ""}` +
+            `📍 Координати: ${lat}, ${lng}`;
+
+        console.log(
+            "📍 Посилання:",
+            googleMapsUrl
+        );
+
+        // =========================
+        // 📱 ТЕЛЕФОН
+        // =========================
+
+        if (
+            navigator.share &&
+            typeof navigator.share === "function"
+        ) {
+
+            try {
+
+                await navigator.share({
+
+                    title: title,
+
+                    text: shareText,
+
+                    url: googleMapsUrl
+
+                });
+
+                console.log(
+                    "✅ Точку успішно поширено"
+                );
+
+            }
+            catch(error) {
+
+                if(error.name !== "AbortError") {
+
+                    console.error(
+                        "❌ Помилка Share:",
+                        error
+                    );
+
+                }
+
+            }
+
+            return;
+        }
+
+        // =========================
+        // 💻 ЯКЩО SHARE НЕ ПІДТРИМУЄТЬСЯ
+        // =========================
+
+        const choice = confirm(
+
+            "ОК — відкрити Google Maps\n\n" +
+
+            "Скасувати — скопіювати посилання"
+
+        );
+
+        if(choice) {
+
+            window.open(
+                googleMapsUrl,
+                "_blank"
+            );
+
+        }
+        else {
+
+            try {
+
+                await navigator.clipboard.writeText(
+                    googleMapsUrl
+                );
+
+                alert(
+                    "Посилання на точку скопійовано."
+                );
+
+            }
+            catch(error) {
+
+                prompt(
+                    "Скопіюйте посилання:",
+                    googleMapsUrl
+                );
+
             }
 
         }
 
-        return;
-    }
+    });
 
-    const choice = confirm(
-        "ОК — відкрити Google Maps\n\n" +
-        "Скасувати — скопіювати посилання"
+    console.log(
+        "✅ Кнопка «Поділитися» підключена"
     );
 
-    if(choice){
+}
+else {
 
-        window.open(
-            googleMapsUrl,
-            "_blank"
-        );
+    console.error(
+        "❌ Не знайдено #sharePointButton"
+    );
 
-    }else{
-
-        try{
-
-            await navigator.clipboard.writeText(
-                googleMapsUrl
-            );
-
-            alert("Посилання на точку скопійовано.");
-
-        }catch(error){
-
-            prompt(
-                "Скопіюйте посилання:",
-                googleMapsUrl
-            );
-
-        }
-
-    }
-
-});
+}
 </script>
 
 </body>
