@@ -2965,8 +2965,32 @@ async function shareCurrentPoint() {
 
 
     /* ==========================================
-       📱 ТЕЛЕФОН
-       СИСТЕМНЕ МЕНЮ "ПОДІЛИТИСЯ"
+       📱 APK TRUCKPOINT UA
+       СИСТЕМНЕ МЕНЮ ANDROID
+    ========================================== */
+
+    if (
+        window.Android &&
+        typeof Android.share === "function"
+    ) {
+
+        console.log(
+            "📱 Використовується Android Share"
+        );
+
+        Android.share(
+            title,
+            text,
+            url
+        );
+
+        return;
+    }
+
+
+    /* ==========================================
+       📱 ЗВИЧАЙНИЙ БРАУЗЕР
+       navigator.share()
     ========================================== */
 
     if (
@@ -3008,21 +3032,18 @@ async function shareCurrentPoint() {
                 );
 
                 return;
-
             }
 
             console.error(
                 "❌ Помилка navigator.share:",
                 error
             );
-
         }
-
     }
 
 
     /* ==========================================
-       💻 ПК / БРАУЗЕР БЕЗ navigator.share
+       💻 ПК / БРАУЗЕР БЕЗ SHARE
     ========================================== */
 
     try {
@@ -3039,7 +3060,6 @@ async function shareCurrentPoint() {
             );
 
             return;
-
         }
 
     }
@@ -3050,7 +3070,6 @@ async function shareCurrentPoint() {
             "❌ Clipboard error:",
             error
         );
-
     }
 
 
@@ -3062,7 +3081,6 @@ async function shareCurrentPoint() {
         "Скопіюйте посилання:",
         url
     );
-
 }
 /* =========================
    ЗАКРИТТЯ
@@ -6806,21 +6824,6 @@ window.addEventListener("popstate", function () {
     );
 
 });
-
-console.log(
-    "navigator.share =",
-    navigator.share
-);
-
-console.log(
-    "navigator.clipboard =",
-    navigator.clipboard
-);
-
-console.log(
-    "isSecureContext =",
-    window.isSecureContext
-);
 </script>
 
 </body>
