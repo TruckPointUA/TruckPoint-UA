@@ -4380,20 +4380,27 @@ let userLocationCircle = null;
 
 (function(){
 
-    /* =================================================
-       НАЛАШТУВАННЯ
-    ================================================= */
+/* =================================================
+   НАЛАШТУВАННЯ
+================================================= */
 
-    const LONG_PRESS_TIME = 1500;
+const LONG_PRESS_TIME = 1500;
 
-    let longPressTimer = null;
+let longPressTimer = null;
 
-    let longPressStartX = 0;
-    let longPressStartY = 0;
+let longPressStartX = 0;
+let longPressStartY = 0;
 
-    let longPressLatLng = null;
+let longPressLatLng = null;
 
-    let longPressTriggered = false;
+let longPressTriggered = false;
+
+/* =================================================
+   ВІДСТЕЖЕННЯ ПАЛЬЦІВ
+   Потрібно для pinch zoom
+================================================= */
+
+let activePointers = new Set();
 
 
     /* =================================================
@@ -4706,38 +4713,42 @@ async function openAddPointWindow(latlng){
     );
 
 
-    /* =================================================
-       ПОЧАТОК ДОВГОГО НАТИСКАННЯ
-    ================================================= */
+   /* =================================================
+   ПОЧАТОК ДОВГОГО НАТИСКАННЯ
+================================================= */
 
-   map.getContainer().addEventListener(
+
+map.getContainer().addEventListener(
     "pointerdown",
     function(event){
 
-        /* ==========================================
-           НЕ ЗАПУСКАТИ ДОДАВАННЯ ПРИ PINCH-ZOOM
-        ========================================== */
+        /* Запам'ятовуємо активний палець/курсор */
+        activePointers.add(event.pointerId);
 
-        if(event.pointerType === "touch"){
+        /*
+           Якщо одночасно є 2 пальці —
+           це масштабування карти.
+           LONG PRESS НЕ ЗАПУСКАЄМО.
+        */
+        if(activePointers.size > 1){
 
-            /*
-               Якщо на карті вже є інший палець —
-               це масштабування двома пальцями.
-            */
+            if(longPressTimer){
 
-            if(longPressActiveTouch){
+                clearTimeout(longPressTimer);
 
-                return;
+                longPressTimer = null;
             }
 
-            longPressActiveTouch = true;
+            longPressLatLng = null;
+
+            return;
         }
 
 
-        /* ==========================================
-           ЯКЩО ВІКНО ВЖЕ ВІДКРИТЕ
-        ========================================== */
-
+        /*
+           Не запускаємо довге натискання,
+           якщо відкрите вікно.
+        */
         if(
             overlay.classList.contains("show")
         ){
@@ -4746,12 +4757,11 @@ async function openAddPointWindow(latlng){
         }
 
 
-        /* ==========================================
-           ТІЛЬКИ ЛІВА КНОПКА МИШІ
-        ========================================== */
-
+        /*
+           Права кнопка миші
+        */
         if(
-            event.pointerType === "mouse" &&
+            event.button !== undefined &&
             event.button !== 0
         ){
 
@@ -4770,8 +4780,7 @@ async function openAddPointWindow(latlng){
 
 
         const rect =
-            map.getContainer()
-                .getBoundingClientRect();
+            map.getContainer().getBoundingClientRect();
 
 
         const point =
@@ -4789,27 +4798,20 @@ async function openAddPointWindow(latlng){
             latlng;
 
 
-        console.log(
-            "📍 Початок довгого натискання:",
-            latlng.lat,
-            latlng.lng
-        );
-
-
         longPressTimer =
             setTimeout(
                 function(){
 
                     /*
-                       Якщо під час очікування
-                       почалося pinch-zoom —
-                       нічого не робимо.
+                       Додаткова перевірка:
+                       якщо під час очікування
+                       з'явився другий палець —
+                       нічого не відкриваємо.
                     */
+                    if(activePointers.size > 1){
 
-                    if(
-                        event.pointerType === "touch" &&
-                        activeTouchCount > 1
-                    ){
+                        longPressTimer = null;
+                        longPressLatLng = null;
 
                         return;
                     }
@@ -4818,24 +4820,21 @@ async function openAddPointWindow(latlng){
                     longPressTriggered = true;
 
 
-                    if(navigator.vibrate){
+                    /* Вібрація на телефоні */
+                    if(
+                        navigator.vibrate
+                    ){
 
                         navigator.vibrate(40);
-
                     }
-
-
-                    console.log(
-                        "📍 Довге натискання:",
-                        latlng.lat,
-                        latlng.lng
-                    );
 
 
                     openAddPointWindow(
                         latlng
                     );
 
+
+                    longPressTimer = null;
 
                 },
                 LONG_PRESS_TIME
@@ -4847,6 +4846,148 @@ async function openAddPointWindow(latlng){
     }
 );
 
+
+/* =================================================
+   РУХ — СКАСУВАТИ ДОВГЕ НАТИСКАННЯ
+================================================= */
+
+map.getContainer().addEventListener(
+    "pointermove",
+    function(event){
+
+        if(!longPressTimer){
+
+            return;
+        }
+
+
+        const moveX =
+            Math.abs(
+                event.clientX -
+                longPressStartX
+            );
+
+
+        const moveY =
+            Math.abs(
+                event.clientY -
+                longPressStartY
+            );
+
+
+        /*
+           Якщо рух більший за 20px —
+           це не long press.
+        */
+        if(
+            moveX > 20 ||
+            moveY > 20
+        ){
+
+            clearTimeout(
+                longPressTimer
+            );
+
+            longPressTimer = null;
+
+            longPressLatLng = null;
+        }
+
+    },
+    {
+        passive: true
+    }
+);
+
+
+/* =================================================
+   ВІДПУСКАННЯ
+================================================= */
+
+map.getContainer().addEventListener(
+    "pointerup",
+    function(event){
+
+        activePointers.delete(
+            event.pointerId
+        );
+
+
+        if(longPressTimer){
+
+            clearTimeout(
+                longPressTimer
+            );
+
+            longPressTimer = null;
+        }
+
+    },
+    {
+        passive: true
+    }
+);
+
+
+/* =================================================
+   POINTER CANCEL
+================================================= */
+
+map.getContainer().addEventListener(
+    "pointercancel",
+    function(event){
+
+        activePointers.delete(
+            event.pointerId
+        );
+
+
+        if(longPressTimer){
+
+            clearTimeout(
+                longPressTimer
+            );
+
+            longPressTimer = null;
+        }
+
+
+        longPressLatLng = null;
+
+    },
+    {
+        passive: true
+    }
+);
+
+
+/* =================================================
+   ВИХІД POINTER З КАРТИ
+================================================= */
+
+map.getContainer().addEventListener(
+    "pointerleave",
+    function(event){
+
+        activePointers.delete(
+            event.pointerId
+        );
+
+
+        if(longPressTimer){
+
+            clearTimeout(
+                longPressTimer
+            );
+
+            longPressTimer = null;
+        }
+
+    },
+    {
+        passive: true
+    }
+);
 
     /* =================================================
        РУХ — СКАСУВАТИ ДОВГЕ НАТИСКАННЯ
