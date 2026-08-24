@@ -1670,13 +1670,6 @@ body.night-mode .sheetHandle{
 <body>
 
 
-<!-- =========================
-     ВЕРХНІЙ ПРАВИЙ КУТ
-========================= -->
-
-<!-- =========================
-     ВЕРХНІ ЕЛЕМЕНТИ КАРТИ
-========================= -->
 
 <!-- БЛИМАЮЧІ ІКОНКИ ЗЛІВА -->
 <div id="activeCategoryIcons"></div>
@@ -1823,27 +1816,75 @@ body.night-mode .sheetHandle{
                     </div>
 
                 </div>
+<!-- =====================================================
+     ДОДАВАННЯ ВІДГУКУ
+===================================================== -->
 
+<div id="addReviewBox" style="
+    margin-top:15px;
+    padding:15px;
+    background:#f5f9ff;
+    border-radius:14px;
+    border:1px solid #dbe7f5;
+">
 
-                <!-- НОВИЙ ВІДГУК -->
+    <div style="
+        font-weight:700;
+        font-size:15px;
+        color:#263238;
+        margin-bottom:8px;
+    ">
+        ✍️ Додати відгук
+    </div>
 
-                <div class="reviewForm">
+    <div id="reviewAuthorName" style="
+        font-size:13px;
+        color:#607d8b;
+        margin-bottom:8px;
+    ">
+        Ви: визначення користувача...
+    </div>
 
-                    <textarea
-                        id="reviewText"
-                        class="reviewTextarea"
-                        placeholder="Напишіть свій відгук..."
-                        maxlength="1000"
-                    ></textarea>
+    <textarea
+        id="reviewText"
+        placeholder="Напишіть свій відгук..."
+        maxlength="1000"
+        style="
+            width:100%;
+            min-height:90px;
+            resize:vertical;
+            padding:12px;
+            border:1px solid #cfd8dc;
+            border-radius:10px;
+            outline:none;
+            font-family:inherit;
+            font-size:14px;
+            box-sizing:border-box;
+        "
+    ></textarea>
 
-                    <button
-                        class="addReviewButton"
-                        onclick="addPointReview()"
-                    >
-                        Додати відгук
-                    </button>
+    <button
+        type="button"
+        onclick="addPointReview()"
+        style="
+            width:100%;
+            margin-top:10px;
+            padding:12px;
+            border:none;
+            border-radius:10px;
+            background:linear-gradient(135deg,#b4b5b6,#6c6d6e);
+            color:white;
+            font-size:15px;
+            font-weight:700;
+            cursor:pointer;
+        "
+    >
+        Опублікувати відгук
+    </button>
 
-                </div>
+</div>
+
+            
 
             </div>
 
@@ -1937,190 +1978,34 @@ body.night-mode .sheetHandle{
 </div>
 <script>
 
-/* =====================================================
-   FIREBASE
-   2 ОКРЕМІ ПРОЕКТИ:
-   1. truckpointua-magazyny — точки та відгуки
-   2. truckpoint-ua — користувачі та авторизація
-===================================================== */
-
-
-/* =====================================================
-   1. FIREBASE — ТОЧКИ
-===================================================== */
 
 const firebaseConfig = {
-
-    apiKey:
-        "AIzaSyBC2dtlKJSJqW2mNirMm2LVs61OQpnbPuU",
-
-    authDomain:
-        "truckpointua-magazyny.firebaseapp.com",
-
-    projectId:
-        "truckpointua-magazyny",
-
-    storageBucket:
-        "truckpointua-magazyny.firebasestorage.app",
-
-    messagingSenderId:
-        "107043584267",
-
-    appId:
-        "1:107043584267:web:7e9e0fd643c193c5834a0e",
-
-    measurementId:
-        "G-Y8Q7605L32",
-
-    databaseURL:
-        "https://truckpointua-magazyny-default-rtdb.europe-west1.firebasedatabase.app"
-
+  apiKey: "AIzaSyAzOpcu7kdg0y8xwqD0oKk4eMfFSK946n4",
+  authDomain: "truckpoint-ua.firebaseapp.com",
+  databaseURL: "https://truckpoint-ua-default-rtdb.firebaseio.com",
+  projectId: "truckpoint-ua",
+  storageBucket: "truckpoint-ua.firebasestorage.app",
+  messagingSenderId: "992372126132",
+  appId: "1:992372126132:web:3378b6b1794066132d42e1",
+  measurementId: "G-EWEJWHZBGF"
 };
 
-
-/* Створюємо основний Firebase App */
-
-if (!firebase.apps.length) {
-
-    firebase.initializeApp(
-        firebaseConfig
-    );
-
-}
-
-
-/* База точок */
-
-const db =
-    firebase.database();
-
-
 /* =====================================================
-   2. FIREBASE — КОРИСТУВАЧІ
+   FIREBASE — TRUCKPOINT-UA
 ===================================================== */
 
-const firebaseConfigUsers = {
+const app = firebase.initializeApp(firebaseConfig);
 
-    apiKey:
-        "AIzaSyAzOpcu7kdg0y8xwqD0oKk4eMfFSK946n4",
+const db = app.database();
 
-    authDomain:
-        "truckpoint-ua.firebaseapp.com",
+const usersAuth = app.auth();
 
-    databaseURL:
-        "https://truckpoint-ua-default-rtdb.firebaseio.com",
+const usersDb = app.database();
 
-    projectId:
-        "truckpoint-ua",
-
-    storageBucket:
-        "truckpoint-ua.firebasestorage.app",
-
-    messagingSenderId:
-        "992372126132",
-
-    appId:
-        "1:992372126132:web:3378b6b1794066132d42e1"
-
-};
-
-
-/* =====================================================
-   ОКРЕМИЙ FIREBASE APP КОРИСТУВАЧІВ
-===================================================== */
-
-const usersApp =
-    firebase.initializeApp(
-        firebaseConfigUsers,
-        "usersApp"
-    );
-
-
-/* Авторизація */
-
-const usersAuth =
-    usersApp.auth();
-
-
-/* База користувачів */
-
-const usersDb =
-    usersApp.database();
-
-
-/* =====================================================
-   ПОТОЧНИЙ КОРИСТУВАЧ
-===================================================== */
-
-window.currentFirebaseUser = null;
-
-
-usersAuth.onAuthStateChanged(
-    function(user){
-
-        if(!user){
-
-            console.warn(
-                "⚠️ Користувач не авторизований"
-            );
-
-            window.currentFirebaseUser =
-                null;
-
-            return;
-
-        }
-
-
-        console.log(
-            "✅ Користувач авторизований"
-        );
-
-        console.log(
-            "UID:",
-            user.uid
-        );
-
-        console.log(
-            "Email:",
-            user.email
-        );
-
-
-        window.currentFirebaseUser =
-            user;
-
-    }
+console.log(
+    "🔥 Firebase DB підключено:",
+    app.options.projectId
 );
-
-
-
-/* =====================================================
-   ПЕРЕВІРКА
-===================================================== */
-
-usersAuth.onAuthStateChanged(
-    (user) => {
-
-        if (user) {
-
-            console.log(
-                "✅ Користувач авторизований:",
-                user.uid,
-                user.email
-            );
-
-        } else {
-
-            console.warn(
-                "⚠️ Користувач не авторизований"
-            );
-
-        }
-
-    }
-);
-
 
 /* =====================================================
    ЗБЕРЕГТИ ГЕОЛОКАЦІЮ КОРИСТУВАЧА
@@ -2226,6 +2111,17 @@ function getCategoryFromIcon(icon){
 // ======================================================
 
 const points = [
+
+   {
+    name: "Промислова зона",
+    lat: 50.644199,
+    lng: 26.2161,
+    author: "Viachaslau Drakon",
+    description: "Освещение",
+    reviews: [],
+    icon: "promzona_map.svg"
+
+}
 //Вставити координати точок
 ];
 
@@ -2869,137 +2765,96 @@ async function shareCurrentPoint(){
     }
 
 }
-
-
 /* =====================================================
-   ЗАВАНТАЖИТИ ВІДГУКИ ТОЧКИ
+   ЗАВАНТАЖЕННЯ ВІДГУКІВ + РЕДАГУВАННЯ + ОЦІНЮВАННЯ
 ===================================================== */
 
 async function loadPointReviews(pointId) {
 
+    const container =
+        document.getElementById("pointReviews");
+
+    if (!container) {
+        console.error("❌ Не знайдено #pointReviews");
+        return;
+    }
+
+    if (!pointId) {
+        console.warn("⚠️ Не передано ID точки");
+        return;
+    }
+
+    container.innerHTML = `
+        <div style="
+            text-align:center;
+            padding:15px;
+            color:#78909c;
+        ">
+            Завантаження відгуків...
+        </div>
+    `;
+
     try {
-
-        if (!pointId) {
-            console.warn(
-                "⚠️ Не передано ID точки"
-            );
-            return;
-        }
-
-
-        /* ---------------------------------------------
-           Контейнер відгуків
-        --------------------------------------------- */
-
-        const container =
-            document.getElementById(
-                "pointReviews"
-            );
-
-
-        if (!container) {
-
-            console.error(
-                "❌ Не знайдено контейнер #pointReviews"
-            );
-
-            return;
-        }
-
-
-        /* ---------------------------------------------
-           Очищаємо список
-        --------------------------------------------- */
-
-        container.innerHTML = `
-            <div style="
-                text-align:center;
-                padding:15px;
-                color:#78909c;
-            ">
-                Завантаження відгуків...
-            </div>
-        `;
-
-
-        /* ---------------------------------------------
-           Відгуки знаходяться в БД ТОЧОК
-           truckpointua-magazyny
-        --------------------------------------------- */
 
         const snapshot =
             await db
-                .ref(
-                    "pointReviews/" +
-                    pointId
-                )
+                .ref("reviews/" + pointId)
                 .once("value");
 
-
         container.innerHTML = "";
-
-
-        /* ---------------------------------------------
-           Відгуків немає
-        --------------------------------------------- */
 
         if (!snapshot.exists()) {
 
             container.innerHTML = `
                 <div style="
                     text-align:center;
-                    padding:20px;
+                    padding:15px;
                     color:#78909c;
                 ">
-                    Відгуків поки немає.
+                    Відгуків ще немає.
                 </div>
             `;
 
             return;
         }
 
+        const firebaseUser =
+            usersAuth.currentUser;
 
-        /* ---------------------------------------------
-           Формуємо список
-        --------------------------------------------- */
+        const currentUserId =
+            firebaseUser ?
+            firebaseUser.uid :
+            "";
 
         const reviews = [];
 
-
         snapshot.forEach(child => {
 
-            const review =
+            const data =
                 child.val() || {};
 
             reviews.push({
 
-                id:
-                    child.key,
+                id: child.key,
 
                 author:
-                    review.author ||
+                    data.author ||
                     "Користувач",
 
                 userId:
-                    review.userId ||
+                    data.userId ||
                     "",
 
                 text:
-                    review.text ||
+                    data.text ||
                     "",
 
                 createdAt:
-                    review.createdAt ||
-                    0
+                    Number(data.createdAt) || 0
 
             });
 
         });
-
-
-        /* ---------------------------------------------
-           Нові відгуки зверху
-        --------------------------------------------- */
 
         reviews.sort(
             (a, b) =>
@@ -3008,15 +2863,30 @@ async function loadPointReviews(pointId) {
         );
 
 
-        /* ---------------------------------------------
-           Виводимо відгуки
-        --------------------------------------------- */
+        /* =================================================
+           ОТРИМАННЯ ОЦІНОК УСІХ ВІДГУКІВ
+        ================================================= */
+
+        const ratingsSnapshot =
+            await db
+                .ref("reviewRatings/" + pointId)
+                .once("value");
+
+
+        const allRatings =
+            ratingsSnapshot.exists()
+                ? ratingsSnapshot.val()
+                : {};
+
+
+        /* =================================================
+           ВИВЕДЕННЯ ВІДГУКІВ
+        ================================================= */
 
         reviews.forEach(review => {
 
             const item =
                 document.createElement("div");
-
 
             item.style.cssText = `
                 background:#e8f1f5;
@@ -3028,22 +2898,103 @@ async function loadPointReviews(pointId) {
             `;
 
 
+            /* =================================================
+               ДАТА
+            ================================================= */
+
             const date =
                 review.createdAt
                     ? new Date(
                         review.createdAt
-                    ).toLocaleString(
-                        "uk-UA"
-                    )
+                    ).toLocaleString("uk-UA")
                     : "";
 
+
+            /* =================================================
+               ПЕРЕВІРКА — ЧИ ЦЕ ВЛАСНИК ВІДГУКУ
+            ================================================= */
+
+            const isOwner =
+                currentUserId &&
+                review.userId === currentUserId;
+
+
+            /* =================================================
+               ОЦІНКИ
+            ================================================= */
+
+            const reviewRatings =
+                allRatings[review.id] || {};
+
+            let likes = 0;
+            let dislikes = 0;
+
+            let currentRating = null;
+
+
+            Object.keys(reviewRatings)
+                .forEach(userId => {
+
+                    const value =
+                        reviewRatings[userId];
+
+                    if(value === "like"){
+                        likes++;
+                    }
+
+                    if(value === "dislike"){
+                        dislikes++;
+                    }
+
+                    if(
+                        userId ===
+                        currentUserId
+                    ){
+                        currentRating = value;
+                    }
+
+                });
+
+
+            /* =================================================
+               КНОПКА РЕДАГУВАННЯ
+            ================================================= */
+
+            const editButton =
+                isOwner
+                    ? `
+                        <button
+                            type="button"
+                            onclick="editPointReview(
+                                '${pointId}',
+                                '${review.id}'
+                            )"
+                            style="
+                                border:none;
+                                background:none;
+                                color:#1976d2;
+                                cursor:pointer;
+                                font-size:13px;
+                                font-weight:700;
+                                padding:3px 5px;
+                            "
+                        >
+                            ✏️ Редагувати
+                        </button>
+                    `
+                    : "";
+
+
+            /* =================================================
+               HTML ВІДГУКУ
+            ================================================= */
 
             item.innerHTML = `
 
                 <div style="
                     display:flex;
                     justify-content:space-between;
-                    align-items:center;
+                    align-items:flex-start;
                     gap:10px;
                     margin-bottom:7px;
                 ">
@@ -3052,38 +3003,118 @@ async function loadPointReviews(pointId) {
                         font-weight:700;
                         color:#455a64;
                     ">
-                        👤 ${escapeHtml(
-                            review.author
-                        )}
+                        👤 ${escapeHtml(review.author)}
                     </div>
 
                     <div style="
-                        font-size:11px;
-                        color:#78909c;
+                        display:flex;
+                        align-items:center;
+                        gap:4px;
                     ">
-                        ${escapeHtml(date)}
+
+                        <div style="
+                            font-size:11px;
+                            color:#78909c;
+                        ">
+                            ${escapeHtml(date)}
+                        </div>
+
+                        ${editButton}
+
                     </div>
 
                 </div>
 
 
+                <!-- ТЕКСТ ВІДГУКУ -->
+
+                <div
+                    id="reviewText_${pointId}_${review.id}"
+                    style="
+                        color:#37474f;
+                        line-height:1.5;
+                        white-space:pre-wrap;
+                        word-break:break-word;
+                    "
+                >
+                    ${escapeHtml(review.text)}
+                </div>
+
+
+                <!-- =================================================
+                     ОЦІНЮВАННЯ
+                ================================================= -->
+
                 <div style="
-                    color:#37474f;
-                    line-height:1.5;
-                    white-space:pre-wrap;
-                    word-break:break-word;
+                    display:flex;
+                    align-items:center;
+                    gap:8px;
+                    margin-top:12px;
+                    padding-top:9px;
+                    border-top:1px solid #cfd8dc;
                 ">
-                    ${escapeHtml(
-                        review.text
-                    )}
+
+                    <button
+                        type="button"
+                        onclick="ratePointReview(
+                            '${pointId}',
+                            '${review.id}',
+                            'like'
+                        )"
+                        style="
+                            border:1px solid ${
+                                currentRating === "like"
+                                    ? "#1976d2"
+                                    : "#cfd8dc"
+                            };
+                            background:${
+                                currentRating === "like"
+                                    ? "#e3f2fd"
+                                    : "#ffffff"
+                            };
+                            border-radius:8px;
+                            padding:5px 10px;
+                            cursor:pointer;
+                            font-size:14px;
+                        "
+                    >
+                        👍 ${likes}
+                    </button>
+
+
+                    <button
+                        type="button"
+                        onclick="ratePointReview(
+                            '${pointId}',
+                            '${review.id}',
+                            'dislike'
+                        )"
+                        style="
+                            border:1px solid ${
+                                currentRating === "dislike"
+                                    ? "#c62828"
+                                    : "#cfd8dc"
+                            };
+                            background:${
+                                currentRating === "dislike"
+                                    ? "#ffebee"
+                                    : "#ffffff"
+                            };
+                            border-radius:8px;
+                            padding:5px 10px;
+                            cursor:pointer;
+                            font-size:14px;
+                        "
+                    >
+                        👎 ${dislikes}
+                    </button>
+
                 </div>
 
             `;
 
 
-            container.appendChild(
-                item
-            );
+            container.appendChild(item);
 
         });
 
@@ -3092,36 +3123,296 @@ async function loadPointReviews(pointId) {
             `✅ Завантажено відгуків: ${reviews.length}`
         );
 
-
-    } catch (error) {
+    }
+    catch(error) {
 
         console.error(
             "❌ Помилка завантаження відгуків:",
             error
         );
 
+        container.innerHTML = `
+            <div style="
+                color:#c62828;
+                text-align:center;
+                padding:15px;
+            ">
+                Не вдалося завантажити відгуки.
+            </div>
+        `;
 
-        const container =
-            document.getElementById(
-                "pointReviews"
+    }
+
+}
+
+
+/* =====================================================
+   РЕДАГУВАННЯ ВЛАСНОГО ВІДГУКУ
+===================================================== */
+
+async function editPointReview(pointId, reviewId) {
+
+    const firebaseUser =
+        usersAuth.currentUser;
+
+    if (!firebaseUser) {
+
+        alert(
+            "Користувач не авторизований."
+        );
+
+        return;
+    }
+
+
+    try {
+
+        const reviewRef =
+            db.ref(
+                "reviews/" +
+                pointId +
+                "/" +
+                reviewId
             );
 
 
-        if (container) {
+        const snapshot =
+            await reviewRef.once("value");
 
-            container.innerHTML = `
-                <div style="
-                    color:#c62828;
-                    text-align:center;
-                    padding:15px;
-                ">
-                    Не вдалося завантажити відгуки.
-                </div>
-            `;
+
+        if (!snapshot.exists()) {
+
+            alert(
+                "Відгук більше не існує."
+            );
+
+            return;
         }
+
+
+        const review =
+            snapshot.val() || {};
+
+
+        /* =================================================
+           БЕЗПЕКА — ТІЛЬКИ АВТОР
+        ================================================= */
+
+        if (
+            review.userId !==
+            firebaseUser.uid
+        ) {
+
+            alert(
+                "Ви можете редагувати тільки власний відгук."
+            );
+
+            return;
+        }
+
+
+        const oldText =
+            review.text || "";
+
+
+        const newText =
+            prompt(
+                "Редагування відгуку:",
+                oldText
+            );
+
+
+        /* Натиснуто Скасувати */
+
+        if (newText === null) {
+            return;
+        }
+
+
+        const cleanedText =
+            newText.trim();
+
+
+        if (!cleanedText) {
+
+            alert(
+                "Відгук не може бути порожнім."
+            );
+
+            return;
+        }
+
+
+        if (
+            cleanedText.length >
+            1000
+        ) {
+
+            alert(
+                "Максимальна довжина відгуку — 1000 символів."
+            );
+
+            return;
+        }
+
+
+        /* =================================================
+           ОНОВЛЮЄМО ТІЛЬКИ ТЕКСТ
+        ================================================= */
+
+        await reviewRef.update({
+
+            text:
+                cleanedText,
+
+            editedAt:
+                firebase.database.ServerValue.TIMESTAMP
+
+        });
+
+
+        console.log(
+            "✅ Відгук відредаговано"
+        );
+
+
+        await loadPointReviews(
+            pointId
+        );
+
+
     }
+    catch(error) {
+
+        console.error(
+            "❌ Помилка редагування:",
+            error
+        );
+
+        alert(
+            "Не вдалося відредагувати відгук.\n\n" +
+            error.message
+        );
+
+    }
+
 }
 
+/* =====================================================
+   ОЦІНЮВАННЯ ВІДГУКУ
+===================================================== */
+
+async function ratePointReview(
+    pointId,
+    reviewId,
+    rating
+) {
+
+    const firebaseUser =
+        usersAuth.currentUser;
+
+
+    if (!firebaseUser) {
+
+        alert(
+            "Щоб оцінити відгук, потрібно увійти в акаунт."
+        );
+
+        return;
+    }
+
+
+    if (
+        rating !== "like" &&
+        rating !== "dislike"
+    ) {
+
+        return;
+    }
+
+
+    const userId =
+        firebaseUser.uid;
+
+
+    const ratingRef =
+        db.ref(
+            "reviewRatings/" +
+            pointId +
+            "/" +
+            reviewId +
+            "/" +
+            userId
+        );
+
+
+    try {
+
+        const snapshot =
+            await ratingRef.once("value");
+
+
+        const currentRating =
+            snapshot.exists()
+                ? snapshot.val()
+                : null;
+
+
+        /* =================================================
+           ПОВТОРНЕ НАТИСКАННЯ
+           ЗНІМАЄ ОЦІНКУ
+        ================================================= */
+
+        if (
+            currentRating === rating
+        ) {
+
+            await ratingRef.remove();
+
+        }
+
+        /* =================================================
+           НОВА АБО ЗМІНА ОЦІНКИ
+        ================================================= */
+
+        else {
+
+            await ratingRef.set(
+                rating
+            );
+
+        }
+
+
+        console.log(
+            "✅ Оцінку змінено:",
+            rating
+        );
+
+
+        /* Оновлюємо список */
+
+        await loadPointReviews(
+            pointId
+        );
+
+
+    }
+    catch(error) {
+
+        console.error(
+            "❌ Помилка оцінювання:",
+            error
+        );
+
+        alert(
+            "Не вдалося оцінити відгук.\n\n" +
+            error.message
+        );
+
+    }
+
+}
 
 /* =====================================================
    БЕЗПЕЧНЕ ВИВЕДЕННЯ ТЕКСТУ
@@ -3205,14 +3496,12 @@ async function getCurrentUserName() {
 async function addPointReview() {
 
     /* ---------------------------------------------
-       Перевірка вибраної точки
+       Перевірка точки
     --------------------------------------------- */
 
     if (!currentPointId) {
 
-        alert(
-            "Точку не вибрано."
-        );
+        alert("Точку не вибрано.");
 
         return;
     }
@@ -3223,15 +3512,13 @@ async function addPointReview() {
     --------------------------------------------- */
 
     const textarea =
-        document.getElementById(
-            "reviewText"
-        );
+        document.getElementById("reviewText");
 
 
     if (!textarea) {
 
         console.error(
-            "❌ Не знайдено поле #reviewText"
+            "❌ Не знайдено #reviewText"
         );
 
         return;
@@ -3255,8 +3542,7 @@ async function addPointReview() {
 
 
     /* ---------------------------------------------
-       Поточний користувач
-       ВАЖЛИВО: беремо з truckpoint-ua
+       Поточний Firebase користувач
     --------------------------------------------- */
 
     const firebaseUser =
@@ -3274,7 +3560,7 @@ async function addPointReview() {
 
 
     /* ---------------------------------------------
-       Отримуємо ім'я та прізвище
+       Отримуємо автоматично ім'я
     --------------------------------------------- */
 
     const authorName =
@@ -3290,19 +3576,18 @@ async function addPointReview() {
 
 
     /* ---------------------------------------------
-       Створюємо відгук
-       ВАЖЛИВО:
-       db = база truckpointua-magazyny
+       Унікальний ID відгуку
     --------------------------------------------- */
 
-    const reviewRef =
-        db.ref(
-            "pointReviews/" +
-            currentPointId
-        ).push();
+    const reviewId =
+        db.ref().push().key;
 
 
-    const review = {
+    /* ---------------------------------------------
+       Дані відгуку
+    --------------------------------------------- */
+
+    const reviewData = {
 
         author:
             authorName,
@@ -3319,32 +3604,39 @@ async function addPointReview() {
     };
 
 
-    /* ---------------------------------------------
-       Зберігаємо відгук
-    --------------------------------------------- */
-
     try {
 
-        await reviewRef.set(
-            review
-        );
+        /* -----------------------------------------
+           Запис у:
+           /reviews/market_old_point_0
+           або інший currentPointId
+        ----------------------------------------- */
+
+        await db
+            .ref(
+                "reviews/" +
+                currentPointId +
+                "/" +
+                reviewId
+            )
+            .set(reviewData);
 
 
         console.log(
             "✅ Відгук додано:",
-            review
+            reviewData
         );
 
 
         /* -----------------------------------------
-           Очищаємо поле
+           Очистити поле
         ----------------------------------------- */
 
         textarea.value = "";
 
 
         /* -----------------------------------------
-           Оновлюємо список відгуків
+           Оновити список відгуків
         ----------------------------------------- */
 
         await loadPointReviews(
@@ -3352,13 +3644,12 @@ async function addPointReview() {
         );
 
 
-        console.log(
-            "✅ Відгук додано від:",
-            authorName
+        alert(
+            "✅ Відгук успішно додано!"
         );
 
 
-    } catch (error) {
+    } catch(error) {
 
         console.error(
             "❌ Помилка додавання відгуку:",
@@ -3370,7 +3661,9 @@ async function addPointReview() {
             "Не вдалося додати відгук.\n\n" +
             error.message
         );
+
     }
+
 }
 
 
@@ -3415,6 +3708,7 @@ sheet.classList.remove("open");
 /* =========================
    ВІДКРИТИ ШТОРКУ
 ========================= */
+let sheetBackState = false;
 
 function openSheet(){
 
@@ -3451,6 +3745,21 @@ function openSheet(){
     ========================= */
 
     openDefaultCategory();
+    /* Створюємо стан для системної кнопки "Назад" */
+
+if(!sheetBackState){
+
+    history.pushState(
+        {
+            bottomSheet: true
+        },
+        "",
+        window.location.href
+    );
+
+    sheetBackState = true;
+
+}
 
 }
 
@@ -3458,75 +3767,8 @@ function openSheet(){
    ПЕРША КАТЕГОРІЯ — ЗАКУПИ
 ========================= */
 
-function openDefaultCategory(){
-
-    const shoppingCategories =
-        document.getElementById("shoppingCategories");
-
-    const parkingCategories =
-        document.getElementById("parkingCategories");
-
-    const categoryButtons =
-        document.querySelectorAll(
-            ".categoryScroll .categoryBtn"
-        );
-
-    if(!shoppingCategories){
-        console.error(
-            "❌ Не знайдено #shoppingCategories"
-        );
-        return;
-    }
 
 
-    /* =========================
-       ЗАКРИВАЄМО ПАРКУВАННЯ
-    ========================= */
-
-    if(parkingCategories){
-
-        parkingCategories.classList.remove("show");
-        parkingCategories.classList.remove("open");
-
-        parkingCategories.style.display = "none";
-    }
-
-
-    /* =========================
-       ВІДКРИВАЄМО ЗАКУПИ
-    ========================= */
-
-    shoppingCategories.classList.add("show");
-    shoppingCategories.classList.remove("open");
-
-    shoppingCategories.style.display = "flex";
-
-
-    /* =========================
-       КНОПКА "ЗАКУПИ" ACTIVE
-    ========================= */
-
-    categoryButtons.forEach(button => {
-
-        button.classList.remove("active");
-
-    });
-
-
-    /* Перша кнопка категорій = Закупи */
-
-    if(categoryButtons[0]){
-
-        categoryButtons[0].classList.add("active");
-
-    }
-
-
-    console.log(
-        "🛒 Відкрито категорію: Закупи"
-    );
-
-}
 
 /* =========================
    ЗАКРИТИ ШТОРКУ
@@ -3535,6 +3777,7 @@ function openDefaultCategory(){
 function closeSheet(){
 
     sheet.classList.remove("open");
+    sheetBackState = false;
 
     sheet.style.transition = "height .3s ease";
 
@@ -3555,6 +3798,58 @@ function closeSheet(){
     }
 
 }
+
+/* =====================================================
+   СИСТЕМНА КНОПКА "НАЗАД"
+===================================================== */
+
+window.addEventListener("popstate", function(){
+
+    if(sheetBackState){
+
+        sheetBackState = false;
+
+        /* Закриваємо шторку */
+
+        sheet.classList.remove("open");
+
+        sheet.style.transition = "height .3s ease";
+
+        sheet.style.height =
+            CLOSED_HEIGHT + "px";
+
+
+        /* Повертаємо елементи карти */
+
+        if(myLocationButtonElement){
+
+            myLocationButtonElement.style.visibility =
+                "visible";
+
+        }
+
+        if(mapControlsElement){
+
+            mapControlsElement.style.visibility =
+                "visible";
+
+        }
+
+        if(activeCategoryIconsElement){
+
+            activeCategoryIconsElement.style.visibility =
+                "visible";
+
+        }
+
+
+        console.log(
+            "⬅️ Back → шторка закрита, карта залишилась"
+        );
+
+    }
+
+});
 
 
 /* =====================================================
@@ -3672,34 +3967,46 @@ function finishSheetDrag(e){
 
     /* Поріг відкриття */
 
-    if(currentHeight >= screenHeight * 0.5){
+ if(currentHeight >= screenHeight * 0.5){
 
-        /* Відкриваємо */
+    /* Відкриваємо */
 
-        sheet.classList.add("open");
+    sheet.classList.add("open");
 
-        sheet.style.transition =
-            "height .3s ease";
+    sheet.style.transition =
+        "height .3s ease";
 
-        sheet.style.height =
-            "100dvh";
+    sheet.style.height =
+        "100dvh";
 
-        if(myLocationButtonElement){
-            myLocationButtonElement.style.visibility =
-                "hidden";
-        }
 
-        if(mapControlsElement){
-            mapControlsElement.style.visibility =
-                "hidden";
-        }
+    /* Ховаємо кнопки карти */
 
-        if(activeCategoryIconsElement){
-            activeCategoryIconsElement.style.visibility =
-                "hidden";
-        }
+    if(myLocationButtonElement){
+        myLocationButtonElement.style.visibility =
+            "hidden";
+    }
 
-    }else{
+    if(mapControlsElement){
+        mapControlsElement.style.visibility =
+            "hidden";
+    }
+
+    if(activeCategoryIconsElement){
+        activeCategoryIconsElement.style.visibility =
+            "hidden";
+    }
+
+
+    /* =========================
+       ВІДКРИВАЄМО ЗАКУПИ
+       ТІЛЬКИ У ШТОРЦІ
+       БЕЗ ЗАВАНТАЖЕННЯ ТОЧОК
+    ========================= */
+
+    openDefaultCategory();
+
+}else{
 
         /* Закриваємо */
 
@@ -3848,6 +4155,8 @@ sheet.addEventListener("touchend", function() {
     }
 
 });
+
+
 
 
 /* =====================================================
@@ -5177,6 +5486,188 @@ async function toggleGroceryStores(button){
 
 
 /* =====================================================
+   ПЕРША КАТЕГОРІЯ — ЗАКУПИ
+===================================================== */
+
+function openDefaultCategory(){
+
+    const shoppingCategories =
+        document.getElementById("shoppingCategories");
+
+    const parkingCategories =
+        document.getElementById("parkingCategories");
+
+    const categoryButtons =
+        document.querySelectorAll(
+            ".categoryScroll .categoryBtn"
+        );
+
+    if(!shoppingCategories){
+        console.error(
+            "❌ Не знайдено #shoppingCategories"
+        );
+        return;
+    }
+
+
+    /* =========================
+       ЗАКРИВАЄМО ПАРКУВАННЯ
+    ========================= */
+
+    if(parkingCategories){
+
+        parkingCategories.classList.remove("show");
+        parkingCategories.classList.remove("active");
+
+        parkingCategories.style.display = "none";
+
+    }
+
+
+    /* =========================
+       ВІДКРИВАЄМО ЗАКУПИ
+    ========================= */
+
+    shoppingCategories.classList.add("show");
+    shoppingCategories.classList.add("active");
+
+    shoppingCategories.style.display = "flex";
+
+
+    /* =========================
+       КНОПКИ ВЕРХНЬОЇ КАТЕГОРІЇ
+    ========================= */
+
+    categoryButtons.forEach(button => {
+
+        button.classList.remove("active");
+
+    });
+
+
+    if(categoryButtons[0]){
+
+        categoryButtons[0].classList.add("active");
+
+    }
+
+
+    console.log(
+        "🛒 Автоматично відкрито «Закупи»"
+    );
+}
+
+
+
+/* =====================================================
+   ЗАКУПИ
+===================================================== */
+
+function toggleShopping(){
+
+    const shopping =
+        document.getElementById(
+            "shoppingCategories"
+        );
+
+    const parking =
+        document.getElementById(
+            "parkingCategories"
+        );
+
+    const buttons =
+        document.querySelectorAll(
+            ".categoryScroll .categoryBtn"
+        );
+
+    const shoppingButton =
+        buttons[0];
+
+    const parkingButton =
+        buttons[1];
+
+
+    if(!shopping){
+        return;
+    }
+
+
+    /* =========================
+       ЯКЩО ЗАКУПИ ВЖЕ ВІДКРИТІ
+       — ЗАКРИВАЄМО
+    ========================= */
+
+    if(
+        shopping.classList.contains("show")
+    ){
+
+        shopping.classList.remove("show");
+        shopping.classList.remove("active");
+
+        shopping.style.display = "none";
+
+
+        if(shoppingButton){
+
+            shoppingButton.classList.remove(
+                "active"
+            );
+
+        }
+
+        return;
+    }
+
+
+    /* =========================
+       ЗАКРИВАЄМО ПАРКУВАННЯ
+    ========================= */
+
+    if(parking){
+
+        parking.classList.remove("show");
+        parking.classList.remove("active");
+
+        parking.style.display = "none";
+
+    }
+
+
+    /* =========================
+       ВІДКРИВАЄМО ЗАКУПИ
+    ========================= */
+
+    shopping.classList.add("show");
+    shopping.classList.add("active");
+
+    shopping.style.display = "flex";
+
+
+    if(shoppingButton){
+
+        shoppingButton.classList.add(
+            "active"
+        );
+
+    }
+
+    if(parkingButton){
+
+        parkingButton.classList.remove(
+            "active"
+        );
+
+    }
+
+
+    console.log(
+        "🛒 Відкрито категорію «Закупи»"
+    );
+}
+
+
+
+/* =====================================================
    ПАРКУВАННЯ
 ===================================================== */
 
@@ -5192,16 +5683,13 @@ function toggleParking(){
             "shoppingCategories"
         );
 
-
     const buttons =
         document.querySelectorAll(
             ".categoryScroll .categoryBtn"
         );
 
-
     const shoppingButton =
         buttons[0];
-
 
     const parkingButton =
         buttons[1];
@@ -5212,15 +5700,20 @@ function toggleParking(){
     }
 
 
+    /* =========================
+       ЯКЩО ПАРКУВАННЯ ВЖЕ ВІДКРИТЕ
+       — ЗАКРИВАЄМО
+    ========================= */
+
     if(
-        parking.classList.contains(
-            "show"
-        )
+        parking.classList.contains("show")
     ){
 
-        parking.classList.remove(
-            "show"
-        );
+        parking.classList.remove("show");
+        parking.classList.remove("active");
+
+        parking.style.display = "none";
+
 
         if(parkingButton){
 
@@ -5230,41 +5723,54 @@ function toggleParking(){
 
         }
 
-    }else{
-
-        if(shopping){
-
-            shopping.classList.remove(
-                "show"
-            );
-
-        }
+        return;
+    }
 
 
-        parking.classList.add(
-            "show"
-        );
+    /* =========================
+       ЗАКРИВАЄМО ЗАКУПИ
+    ========================= */
 
+    if(shopping){
 
-        if(parkingButton){
+        shopping.classList.remove("show");
+        shopping.classList.remove("active");
 
-            parkingButton.classList.add(
-                "active"
-            );
-
-        }
-
-
-        if(shoppingButton){
-
-            shoppingButton.classList.remove(
-                "active"
-            );
-
-        }
+        shopping.style.display = "none";
 
     }
 
+
+    /* =========================
+       ВІДКРИВАЄМО ПАРКУВАННЯ
+    ========================= */
+
+    parking.classList.add("show");
+    parking.classList.add("active");
+
+    parking.style.display = "flex";
+
+
+    if(parkingButton){
+
+        parkingButton.classList.add(
+            "active"
+        );
+
+    }
+
+    if(shoppingButton){
+
+        shoppingButton.classList.remove(
+            "active"
+        );
+
+    }
+
+
+    console.log(
+        "🅿️ Відкрито категорію «Паркування»"
+    );
 }
 
 
@@ -5324,99 +5830,6 @@ async function toggleRoadParking(button){
 }
 
 
-/* =====================================================
-   ЗАКУПИ
-===================================================== */
-
-function toggleShopping(){
-
-    const shopping =
-        document.getElementById(
-            "shoppingCategories"
-        );
-
-    const parking =
-        document.getElementById(
-            "parkingCategories"
-        );
-
-
-    const buttons =
-        document.querySelectorAll(
-            ".categoryScroll .categoryBtn"
-        );
-
-
-    const shoppingButton =
-        buttons[0];
-
-
-    const parkingButton =
-        buttons[1];
-
-
-    if(!shopping){
-        return;
-    }
-
-
-    if(
-        shopping.classList.contains(
-            "show"
-        )
-    ){
-
-        shopping.classList.remove(
-            "show"
-        );
-
-
-        if(shoppingButton){
-
-            shoppingButton.classList.remove(
-                "active"
-            );
-
-        }
-
-    }else{
-
-        if(parking){
-
-            parking.classList.remove(
-                "show"
-            );
-
-        }
-
-
-        shopping.classList.add(
-            "show"
-        );
-
-
-        if(shoppingButton){
-
-            shoppingButton.classList.add(
-                "active"
-            );
-
-        }
-
-
-        if(parkingButton){
-
-            parkingButton.classList.remove(
-                "active"
-            );
-
-        }
-
-    }
-
-}
-
-
 
 /* =====================================================
    ПОЧАТКОВЕ ЗАВАНТАЖЕННЯ
@@ -5453,6 +5866,62 @@ console.log(
     "📏 Перезавантаження після:",
     RELOAD_DISTANCE_KM,
     "км"
+);
+
+
+/* =====================================================
+   ПОКАЗАТИ ІМ'Я В ФОРМІ ВІДГУКУ
+===================================================== */
+
+async function updateReviewAuthorName() {
+
+    const authorElement =
+        document.getElementById(
+            "reviewAuthorName"
+        );
+
+    if (!authorElement) {
+        return;
+    }
+
+    authorElement.textContent =
+        "Ви: завантаження...";
+
+
+    const userName =
+        await getCurrentUserName();
+
+
+    authorElement.textContent =
+        "Ви: " + userName;
+}
+
+
+/* =====================================================
+   АВТОМАТИЧНО ОТРИМАТИ ІМ'Я КОРИСТУВАЧА
+===================================================== */
+
+usersAuth.onAuthStateChanged(
+    async function(user) {
+
+        if(user){
+
+            console.log(
+                "👤 Користувач авторизований:",
+                user.uid
+            );
+
+            await updateReviewAuthorName();
+
+        }else{
+
+            console.log(
+                "⚠️ Користувач не авторизований"
+            );
+
+        }
+
+    }
 );
 </script>
 
