@@ -1466,34 +1466,6 @@ body.night-mode .sheetHandle{
 }
 
 
-/* =========================
-   КНОПКА ПОДІЛИТИСЯ
-========================= */
-
-.sharePointButton{
-    flex-shrink:0;
-
-    border:none;
-
-    padding:8px 12px;
-
-    border-radius:10px;
-
-    background:rgba(255,255,255,.18);
-
-    color:#ffffff;
-
-    font-family:'Montserrat',sans-serif;
-
-    font-size:12px;
-
-    font-weight:700;
-
-    cursor:pointer;
-
-    backdrop-filter:blur(6px);
-}
-
 
 .pointInfoCoordinatesRow{
     display:flex;
@@ -1662,6 +1634,92 @@ body.night-mode .sheetHandle{
     margin-right: 8px;
 }
 
+
+/* =====================================================
+   ШАПКА ВІКНА ТОЧКИ
+===================================================== */
+
+.pointInfoTitleRow {
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:10px;
+
+    padding-right:45px;
+
+}
+
+
+/* =====================================================
+   КНОПКА "ПОДІЛИТИСЯ"
+===================================================== */
+
+.pointShareButton {
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:5px;
+
+    flex-shrink:0;
+
+    border:none;
+
+    border-radius:9px;
+
+    padding:7px 10px;
+
+    background:#4b4e50;
+
+    color:white;
+
+    font-family:inherit;
+
+    font-size:12px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    box-shadow:
+        0 2px 5px rgba(0,0,0,.15);
+
+    transition:
+        transform .15s ease,
+        background .15s ease;
+}
+
+
+.pointShareButton svg {
+
+    width:17px;
+
+    height:17px;
+
+    fill:currentColor;
+
+}
+
+
+.pointShareButton:hover {
+
+    background:#999b9c;
+
+}
+
+
+.pointShareButton:active {
+
+    transform:scale(.94);
+
+}
 </style>
 
 </head>
@@ -1721,25 +1779,35 @@ body.night-mode .sheetHandle{
 
     <div class="pointInfoWindow">
 
-        <!-- ШАПКА -->
+       <!-- ШАПКА -->
 
-        <div class="pointInfoHeader">
+<div class="pointInfoHeader">
 
-            <button
-                class="pointInfoClose"
-                onclick="closePointInfo()"
-            >
-                ×
-            </button>
+    <!-- Кнопка закриття -->
+    <button
+        class="pointInfoClose"
+        onclick="closePointInfo()"
+        type="button"
+    >
+        ×
+    </button>
 
-            <div
-                id="pointInfoTitle"
-                class="pointInfoTitle"
-            >
-                Точка
-            </div>
 
-           <div class="pointInfoCoordinatesRow">
+    <!-- Назва точки + Поділитися -->
+    <div class="pointInfoTitleRow">
+
+        <div
+            id="pointInfoTitle"
+            class="pointInfoTitle"
+        >
+            Точка
+        </div>
+
+    </div>
+
+
+    <!-- КООРДИНАТИ -->
+ <div class="pointInfoCoordinatesRow">
 
     <div
         id="pointInfoCoordinates"
@@ -1748,16 +1816,42 @@ body.night-mode .sheetHandle{
         Координати
     </div>
 
-<button
-    id="sharePointButton"
-    class="sharePointButton"
->
-    Поділитися
-</button>
+
+    <!-- КНОПКА ПОДІЛИТИСЯ -->
+
+    <button
+        id="pointShareButton"
+        class="pointShareButton"
+        type="button"
+        onclick="shareCurrentPoint()"
+        title="Поділитися точкою"
+    >
+
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+        >
+            <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7
+            c.05-.23.09-.46.09-.7s-.03-.47-.09-.7l7.05-4.11
+            c.54.5 1.25.81 2.04.81
+            1.66 0 3-1.34 3-3s-1.34-3-3-3
+            -3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81
+            C7.5 9.31 6.79 9 6 9
+            c-1.66 0-3 1.34-3 3s1.34 3 3 3
+            c.79 0 1.5-.31 2.04-.81l7.12 4.16
+            c-.05.21-.08.43-.08.65
+            0 1.61 1.31 2.92 2.92 2.92
+            1.61 0 2.92-1.31 2.92-2.92
+            s-1.23-2.92-2.92-2.92z"/>
+        </svg>
+
+        <span>Поділитися</span>
+
+    </button>
 
 </div>
 
-        </div>
+</div>
 
 
         <!-- ВМІСТ -->
@@ -2551,10 +2645,29 @@ let currentPointData = null;
 
 function openPointInfo(pointId, pointData){
 
-    
     currentPointId = pointId;
 
     currentPointData = pointData || {};
+
+
+    /* =================================================
+       СТАН КНОПКИ "НАЗАД"
+       ОПИС ТОЧКИ
+    ================================================= */
+
+    if(!pointInfoBackState){
+
+        history.pushState(
+            {
+                pointInfo: true
+            },
+            "",
+            window.location.href
+        );
+
+        pointInfoBackState = true;
+
+    }
 
 
     const overlay =
@@ -2597,12 +2710,119 @@ function openPointInfo(pointId, pointData){
 
     /* Опис */
 
-  const descriptionElement =
+  /* =====================================================
+   ОПИС + КНОПКА "ПОДІЛИТИСЯ"
+===================================================== */
+
+const descriptionElement =
     document.getElementById("pointInfoDescription");
 
 descriptionElement.textContent =
     currentPointData.description ||
     "Опис відсутній";
+
+descriptionElement.style.color = "#557568";
+descriptionElement.style.fontWeight = "500";
+
+
+/* =====================================================
+   КНОПКА "ПОДІЛИТИСЯ"
+===================================================== */
+
+let shareButton =
+    document.getElementById("pointShareButton");
+
+
+if (!shareButton) {
+
+    shareButton =
+        document.createElement("button");
+
+    shareButton.id =
+        "pointShareButton";
+
+    shareButton.type =
+        "button";
+
+    shareButton.innerHTML = `
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+            fill="currentColor"
+        >
+            <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7
+                     c.05-.23.09-.46.09-.7s-.03-.47-.09-.7l7.05-4.11
+                     c.54.5 1.25.81 2.04.81
+                     1.66 0 3-1.34 3-3s-1.34-3-3-3
+                     -3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81
+                     C7.5 9.31 6.79 9 6 9
+                     c-1.66 0-3 1.34-3 3s1.34 3 3 3
+                     c.79 0 1.5-.31 2.04-.81l7.12 4.16
+                     c-.05.21-.08.43-.08.65
+                     0 1.61 1.31 2.92 2.92 2.92
+                     1.61 0 2.92-1.31 2.92-2.92
+                     s-1.23-2.92-2.92-2.92z"/>
+        </svg>
+
+        <span>Поділитися</span>
+    `;
+
+    shareButton.style.cssText = `
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:8px;
+
+        width:100%;
+
+        margin-top:12px;
+        padding:10px 14px;
+
+        border:none;
+        border-radius:10px;
+
+        background:#1976d2;
+        color:white;
+
+        font-size:14px;
+        font-weight:700;
+
+        cursor:pointer;
+
+        box-shadow:0 2px 6px rgba(0,0,0,.15);
+
+        transition:
+            transform .15s ease,
+            opacity .15s ease;
+    `;
+
+    shareButton.onmousedown = function(){
+        shareButton.style.transform =
+            "scale(.97)";
+    };
+
+    shareButton.onmouseup = function(){
+        shareButton.style.transform =
+            "scale(1)";
+    };
+
+    shareButton.onmouseleave = function(){
+        shareButton.style.transform =
+            "scale(1)";
+    };
+
+    shareButton.onclick =
+        shareCurrentPoint;
+
+    descriptionElement.parentNode
+        .insertBefore(
+            shareButton,
+            descriptionElement.nextSibling
+        );
+
+}
 
 descriptionElement.style.color = "#557568";
 descriptionElement.style.fontWeight = "500";
@@ -2622,6 +2842,131 @@ descriptionElement.style.fontWeight = "500";
 }
 
 
+/* =====================================================
+   ПОДІЛИТИСЯ ПОТОЧНОЮ ТОЧКОЮ
+===================================================== */
+
+async function shareCurrentPoint(){
+
+    if(!currentPointData){
+
+        console.warn(
+            "⚠️ Немає даних поточної точки"
+        );
+
+        return;
+    }
+
+
+    const name =
+        currentPointData.name ||
+        "Точка TruckPoint";
+
+
+    const lat =
+        Number(currentPointData.lat);
+
+
+    const lng =
+        Number(currentPointData.lng);
+
+
+    /* Посилання на Google Maps */
+
+    const mapsUrl =
+        `https://www.google.com/maps?q=${lat},${lng}`;
+
+
+    const shareText =
+        `${name}\n\n` +
+        `📍 ${lat.toFixed(6)}, ${lng.toFixed(6)}\n\n` +
+        `${currentPointData.description || ""}\n\n` +
+        `TruckPoint UA`;
+
+
+    /* =================================================
+       СИСТЕМНЕ МЕНЮ "ПОДІЛИТИСЯ"
+    ================================================= */
+
+    if(
+        navigator.share
+    ){
+
+        try{
+
+            await navigator.share({
+
+                title:
+                    name,
+
+                text:
+                    shareText,
+
+                url:
+                    mapsUrl
+
+            });
+
+
+            console.log(
+                "✅ Точкою поділилися"
+            );
+
+            return;
+
+        }
+        catch(error){
+
+            /* Користувач натиснув "Скасувати" */
+
+            if(
+                error.name ===
+                "AbortError"
+            ){
+
+                return;
+
+            }
+
+            console.error(
+                "❌ Помилка Share API:",
+                error
+            );
+
+        }
+
+    }
+
+
+    /* =================================================
+       ЯКЩО navigator.share НЕ ПІДТРИМУЄТЬСЯ
+    ================================================= */
+
+    const shareUrl =
+        `${mapsUrl}`;
+
+
+    try{
+
+        await navigator.clipboard.writeText(
+            shareUrl
+        );
+
+        alert(
+            "📋 Посилання на точку скопійовано!"
+        );
+
+    }
+    catch(error){
+
+        prompt(
+            "Скопіюйте посилання на точку:",
+            shareUrl
+        );
+
+    }
+
+}
 /* =========================
    ЗАКРИТТЯ
 ========================= */
@@ -2641,8 +2986,9 @@ function closePointInfo(){
 
     currentPointData = null;
 
-}
+    pointInfoBackState = false;
 
+}
 
 
 
@@ -3590,6 +3936,7 @@ sheet.classList.remove("open");
    ВІДКРИТИ ШТОРКУ
 ========================= */
 let sheetBackState = false;
+let pointInfoBackState = false;
 
 function openSheet(){
 
@@ -3682,25 +4029,71 @@ function closeSheet(){
 
 /* =====================================================
    СИСТЕМНА КНОПКА "НАЗАД"
+   
+   ПОРЯДОК:
+   1. Закриває опис точки
+   2. Закриває шторку
+   3. Після цього дозволяє залишити сторінку
 ===================================================== */
 
 window.addEventListener("popstate", function(){
+
+    /* =================================================
+       1. СПОЧАТКУ ЗАКРИВАЄМО ОПИС ТОЧКИ
+    ================================================= */
+
+    const pointOverlay =
+        document.getElementById(
+            "pointInfoOverlay"
+        );
+
+
+    if(
+        pointInfoBackState &&
+        pointOverlay &&
+        pointOverlay.classList.contains("show")
+    ){
+
+        pointInfoBackState = false;
+
+        pointOverlay.classList.remove("show");
+
+        document.body.style.overflow = "";
+
+        currentPointId = null;
+
+        currentPointData = null;
+
+
+        console.log(
+            "⬅️ Back → опис точки закрито"
+        );
+
+
+        return;
+
+    }
+
+
+    /* =================================================
+       2. ПОТІМ ЗАКРИВАЄМО ШТОРКУ
+    ================================================= */
 
     if(sheetBackState){
 
         sheetBackState = false;
 
-        /* Закриваємо шторку */
 
         sheet.classList.remove("open");
 
-        sheet.style.transition = "height .3s ease";
+        sheet.style.transition =
+            "height .3s ease";
 
         sheet.style.height =
             CLOSED_HEIGHT + "px";
 
 
-        /* Повертаємо елементи карти */
+        /* Повертаємо кнопки карти */
 
         if(myLocationButtonElement){
 
@@ -3709,12 +4102,14 @@ window.addEventListener("popstate", function(){
 
         }
 
+
         if(mapControlsElement){
 
             mapControlsElement.style.visibility =
                 "visible";
 
         }
+
 
         if(activeCategoryIconsElement){
 
@@ -3728,7 +4123,22 @@ window.addEventListener("popstate", function(){
             "⬅️ Back → шторка закрита, карта залишилась"
         );
 
+
+        return;
+
     }
+
+
+    /* =================================================
+       3. НІ ОПИСУ, НІ ШТОРКИ НЕ ВІДКРИТО
+       
+       Тут нічого не робимо.
+       Браузер може перейти на попередню сторінку.
+    ================================================= */
+
+    console.log(
+        "⬅️ Back → активних елементів немає"
+    );
 
 });
 
@@ -6130,168 +6540,8 @@ usersAuth.onAuthStateChanged(
 
     }
 );
-const sharePointButton =
-    document.getElementById("sharePointButton");
 
-if (sharePointButton) {
 
-    sharePointButton.addEventListener("click", async function(e) {
-
-        e.preventDefault();
-        e.stopPropagation();
-
-        console.log("🔥 Натиснуто «Поділитися»");
-
-        // Перевіряємо поточну точку
-        if (!currentPointData) {
-
-            alert("Точку для поширення не вибрано.");
-
-            return;
-        }
-
-        const lat = Number(currentPointData.lat);
-        const lng = Number(currentPointData.lng);
-
-        if (
-            !Number.isFinite(lat) ||
-            !Number.isFinite(lng)
-        ) {
-
-            alert("У точки немає правильних координат.");
-
-            return;
-        }
-
-        const title =
-            currentPointData.name ||
-            currentPointData.title ||
-            "Місце на карті";
-
-        const description =
-            currentPointData.description || "";
-
-        // =========================
-        // GOOGLE MAPS
-        // =========================
-
-        const googleMapsUrl =
-            `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-
-        // =========================
-        // ТЕКСТ
-        // =========================
-
-        const shareText =
-            `${title}\n` +
-            `${description ? description + "\n" : ""}` +
-            `📍 Координати: ${lat}, ${lng}`;
-
-        console.log(
-            "📍 Посилання:",
-            googleMapsUrl
-        );
-
-        // =========================
-        // 📱 ТЕЛЕФОН
-        // =========================
-
-        if (
-            navigator.share &&
-            typeof navigator.share === "function"
-        ) {
-
-            try {
-
-                await navigator.share({
-
-                    title: title,
-
-                    text: shareText,
-
-                    url: googleMapsUrl
-
-                });
-
-                console.log(
-                    "✅ Точку успішно поширено"
-                );
-
-            }
-            catch(error) {
-
-                if(error.name !== "AbortError") {
-
-                    console.error(
-                        "❌ Помилка Share:",
-                        error
-                    );
-
-                }
-
-            }
-
-            return;
-        }
-
-        // =========================
-        // 💻 ЯКЩО SHARE НЕ ПІДТРИМУЄТЬСЯ
-        // =========================
-
-        const choice = confirm(
-
-            "ОК — відкрити Google Maps\n\n" +
-
-            "Скасувати — скопіювати посилання"
-
-        );
-
-        if(choice) {
-
-            window.open(
-                googleMapsUrl,
-                "_blank"
-            );
-
-        }
-        else {
-
-            try {
-
-                await navigator.clipboard.writeText(
-                    googleMapsUrl
-                );
-
-                alert(
-                    "Посилання на точку скопійовано."
-                );
-
-            }
-            catch(error) {
-
-                prompt(
-                    "Скопіюйте посилання:",
-                    googleMapsUrl
-                );
-
-            }
-
-        }
-
-    });
-
-    console.log(
-        "✅ Кнопка «Поділитися» підключена"
-    );
-
-}
-else {
-
-    console.error(
-        "❌ Не знайдено #sharePointButton"
-    );
-
-}
 </script>
 
 </body>
