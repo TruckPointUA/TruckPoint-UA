@@ -2646,55 +2646,112 @@ function closePointInfo(){
 
 
 /* =====================================================
-   ПОДІЛИТИСЯ ТОЧКОЮ
+   ПОДІЛИТИСЯ ТОЧКОЮ — МОБІЛЬНА ВЕРСІЯ
 ===================================================== */
 
 async function shareCurrentPoint(){
 
+    /* ==========================================
+       Перевірка вибраної точки
+    ========================================== */
+
     if(!currentPointData){
-        alert("Точку для поширення не вибрано.");
+
+        alert(
+            "Точку для поширення не вибрано."
+        );
+
         return;
     }
 
-    const lat = Number(currentPointData.lat);
-    const lng = Number(currentPointData.lng);
 
-    if(!Number.isFinite(lat) || !Number.isFinite(lng)){
-        alert("У точки немає правильних координат.");
+    /* ==========================================
+       Координати
+    ========================================== */
+
+    const lat =
+        Number(currentPointData.lat);
+
+    const lng =
+        Number(currentPointData.lng);
+
+
+    if(
+        !Number.isFinite(lat) ||
+        !Number.isFinite(lng)
+    ){
+
+        alert(
+            "У точки немає правильних координат."
+        );
+
         return;
     }
+
+
+    /* ==========================================
+       Назва
+    ========================================== */
 
     const title =
         currentPointData.name ||
         currentPointData.title ||
         "Місце на карті";
 
+
+    /* ==========================================
+       Опис
+    ========================================== */
+
     const description =
         currentPointData.description ||
         "";
 
-    /* =========================
-       ПОСИЛАННЯ GOOGLE MAPS
-    ========================= */
+
+    /* ==========================================
+       GOOGLE MAPS
+    ========================================== */
 
     const googleMapsUrl =
-        `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+        "https://www.google.com/maps/search/?api=1&query=" +
+        lat +
+        "," +
+        lng;
 
-    /* =========================
+
+    /* ==========================================
        ТЕКСТ ДЛЯ ПОШИРЕННЯ
-    ========================= */
+    ========================================== */
 
     const shareText =
-        `${title}\n` +
-        `${description ? description + "\n" : ""}` +
-        `📍 Координати: ${lat}, ${lng}\n` +
-        `🗺 Google Maps: ${googleMapsUrl}`;
+        title +
+        "\n" +
+        (description
+            ? description + "\n"
+            : "") +
+        "📍 Координати: " +
+        lat +
+        ", " +
+        lng +
+        "\n" +
+        "🗺 Google Maps: " +
+        googleMapsUrl;
 
-    /* =========================
-       СТАНДАРТНЕ МЕНЮ ПОШИРЕННЯ
-    ========================= */
 
-    if(navigator.share){
+    console.log(
+        "📤 Підготовлено поширення:",
+        shareText
+    );
+
+
+    /* =================================================
+       1. СИСТЕМНЕ МЕНЮ ANDROID
+    ================================================= */
+
+    if(
+        navigator.share &&
+        typeof navigator.share === "function"
+    ){
 
         try{
 
@@ -2702,69 +2759,153 @@ async function shareCurrentPoint(){
 
                 title: title,
 
-                text: shareText,
-
-                url: googleMapsUrl
+                text: shareText
 
             });
 
-            console.log("✅ Точку поширено");
+
+            console.log(
+                "✅ Точку успішно поширено"
+            );
+
+
+            return;
 
         }
         catch(error){
 
-            if(error.name !== "AbortError"){
+            /*
+               Користувач просто закрив
+               меню поширення.
+            */
 
-                console.error(
-                    "Помилка поширення:",
-                    error
+            if(
+                error &&
+                error.name === "AbortError"
+            ){
+
+                console.log(
+                    "ℹ️ Поширення скасовано користувачем"
                 );
+
+                return;
 
             }
 
+
+            console.error(
+                "❌ navigator.share помилка:",
+                error
+            );
+
         }
 
-        return;
     }
 
-    /* =========================
-       ЯКЩО WEB SHARE НЕ ПІДТРИМУЄТЬСЯ
-    ========================= */
 
-    const encodedText =
-        encodeURIComponent(shareText);
+    /* =================================================
+       2. FALLBACK — КОПІЮВАННЯ
+    ================================================= */
 
-    const encodedUrl =
-        encodeURIComponent(googleMapsUrl);
+    try{
+
+        if(
+            navigator.clipboard &&
+            navigator.clipboard.writeText
+        ){
+
+            await navigator.clipboard.writeText(
+                shareText
+            );
 
 
-    /* =========================
-       ВИБІР МЕСЕНДЖЕРА
-    ========================= */
+            alert(
+                "✅ Інформацію про точку скопійовано.\n\n" +
+                "Тепер вставте її у Viber, Telegram або інший месенджер."
+            );
 
-    const messengerChoice = confirm(
-        "Натисніть «ОК» — відкрити Viber.\n" +
-        "Натисніть «Скасувати» — відкрити Google Maps."
+
+            return;
+
+        }
+
+    }
+    catch(error){
+
+        console.error(
+            "❌ Clipboard помилка:",
+            error
+        );
+
+    }
+
+
+    /* =================================================
+       3. ОСТАННІЙ FALLBACK
+    ================================================= */
+
+    const textArea =
+        document.createElement("textarea");
+
+    textArea.value =
+        shareText;
+
+    textArea.style.position =
+        "fixed";
+
+    textArea.style.left =
+        "-9999px";
+
+    textArea.style.top =
+        "0";
+
+    document.body.appendChild(
+        textArea
     );
 
+    textArea.focus();
 
-    if(messengerChoice){
+    textArea.select();
 
-        window.open(
-            `viber://forward?text=${encodedText}`,
-            "_blank"
+
+    try{
+
+        document.execCommand(
+            "copy"
         );
 
-    }else{
 
-        window.open(
-            googleMapsUrl,
-            "_blank"
+        alert(
+            "✅ Інформацію про точку скопійовано.\n\n" +
+            "Тепер вставте її у месенджер."
         );
 
     }
+    catch(error){
+
+        console.error(
+            "❌ Не вдалося скопіювати:",
+            error
+        );
+
+
+        /* Якщо навіть копіювання
+           недоступне — відкриваємо Google Maps */
+
+        window.location.href =
+            googleMapsUrl;
+
+    }
+
+
+    document.body.removeChild(
+        textArea
+    );
 
 }
+
+
+
 /* =====================================================
    ЗАВАНТАЖЕННЯ ВІДГУКІВ + РЕДАГУВАННЯ + ОЦІНЮВАННЯ
 ===================================================== */
