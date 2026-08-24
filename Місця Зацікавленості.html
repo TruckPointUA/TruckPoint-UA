@@ -2892,177 +2892,68 @@ descriptionElement.style.fontWeight = "500";
    ПОДІЛИТИСЯ ПОТОЧНОЮ ТОЧКОЮ
 ===================================================== */
 
-async function shareCurrentPoint() {
+function shareCurrentPoint() {
 
-    try {
+    // Назва точки
+    const title =
+        document.getElementById("pointInfoTitle")?.textContent?.trim()
+        || "Точка TruckPoint UA";
 
-        /* ---------------------------------------------
-           1. Формуємо посилання на поточну точку
-        --------------------------------------------- */
+    // Поточна сторінка
+    const url = window.location.href;
 
-        const pointId =
-            currentPointData?.id ||
-            currentPointData?.key ||
-            currentPointData?.pointId ||
-            "";
+    // Текст для поширення
+    const text = `📍 ${title}\nTruckPoint UA`;
 
-        const lat =
-            currentPointData?.lat ??
-            currentPointData?.latitude;
+    // ==========================================
+    // 📱 ТЕЛЕФОН — СИСТЕМНЕ МЕНЮ ПОДІЛИТИСЯ
+    // ==========================================
 
-        const lng =
-            currentPointData?.lng ??
-            currentPointData?.longitude;
+    if (navigator.share) {
 
-        const pointName =
-            currentPointData?.name ||
-            currentPointData?.title ||
-            "Точка";
+        navigator.share({
+            title: title,
+            text: text,
+            url: url
+        }).catch(function(error) {
 
-        let shareUrl =
-            window.location.href;
-
-        /*
-         * Якщо є координати — формуємо посилання
-         * на поточну точку.
-         */
-        if (
-            lat !== undefined &&
-            lng !== undefined
-        ) {
-
-            shareUrl =
-                window.location.origin +
-                window.location.pathname +
-                "?lat=" +
-                encodeURIComponent(lat) +
-                "&lng=" +
-                encodeURIComponent(lng);
-
-            if (pointId) {
-
-                shareUrl +=
-                    "&point=" +
-                    encodeURIComponent(pointId);
-
+            // Користувач просто закрив меню
+            if (error.name !== "AbortError") {
+                console.log("Помилка поділу:", error);
             }
-        }
 
+        });
 
-        /* ---------------------------------------------
-           2. Дані для системного меню Android
-        --------------------------------------------- */
+        return;
+    }
 
-        const shareData = {
+    // ==========================================
+    // 💻 ПК — КОПІЮВАННЯ ПОСИЛАННЯ
+    // ==========================================
 
-            title:
-                "TruckPoint UA — " +
-                pointName,
+    if (navigator.clipboard) {
 
-            text:
-                "Переглянь точку «" +
-                pointName +
-                "» у TruckPoint UA",
+        navigator.clipboard.writeText(url)
+            .then(function() {
 
-            url:
-                shareUrl
+                alert("Посилання скопійовано");
 
-        };
+            })
+            .catch(function() {
 
+                prompt(
+                    "Скопіюйте посилання:",
+                    url
+                );
 
-        /* ---------------------------------------------
-           3. ГОЛОВНЕ:
-              відкриваємо системне меню Android
-        --------------------------------------------- */
+            });
 
-        if (
-            navigator.share &&
-            typeof navigator.share === "function"
-        ) {
+    } else {
 
-            await navigator.share(
-                shareData
-            );
-
-            return;
-        }
-
-
-        /* ---------------------------------------------
-           4. Запасний варіант
-              якщо Web Share недоступний
-        --------------------------------------------- */
-
-        if (
-            navigator.clipboard &&
-            navigator.clipboard.writeText
-        ) {
-
-            await navigator.clipboard.writeText(
-                shareUrl
-            );
-
-            alert(
-                "Посилання скопійовано"
-            );
-
-            return;
-        }
-
-
-        /* ---------------------------------------------
-           5. Старий fallback
-        --------------------------------------------- */
-
-        const tempInput =
-            document.createElement("textarea");
-
-        tempInput.value =
-            shareUrl;
-
-        tempInput.style.position =
-            "fixed";
-
-        tempInput.style.opacity =
-            "0";
-
-        document.body.appendChild(
-            tempInput
+        prompt(
+            "Скопіюйте посилання:",
+            url
         );
-
-        tempInput.select();
-
-        document.execCommand(
-            "copy"
-        );
-
-        document.body.removeChild(
-            tempInput
-        );
-
-        alert(
-            "Посилання скопійовано"
-        );
-
-    } catch (error) {
-
-        /*
-         * Якщо користувач просто закрив
-         * системне меню "Поділитися",
-         * нічого не робимо.
-         */
-        if (
-            error &&
-            error.name === "AbortError"
-        ) {
-            return;
-        }
-
-        console.error(
-            "Помилка Поділитися:",
-            error
-        );
-
     }
 }
 
