@@ -2899,11 +2899,10 @@ descriptionElement.style.fontWeight = "500";
 /* =====================================================
    📤 ПОДІЛИТИСЯ ПОТОЧНОЮ ТОЧКОЮ
 ===================================================== */
-
 async function shareCurrentPoint() {
 
     /* ==========================================
-       ПОТОЧНА ТОЧКА
+       ПЕРЕВІРКА ТОЧКИ
     ========================================== */
 
     if (!currentPointId || !currentPointData) {
@@ -2915,13 +2914,13 @@ async function shareCurrentPoint() {
 
 
     /* ==========================================
-       НАЗВА
+       НАЗВА ТОЧКИ
     ========================================== */
 
     const title =
         currentPointData.name ||
         document.getElementById("pointInfoTitle")?.textContent?.trim() ||
-        "Точка TruckPoint UA";
+        "Точка";
 
 
     /* ==========================================
@@ -2936,16 +2935,11 @@ async function shareCurrentPoint() {
 
 
     /* ==========================================
-       ID ТОЧКИ
+       ПОСИЛАННЯ НА ТОЧКУ
     ========================================== */
 
     const pointId =
         currentPointId;
-
-
-    /* ==========================================
-       ПОСИЛАННЯ НА КОНКРЕТНУ ТОЧКУ
-    ========================================== */
 
     const url =
         window.location.origin +
@@ -2955,28 +2949,22 @@ async function shareCurrentPoint() {
 
 
     /* ==========================================
-       ТЕКСТ
+       ТІЛЬКИ НАЗВА + КООРДИНАТИ
     ========================================== */
 
     const text =
-        `📍 ${title}\n` +
-        `TruckPoint UA\n` +
-        `📍 ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+        `${title}\n` +
+        `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
 
 
     /* ==========================================
        📱 APK TRUCKPOINT UA
-       СИСТЕМНЕ МЕНЮ ANDROID
     ========================================== */
 
     if (
         window.Android &&
         typeof Android.share === "function"
     ) {
-
-        console.log(
-            "📱 Використовується Android Share"
-        );
 
         Android.share(
             title,
@@ -2990,7 +2978,6 @@ async function shareCurrentPoint() {
 
     /* ==========================================
        📱 ЗВИЧАЙНИЙ БРАУЗЕР
-       navigator.share()
     ========================================== */
 
     if (
@@ -3010,27 +2997,13 @@ async function shareCurrentPoint() {
 
             });
 
-            console.log(
-                "📤 Точку успішно передано через системне меню"
-            );
-
             return;
 
         }
 
         catch(error) {
 
-            /*
-               Користувач просто закрив
-               системне меню.
-            */
-
-            if(error.name === "AbortError") {
-
-                console.log(
-                    "ℹ️ Поділитися скасовано користувачем."
-                );
-
+            if (error.name === "AbortError") {
                 return;
             }
 
@@ -3043,7 +3016,7 @@ async function shareCurrentPoint() {
 
 
     /* ==========================================
-       💻 ПК / БРАУЗЕР БЕЗ SHARE
+       💻 РЕЗЕРВНИЙ ВАРІАНТ
     ========================================== */
 
     try {
@@ -3053,11 +3026,9 @@ async function shareCurrentPoint() {
             window.isSecureContext
         ) {
 
-            await navigator.clipboard.writeText(url);
+            await navigator.clipboard.writeText(text);
 
-            alert(
-                "Посилання скопійовано"
-            );
+            alert("Назву та координати скопійовано");
 
             return;
         }
@@ -3073,13 +3044,9 @@ async function shareCurrentPoint() {
     }
 
 
-    /* ==========================================
-       РЕЗЕРВНИЙ ВАРІАНТ
-    ========================================== */
-
     prompt(
-        "Скопіюйте посилання:",
-        url
+        "Скопіюйте:",
+        text
     );
 }
 /* =========================
