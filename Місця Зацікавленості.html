@@ -1699,9 +1699,9 @@ body.night-mode .sheetHandle{
 
 .pointShareButton svg {
 
-    width:17px;
+    width:15px;
 
-    height:17px;
+    height:15px;
 
     fill:currentColor;
 
@@ -1720,6 +1720,68 @@ body.night-mode .sheetHandle{
     transform:scale(.94);
 
 }
+
+
+
+
+.layersButton {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+
+    width: 44px;
+    height: 44px;
+
+    padding: 0;
+    margin: 0;
+
+    background: #fff;
+    border: none;
+    border-radius: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+    z-index: 1000;
+
+    box-shadow: none;
+    outline: none;
+}
+
+.layersButton svg {
+    width: 24px;
+    height: 24px;
+
+    fill: none;
+    stroke: #333;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.layersButton:active {
+    background: #f1f1f1;
+}
+
+
+#layerMenu {
+    display: none;
+    position: absolute;
+
+    top: 65px;
+    right: 15px;
+
+    background: #fff;
+    border-radius: 8px;
+
+    z-index: 1001;
+}
+
+#layerMenu.show {
+    display: block;
+}
 </style>
 
 </head>
@@ -1737,36 +1799,22 @@ body.night-mode .sheetHandle{
         <span class="locationCenter"></span>
     </span>
 </button>
-<!-- КНОПКА ШАРІВ СПРАВА -->
-<div id="mapControls">
+<button id="layerButton" class="layersButton" title="Шари">
+    <svg viewBox="0 0 24 24">
+        <path d="M12 3L3 8l9 5 9-5-9-5z"></path>
+        <path d="M3 12l9 5 9-5"></path>
+        <path d="M3 16l9 5 9-5"></path>
+    </svg>
+</button>
+<div id="layerMenu">
 
-    <div class="layerControl">
+    <button id="roadLayerBtn" class="layerOption active">
+        Карта
+    </button>
 
-        <button id="layerButton" class="layerButton">
-            <span class="layersIcon">▱</span>
-        </button>
-
-        <div id="layerMenu" class="layerMenu">
-
-            <button
-                id="roadLayerBtn"
-                class="layerOption active"
-            >
-                <span class="layerPreview roadPreview"></span>
-                <span>Карта</span>
-            </button>
-
-            <button
-                id="satelliteLayerBtn"
-                class="layerOption"
-            >
-                <span class="layerPreview satellitePreview"></span>
-                <span>Супутник</span>
-            </button>
-
-        </div>
-
-    </div>
+    <button id="satelliteLayerBtn" class="layerOption">
+        Супутник
+    </button>
 
 </div>
 
@@ -2708,8 +2756,6 @@ function openPointInfo(pointId, pointData){
         "Невідомий користувач";
 
 
-    /* Опис */
-
   /* =====================================================
    ОПИС + КНОПКА "ПОДІЛИТИСЯ"
 ===================================================== */
@@ -2846,127 +2892,180 @@ descriptionElement.style.fontWeight = "500";
    ПОДІЛИТИСЯ ПОТОЧНОЮ ТОЧКОЮ
 ===================================================== */
 
-async function shareCurrentPoint(){
+async function shareCurrentPoint() {
 
-    if(!currentPointData){
+    try {
 
-        console.warn(
-            "⚠️ Немає даних поточної точки"
-        );
+        /* ---------------------------------------------
+           1. Формуємо посилання на поточну точку
+        --------------------------------------------- */
 
-        return;
-    }
+        const pointId =
+            currentPointData?.id ||
+            currentPointData?.key ||
+            currentPointData?.pointId ||
+            "";
 
+        const lat =
+            currentPointData?.lat ??
+            currentPointData?.latitude;
 
-    const name =
-        currentPointData.name ||
-        "Точка TruckPoint";
+        const lng =
+            currentPointData?.lng ??
+            currentPointData?.longitude;
 
+        const pointName =
+            currentPointData?.name ||
+            currentPointData?.title ||
+            "Точка";
 
-    const lat =
-        Number(currentPointData.lat);
+        let shareUrl =
+            window.location.href;
 
+        /*
+         * Якщо є координати — формуємо посилання
+         * на поточну точку.
+         */
+        if (
+            lat !== undefined &&
+            lng !== undefined
+        ) {
 
-    const lng =
-        Number(currentPointData.lng);
+            shareUrl =
+                window.location.origin +
+                window.location.pathname +
+                "?lat=" +
+                encodeURIComponent(lat) +
+                "&lng=" +
+                encodeURIComponent(lng);
 
+            if (pointId) {
 
-    /* Посилання на Google Maps */
+                shareUrl +=
+                    "&point=" +
+                    encodeURIComponent(pointId);
 
-    const mapsUrl =
-        `https://www.google.com/maps?q=${lat},${lng}`;
-
-
-    const shareText =
-        `${name}\n\n` +
-        `📍 ${lat.toFixed(6)}, ${lng.toFixed(6)}\n\n` +
-        `${currentPointData.description || ""}\n\n` +
-        `TruckPoint UA`;
-
-
-    /* =================================================
-       СИСТЕМНЕ МЕНЮ "ПОДІЛИТИСЯ"
-    ================================================= */
-
-    if(
-        navigator.share
-    ){
-
-        try{
-
-            await navigator.share({
-
-                title:
-                    name,
-
-                text:
-                    shareText,
-
-                url:
-                    mapsUrl
-
-            });
+            }
+        }
 
 
-            console.log(
-                "✅ Точкою поділилися"
+        /* ---------------------------------------------
+           2. Дані для системного меню Android
+        --------------------------------------------- */
+
+        const shareData = {
+
+            title:
+                "TruckPoint UA — " +
+                pointName,
+
+            text:
+                "Переглянь точку «" +
+                pointName +
+                "» у TruckPoint UA",
+
+            url:
+                shareUrl
+
+        };
+
+
+        /* ---------------------------------------------
+           3. ГОЛОВНЕ:
+              відкриваємо системне меню Android
+        --------------------------------------------- */
+
+        if (
+            navigator.share &&
+            typeof navigator.share === "function"
+        ) {
+
+            await navigator.share(
+                shareData
             );
 
             return;
-
         }
-        catch(error){
 
-            /* Користувач натиснув "Скасувати" */
 
-            if(
-                error.name ===
-                "AbortError"
-            ){
+        /* ---------------------------------------------
+           4. Запасний варіант
+              якщо Web Share недоступний
+        --------------------------------------------- */
 
-                return;
+        if (
+            navigator.clipboard &&
+            navigator.clipboard.writeText
+        ) {
 
-            }
-
-            console.error(
-                "❌ Помилка Share API:",
-                error
+            await navigator.clipboard.writeText(
+                shareUrl
             );
 
+            alert(
+                "Посилання скопійовано"
+            );
+
+            return;
         }
 
-    }
 
+        /* ---------------------------------------------
+           5. Старий fallback
+        --------------------------------------------- */
 
-    /* =================================================
-       ЯКЩО navigator.share НЕ ПІДТРИМУЄТЬСЯ
-    ================================================= */
+        const tempInput =
+            document.createElement("textarea");
 
-    const shareUrl =
-        `${mapsUrl}`;
+        tempInput.value =
+            shareUrl;
 
+        tempInput.style.position =
+            "fixed";
 
-    try{
+        tempInput.style.opacity =
+            "0";
 
-        await navigator.clipboard.writeText(
-            shareUrl
+        document.body.appendChild(
+            tempInput
+        );
+
+        tempInput.select();
+
+        document.execCommand(
+            "copy"
+        );
+
+        document.body.removeChild(
+            tempInput
         );
 
         alert(
-            "📋 Посилання на точку скопійовано!"
+            "Посилання скопійовано"
+        );
+
+    } catch (error) {
+
+        /*
+         * Якщо користувач просто закрив
+         * системне меню "Поділитися",
+         * нічого не робимо.
+         */
+        if (
+            error &&
+            error.name === "AbortError"
+        ) {
+            return;
+        }
+
+        console.error(
+            "Помилка Поділитися:",
+            error
         );
 
     }
-    catch(error){
-
-        prompt(
-            "Скопіюйте посилання на точку:",
-            shareUrl
-        );
-
-    }
-
 }
+
 /* =========================
    ЗАКРИТТЯ
 ========================= */
@@ -4026,121 +4125,6 @@ function closeSheet(){
     }
 
 }
-
-/* =====================================================
-   СИСТЕМНА КНОПКА "НАЗАД"
-   
-   ПОРЯДОК:
-   1. Закриває опис точки
-   2. Закриває шторку
-   3. Після цього дозволяє залишити сторінку
-===================================================== */
-
-window.addEventListener("popstate", function(){
-
-    /* =================================================
-       1. СПОЧАТКУ ЗАКРИВАЄМО ОПИС ТОЧКИ
-    ================================================= */
-
-    const pointOverlay =
-        document.getElementById(
-            "pointInfoOverlay"
-        );
-
-
-    if(
-        pointInfoBackState &&
-        pointOverlay &&
-        pointOverlay.classList.contains("show")
-    ){
-
-        pointInfoBackState = false;
-
-        pointOverlay.classList.remove("show");
-
-        document.body.style.overflow = "";
-
-        currentPointId = null;
-
-        currentPointData = null;
-
-
-        console.log(
-            "⬅️ Back → опис точки закрито"
-        );
-
-
-        return;
-
-    }
-
-
-    /* =================================================
-       2. ПОТІМ ЗАКРИВАЄМО ШТОРКУ
-    ================================================= */
-
-    if(sheetBackState){
-
-        sheetBackState = false;
-
-
-        sheet.classList.remove("open");
-
-        sheet.style.transition =
-            "height .3s ease";
-
-        sheet.style.height =
-            CLOSED_HEIGHT + "px";
-
-
-        /* Повертаємо кнопки карти */
-
-        if(myLocationButtonElement){
-
-            myLocationButtonElement.style.visibility =
-                "visible";
-
-        }
-
-
-        if(mapControlsElement){
-
-            mapControlsElement.style.visibility =
-                "visible";
-
-        }
-
-
-        if(activeCategoryIconsElement){
-
-            activeCategoryIconsElement.style.visibility =
-                "visible";
-
-        }
-
-
-        console.log(
-            "⬅️ Back → шторка закрита, карта залишилась"
-        );
-
-
-        return;
-
-    }
-
-
-    /* =================================================
-       3. НІ ОПИСУ, НІ ШТОРКИ НЕ ВІДКРИТО
-       
-       Тут нічого не робимо.
-       Браузер може перейти на попередню сторінку.
-    ================================================= */
-
-    console.log(
-        "⬅️ Back → активних елементів немає"
-    );
-
-});
 
 
 /* =====================================================
@@ -6540,6 +6524,181 @@ usersAuth.onAuthStateChanged(
 
     }
 );
+
+/* =====================================================
+   КНОПКА "НАЗАД" НА ТЕЛЕФОНІ
+   Спочатку закриваємо вікно опису / шторку,
+   а вже потім дозволяємо вийти зі сторінки
+===================================================== */
+
+let pointInfoOpened = false;
+let bottomSheetOpened = false;
+
+
+/* =====================================================
+   ВІДКРИТТЯ ОПИСУ ТОЧКИ
+===================================================== */
+
+function markPointInfoOpened() {
+    pointInfoOpened = true;
+
+    history.pushState(
+        { pointInfo: true },
+        "",
+        window.location.href
+    );
+}
+
+
+/* =====================================================
+   ЗАКРИТТЯ ОПИСУ ТОЧКИ
+===================================================== */
+
+function closePointInfoSafe() {
+
+    const overlay =
+        document.getElementById("pointInfoOverlay");
+
+    if (overlay) {
+        overlay.classList.remove("active");
+        overlay.style.display = "none";
+    }
+
+    pointInfoOpened = false;
+}
+
+
+/* =====================================================
+   ВІДКРИТТЯ ШТОРКИ
+===================================================== */
+
+function markBottomSheetOpened() {
+    bottomSheetOpened = true;
+
+    history.pushState(
+        { bottomSheet: true },
+        "",
+        window.location.href
+    );
+}
+
+
+/* =====================================================
+   ЗАКРИТТЯ ШТОРКИ
+===================================================== */
+
+function closeBottomSheetSafe() {
+
+    const sheet =
+        document.getElementById("bottomSheet");
+
+    if (sheet) {
+        sheet.classList.remove("open");
+        sheet.classList.remove("active");
+    }
+
+    bottomSheetOpened = false;
+}
+
+
+/* =====================================================
+   КНОПКА "НАЗАД" НА ТЕЛЕФОНІ
+   1. Закриває опис
+   2. Закриває шторку
+   3. Тільки потім дозволяє вийти зі сторінки
+===================================================== */
+
+window.addEventListener("popstate", function () {
+
+    /* =================================================
+       1. СПОЧАТКУ ЗАКРИВАЄМО ОПИС ТОЧКИ
+    ================================================= */
+
+    const pointOverlay =
+        document.getElementById("pointInfoOverlay");
+
+
+    if (
+        pointInfoBackState &&
+        pointOverlay &&
+        pointOverlay.classList.contains("show")
+    ) {
+
+        pointInfoBackState = false;
+
+        pointOverlay.classList.remove("show");
+
+        document.body.style.overflow = "";
+
+        currentPointId = null;
+        currentPointData = null;
+
+        console.log(
+            "⬅️ Back → опис точки закрито"
+        );
+
+        return;
+    }
+
+
+    /* =================================================
+       2. ПОТІМ ЗАКРИВАЄМО ШТОРКУ
+    ================================================= */
+
+    if (sheetBackState) {
+
+        sheetBackState = false;
+
+
+        sheet.classList.remove("open");
+
+        sheet.style.transition =
+            "height .3s ease";
+
+        sheet.style.height =
+            CLOSED_HEIGHT + "px";
+
+
+        /* Повертаємо кнопки карти */
+
+        if (myLocationButtonElement) {
+
+            myLocationButtonElement.style.visibility =
+                "visible";
+        }
+
+
+        if (mapControlsElement) {
+
+            mapControlsElement.style.visibility =
+                "visible";
+        }
+
+
+        if (activeCategoryIconsElement) {
+
+            activeCategoryIconsElement.style.visibility =
+                "visible";
+        }
+
+
+        console.log(
+            "⬅️ Back → шторка закрита, карта залишилась"
+        );
+
+        return;
+    }
+
+
+    /* =================================================
+       3. НІ ОПИСУ, НІ ШТОРКИ
+    ================================================= */
+
+    console.log(
+        "⬅️ Back → активних елементів немає"
+    );
+
+});
 
 
 </script>
