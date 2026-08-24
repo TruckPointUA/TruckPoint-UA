@@ -2130,7 +2130,6 @@ const firebaseConfig = {
   appId: "1:992372126132:web:3378b6b1794066132d42e1",
   measurementId: "G-EWEJWHZBGF"
 };
-
 /* =====================================================
    FIREBASE — TRUCKPOINT-UA
 ===================================================== */
@@ -2142,6 +2141,15 @@ const db = app.database();
 const usersAuth = app.auth();
 
 const usersDb = app.database();
+
+
+/* =====================================================
+   🛠️ РОЗРОБНИК
+===================================================== */
+
+const DEVELOPER_UID =
+    "R9LDnqVzlbdKgEIh0J0fufXlans1";
+
 
 console.log(
     "🔥 Firebase DB підключено:",
@@ -3042,6 +3050,8 @@ async function loadPointReviews(pointId) {
             firebaseUser ?
             firebaseUser.uid :
             "";
+const isDeveloper =
+    currentUserId === DEVELOPER_UID;
 
         const reviews = [];
 
@@ -3202,6 +3212,30 @@ async function loadPointReviews(pointId) {
                     : "";
 
 
+
+                    const deleteButton =
+    isDeveloper
+        ? `
+            <button
+                type="button"
+                onclick="deletePointReview(
+                    '${pointId}',
+                    '${review.id}'
+                )"
+                style="
+                    border:none;
+                    background:none;
+                    color:#d32f2f;
+                    cursor:pointer;
+                    font-size:13px;
+                    font-weight:700;
+                    padding:3px 5px;
+                "
+            >
+                🗑️ Видалити
+            </button>
+        `
+        : "";
             /* =================================================
                HTML ВІДГУКУ
             ================================================= */
@@ -3237,6 +3271,7 @@ async function loadPointReviews(pointId) {
                         </div>
 
                         ${editButton}
+                        ${deleteButton}
 
                     </div>
 
@@ -3361,6 +3396,88 @@ async function loadPointReviews(pointId) {
     }
 
 }
+
+
+
+/* =====================================================
+   🗑️ ВИДАЛЕННЯ ВІДГУКУ РОЗРОБНИКОМ
+===================================================== */
+
+async function deletePointReview(pointId, reviewId) {
+
+    const firebaseUser =
+        usersAuth.currentUser;
+
+    if (!firebaseUser) {
+        alert("Потрібно увійти в акаунт.");
+        return;
+    }
+
+    // 🔐 ТІЛЬКИ РОЗРОБНИК
+    if (
+        firebaseUser.uid !==
+        "R9LDnqVzlbdKgEIh0J0fufXlans1"
+    ) {
+        console.warn(
+            "⛔ Спроба видалення без прав"
+        );
+        return;
+    }
+
+    const confirmed = confirm(
+        "Видалити цей відгук?"
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+
+        // Видаляємо відгук
+        await db
+            .ref(
+                "reviews/" +
+                pointId +
+                "/" +
+                reviewId
+            )
+            .remove();
+
+        // Видаляємо 👍 / 👎 цього відгуку
+        await db
+            .ref(
+                "reviewRatings/" +
+                pointId +
+                "/" +
+                reviewId
+            )
+            .remove();
+
+        console.log(
+            "🗑️ Відгук видалено:",
+            reviewId
+        );
+
+        // Оновлюємо список
+        await loadPointReviews(pointId);
+
+    }
+    catch (error) {
+
+        console.error(
+            "❌ Помилка видалення:",
+            error
+        );
+
+        alert(
+            "Не вдалося видалити відгук."
+        );
+
+    }
+}
+
+
 
 
 /* =====================================================
