@@ -2645,6 +2645,196 @@ body.night-mode .sheetHandle{
     }
 
 }
+
+/* =========================================
+   НОВА ТОЧКА — НА ПЕРЕГЛЯДІ
+========================================= */
+
+.point-review-status{
+
+    margin: 12px 0;
+
+    padding: 12px 14px;
+
+    border-radius: 12px;
+
+    background: #fff7df;
+
+    border: 1px solid #f0d27a;
+
+}
+
+.point-review-status-title{
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    color: #9a6b00;
+
+    margin-bottom: 4px;
+
+}
+
+.point-review-status-text{
+
+    font-size: 13px;
+
+    line-height: 1.4;
+
+    color: #6f5a20;
+
+}
+
+/* =========================================
+   ВИБІР КАТЕГОРІЇ — ДОДАТИ ТОЧКУ
+========================================= */
+
+.point-category-select {
+    position: relative;
+    width: 100%;
+}
+
+
+.categorySelectButton {
+
+    width: 100%;
+
+    min-height: 42px;
+
+    padding: 8px 12px;
+
+    border: 1px solid #ccc;
+
+    border-radius: 8px;
+
+    background: white;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    font-size: 14px;
+
+    color: #444;
+
+    cursor: pointer;
+
+    text-align: left;
+
+}
+
+
+.categorySelectButton:hover {
+    border-color: #1976d2;
+}
+
+
+.categoryArrow {
+
+    font-size: 11px;
+
+    color: #777;
+
+    transition:
+        transform .2s ease;
+
+}
+
+
+.categorySelectButton.open
+.categoryArrow {
+
+    transform:
+        rotate(180deg);
+
+}
+
+
+/* =========================================
+   СПИСОК
+========================================= */
+
+.categoryDropdown {
+
+    display: none;
+
+    position: absolute;
+
+    left: 0;
+
+    right: 0;
+
+    top: calc(100% + 4px);
+
+    z-index: 9999;
+
+    background: white;
+
+    border: 1px solid #ccc;
+
+    border-radius: 8px;
+
+    box-shadow:
+        0 4px 15px rgba(0,0,0,.18);
+
+    overflow: hidden;
+
+}
+
+
+.categoryDropdown.show {
+
+    display: block;
+
+}
+
+
+/* =========================================
+   ОКРЕМИЙ ПУНКТ
+========================================= */
+
+.categoryOption {
+
+    min-height: 42px;
+
+    padding: 7px 12px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    font-size: 14px;
+
+    color: #444;
+
+    cursor: pointer;
+
+}
+
+
+.categoryOption:hover {
+
+    background: #f1f5f9;
+
+}
+
+
+.categoryOption img {
+
+    width: 28px;
+
+    height: 28px;
+
+    object-fit: contain;
+
+    flex-shrink: 0;
+
+}
 </style>
 
 </head>
@@ -3026,52 +3216,107 @@ body.night-mode .sheetHandle{
             Що це за точка?
         </label>
 
-        <select
-            id="newPointCategory"
-            class="addPointInput"
+       <div class="point-category-select">
+
+    <!-- Прихований select — його значення використовує твій JS -->
+    <select
+        id="newPointCategory"
+        class="addPointInput"
+        style="display:none;"
+    >
+        <option value="">Оберіть категорію</option>
+        <option value="market">Продуктовий магазин</option>
+        <option value="parking">Паркування безкоштовне</option>
+        <option value="road_parking">Паркування при дорозі</option>
+        <option value="industrial">Промислова зона</option>
+        <option value="other">Інше</option>
+    </select>
+
+
+    <!-- Видимий список -->
+    <button
+        type="button"
+        id="categorySelectButton"
+        class="categorySelectButton"
+    >
+
+        <span id="categorySelectedContent">
+            Оберіть категорію
+        </span>
+
+        <span class="categoryArrow">▼</span>
+
+    </button>
+
+
+    <div
+        id="categoryDropdown"
+        class="categoryDropdown"
+    >
+
+        <div
+            class="categoryOption"
+            data-value=""
         >
+            Оберіть категорію
+        </div>
 
-            <option value="">
-                Оберіть категорію
-            </option>
 
-            <option value="market">
-                🛒 Продуктовий магазин
-            </option>
+        <div
+            class="categoryOption"
+            data-value="market"
+        >
+            <img src="maarket_map.svg">
+            <span>Продуктовий магазин</span>
+        </div>
 
-            <option value="truck_shop">
-                🚛 Магазин ТІР
-            </option>
 
-            <option value="parking">
-                🅿️ Паркування
-            </option>
+        <div
+            class="categoryOption"
+            data-value="parking"
+        >
+            <img src="parkinglogoo_map.svg">
+            <span>Паркінг безкоштовний</span>
+        </div>
 
-            <option value="road_parking">
-                🚛 Паркування при дорозі
-            </option>
+            <div
+            class="categoryOption"
+            data-value="parking"
+        >
+            <img src="platnii_map.svg">
+            <span>Паркінг платний</span>
+        </div>
 
-            <option value="wash">
-                🚿 Мийка
-            </option>
 
-            <option value="gas_station">
-                ⛽ АЗС
-            </option>
+        <div
+            class="categoryOption"
+            data-value="road_parking"
+        >
+            <img src="pocket_map.svg">
+            <span>Паркування при дорозі</span>
+        </div>
 
-            <option value="industrial">
-                🏭 Промислова зона
-            </option>
 
-            <option value="flea_market">
-                🛍 Блошиний ринок
-            </option>
+        <div
+            class="categoryOption"
+            data-value="industrial"
+        >
+            <img src="promzona_map.svg">
+            <span>Промислова зона</span>
+        </div>
 
-            <option value="other">
-                📍 Інше
-            </option>
 
-        </select>
+        <div
+            class="categoryOption"
+            data-value="other"
+        >
+            <img src="info_marker.svg">
+            <span>Інше</span>
+        </div>
+
+    </div>
+
+</div>
 
 
         <!-- ОПИС -->
@@ -3125,7 +3370,7 @@ body.night-mode .sheetHandle{
         <div class="newPointIconInfo">
 
             <img
-                src="newtochka.png"
+                src="info_marker.svg"
                 alt="Нова точка"
             >
 
@@ -4282,7 +4527,7 @@ const map = L.map('map', {
 
         return (
             icons[category] ||
-            "maarket_map.svg"
+            "info_marker.svg"
         );
 
     }
@@ -4465,10 +4710,6 @@ let activePointers = new Set();
         return;
     }
 
-
-    /* =================================================
-       ОТРИМАННЯ АВТОРА
-    ================================================= */
 
   /* =====================================================
    ОТРИМАТИ АВТОРА
@@ -5237,7 +5478,7 @@ map.getContainer().addEventListener(
                        ТИМЧАСОВА ІКОНКА
                     */
 
-                    icon: "newtochka",
+                    icon: "info_marker.svg",
 
                     /*
                        Точка очікує перевірки
@@ -5259,11 +5500,92 @@ map.getContainer().addEventListener(
                     pointData
                 );
 
+                /* =========================================
+   ОДРАЗУ ПОКАЗУЄМО НОВУ ТОЧКУ НА КАРТІ
+========================================= */
 
-                console.log(
-                    "✅ Нова точка додана:",
-                    pointData
-                );
+const newIcon = L.icon({
+
+    iconUrl: "info_marker.svg",
+
+    iconSize: [46, 46],
+
+    iconAnchor: [23, 46],
+
+    popupAnchor: [0, -46]
+
+});
+
+
+const newMarker = L.marker(
+    [lat, lng],
+    {
+        icon: newIcon
+    }
+);
+
+
+/* Додаємо маркер на карту */
+
+newMarker.addTo(map);
+
+
+/* =================================================
+   ОДРАЗУ ВІДКРИВАЄМО ІНФОРМАЦІЮ НОВОЇ ТОЧКИ
+================================================= */
+
+newMarker.on("click", function(){
+
+    openPointInfo(
+
+        pointId,
+
+        {
+            ...pointData,
+
+            id: pointId,
+
+            lat: lat,
+
+            lng: lng,
+
+            category: category,
+
+            approved: false
+
+        }
+
+    );
+
+});
+
+
+/* =================================================
+   ОДРАЗУ ВІДКРИВАЄМО ПІСЛЯ ДОДАВАННЯ
+================================================= */
+
+openPointInfo(
+
+    pointId,
+
+    {
+        ...pointData,
+
+        id: pointId,
+
+        lat: lat,
+
+        lng: lng,
+
+        category: category,
+
+        approved: false
+
+    }
+
+);
+
+                
 
 
                 /* -------------------------------------
@@ -5725,7 +6047,79 @@ function openPointInfo(pointId, pointData){
         currentPointData.author ||
         currentPointData.createdByName ||
         "Невідомий користувач";
+        
+        /* =================================================
+   СТАТУС НОВОЇ ТОЧКИ
+================================================= */
 
+let reviewStatus =
+    document.getElementById("pointReviewStatus");
+
+
+if (!reviewStatus) {
+
+    reviewStatus =
+        document.createElement("div");
+
+    reviewStatus.id =
+        "pointReviewStatus";
+
+    reviewStatus.style.cssText = `
+        margin-top:10px;
+        padding:11px 13px;
+        border-radius:10px;
+        background:#fff7df;
+        border:1px solid #f0d27a;
+        color:#6f5a20;
+        font-size:13px;
+        line-height:1.4;
+    `;
+
+    document.getElementById(
+        "pointInfoAuthor"
+    ).parentNode.appendChild(
+        reviewStatus
+    );
+
+}
+
+
+/* Нова точка — очікує підтвердження */
+
+if (
+    currentPointData &&
+    currentPointData.approved === false
+) {
+
+    reviewStatus.innerHTML = `
+        <div style="
+            font-size:15px;
+            font-weight:700;
+            color:#9a6b00;
+            margin-bottom:3px;
+        ">
+            🕐 Точка на перегляді
+        </div>
+
+        <div>
+            Очікує підтвердження розробником.
+        </div>
+    `;
+
+    reviewStatus.style.display =
+        "block";
+
+}
+
+
+/* Підтверджена точка */
+
+else {
+
+    reviewStatus.style.display =
+        "none";
+
+}
 
   /* =====================================================
    ОПИС + КНОПКА "ПОДІЛИТИСЯ"
@@ -8067,7 +8461,7 @@ function getCategoryIcon(category, data = {}){
 
     const iconUrl =
         icons[category] ||
-        "maarket_map.svg";
+        "info_marker.svg";
 
 
     return L.icon({
@@ -8208,22 +8602,73 @@ function createPointMarker(
     lng
 ){
 
+    /* =========================================
+       ВИБІР ІКОНКИ
+    ========================================= */
+
+    let pointIcon;
+
+
+    /* =========================================
+       НОВА ТОЧКА — НЕ ПІДТВЕРДЖЕНА
+    ========================================= */
+
+    if(
+        data &&
+        data.approved === false
+    ){
+
+        pointIcon =
+            L.icon({
+
+                iconUrl:
+                    "info_marker.svg",
+
+                iconSize:
+                    [46, 46],
+
+                iconAnchor:
+                    [23, 46],
+
+                popupAnchor:
+                    [0, -46]
+
+            });
+
+    }
+
+
+    /* =========================================
+       ПІДТВЕРДЖЕНА ТОЧКА
+    ========================================= */
+
+    else{
+
+        pointIcon =
+            getCategoryIcon(
+                category,
+                data
+            );
+
+    }
+
+
+    /* =========================================
+       СТВОРЮЄМО MARKER
+    ========================================= */
+
     const marker =
         L.marker(
-            [lat,lng],
+            [lat, lng],
             {
-                icon:
-                    getCategoryIcon(
-                        category,
-                        data
-                    )
+                icon: pointIcon
             }
         );
 
 
-    /* -------------------------
-       Відкриття інформації
-    ------------------------- */
+    /* =========================================
+       ВІДКРИТТЯ ІНФОРМАЦІЇ
+    ========================================= */
 
     marker.on(
         "click",
@@ -8237,13 +8682,17 @@ function createPointMarker(
 
                     ...data,
 
-                    id:pointId,
+                    id:
+                        pointId,
 
-                    lat:lat,
+                    lat:
+                        lat,
 
-                    lng:lng,
+                    lng:
+                        lng,
 
-                    category:category
+                    category:
+                        category
 
                 }
 
@@ -8253,10 +8702,13 @@ function createPointMarker(
     );
 
 
+    /* =========================================
+       ПОВЕРТАЄМО MARKER
+    ========================================= */
+
     return marker;
 
 }
-
 
 /* =====================================================
    ЗАВАНТАЖЕННЯ ОДНІЄЇ КАТЕГОРІЇ
@@ -8264,13 +8716,9 @@ function createPointMarker(
 
 async function loadCategoryPoints(category){
 
-    /* категорія НЕ активна */
-    if(!isCategoryActive(category)){
-
-        return;
-
-    }
-
+    /* =========================================
+       ЗАВАНТАЖУЄМО КАТЕГОРІЮ
+    ========================================= */
 
     const center =
         map.getCenter();
@@ -8316,9 +8764,36 @@ async function loadCategoryPoints(category){
             }
 
 
-            /* -------------------------
-               Координати
-            ------------------------- */
+            /* =========================================
+               НЕПІДТВЕРДЖЕНА ТОЧКА
+               
+               ВОНА МАЄ ПОКАЗУВАТИСЯ ВСІМ
+               НЕЗАЛЕЖНО ВІД АКТИВНОЇ КАТЕГОРІЇ
+            ========================================= */
+
+            const isNewPoint =
+                data.approved === false;
+
+
+            /* =========================================
+               ПІДТВЕРДЖЕНІ ТОЧКИ
+               
+               Показуємо тільки якщо категорія активна
+            ========================================= */
+
+            if(
+                !isNewPoint &&
+                !isCategoryActive(category)
+            ){
+
+                return;
+
+            }
+
+
+            /* =========================================
+               КООРДИНАТИ
+            ========================================= */
 
             let lat =
                 Number(
@@ -8345,9 +8820,9 @@ async function loadCategoryPoints(category){
             }
 
 
-            /* -------------------------
-               Відстань від центру карти
-            ------------------------- */
+            /* =========================================
+               ВІДСТАНЬ
+            ========================================= */
 
             const distance =
                 distanceBetweenPoints(
@@ -8371,9 +8846,9 @@ async function loadCategoryPoints(category){
             }
 
 
-            /* -------------------------
-               Унікальний ID
-            ------------------------- */
+            /* =========================================
+               ID
+            ========================================= */
 
             const pointId =
                 category +
@@ -8381,9 +8856,9 @@ async function loadCategoryPoints(category){
                 child.key;
 
 
-            /* -------------------------
-               Якщо вже існує
-            ------------------------- */
+            /* =========================================
+               ВЖЕ Є НА КАРТІ
+            ========================================= */
 
             if(pointMarkers[pointId]){
 
@@ -8392,9 +8867,9 @@ async function loadCategoryPoints(category){
             }
 
 
-            /* -------------------------
-               Створюємо маркер
-            ------------------------- */
+            /* =========================================
+               СТВОРЮЄМО МАРКЕР
+            ========================================= */
 
             const marker =
                 createPointMarker(
@@ -8443,7 +8918,7 @@ async function loadCategoryPoints(category){
     catch(error){
 
         console.error(
-            "❌ Помилка:",
+            "❌ Помилка: ",
             category,
             error
         );
@@ -8451,6 +8926,7 @@ async function loadCategoryPoints(category){
     }
 
 }
+
 
 
 /* =====================================================
@@ -8707,9 +9183,13 @@ map.on(
                     };
 
 
-                    console.log(
-                        "🗺 Нова область карти"
-                    );
+                    console.log("🗺 Нова область карти");
+
+loadCategoryPoints("market");
+loadCategoryPoints("industrial");
+
+/* Нові точки — показуємо завжди */
+loadCategoryPoints("other");
 
 
                     await loadActiveCategories();
@@ -9754,6 +10234,120 @@ window.addEventListener("popstate", function () {
     );
 
 });
+/* =========================================
+   КАТЕГОРІЇ — ВЛАСНИЙ DROPDOWN
+========================================= */
+
+const categorySelect =
+    document.getElementById("newPointCategory");
+
+const categoryButton =
+    document.getElementById("categorySelectButton");
+
+const categoryDropdown =
+    document.getElementById("categoryDropdown");
+
+const categorySelectedContent =
+    document.getElementById("categorySelectedContent");
+
+
+/* Відкрити / закрити */
+
+categoryButton.addEventListener("click", function(){
+
+    categoryDropdown.classList.toggle("show");
+
+    categoryButton.classList.toggle(
+        "open"
+    );
+
+});
+
+
+/* Вибір категорії */
+
+document
+    .querySelectorAll(".categoryOption")
+    .forEach(option => {
+
+        option.addEventListener(
+            "click",
+            function(){
+
+                const value =
+                    this.dataset.value;
+
+
+                /* Записуємо значення
+                   у справжній select */
+
+                categorySelect.value =
+                    value;
+
+
+                /* Показуємо вибрану
+                   категорію */
+
+                categorySelectedContent.innerHTML =
+                    this.innerHTML;
+
+
+                /* Закриваємо */
+
+                categoryDropdown
+                    .classList
+                    .remove("show");
+
+                categoryButton
+                    .classList
+                    .remove("open");
+
+
+                /* Дуже важливо:
+                   запускаємо change */
+
+                categorySelect.dispatchEvent(
+                    new Event("change", {
+                        bubbles: true
+                    })
+                );
+
+            }
+        );
+
+    });
+
+
+/* Закрити при натисканні
+   за межами списку */
+
+document.addEventListener(
+    "click",
+    function(event){
+
+        const container =
+            document.querySelector(
+                ".point-category-select"
+            );
+
+
+        if(
+            container &&
+            !container.contains(event.target)
+        ){
+
+            categoryDropdown
+                .classList
+                .remove("show");
+
+            categoryButton
+                .classList
+                .remove("open");
+
+        }
+
+    }
+);
 </script>
 
 </body>
