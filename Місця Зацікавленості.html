@@ -2700,13 +2700,13 @@ body.night-mode .sheetHandle{
 
     width: 100%;
 
-    min-height: 42px;
+    min-height: 55px;
 
     padding: 8px 12px;
 
     border: 1px solid #ccc;
 
-    border-radius: 8px;
+    border-radius: 10px;
 
     background: white;
 
@@ -2808,7 +2808,7 @@ body.night-mode .sheetHandle{
 
     gap: 10px;
 
-    font-size: 14px;
+    font-size: 16px;
 
     color: #444;
 
@@ -2826,9 +2826,9 @@ body.night-mode .sheetHandle{
 
 .categoryOption img {
 
-    width: 30px;
+    width: 32px;
 
-    height: 30px;
+    height: 32px;
 
     object-fit: contain;
 
@@ -2848,6 +2848,121 @@ body.night-mode .sheetHandle{
     height: 32px;
     object-fit: contain;
 }
+
+/* =====================================================
+   ЛІЧИЛЬНИК 3 2 1 ДЛЯ ДОВГОГО НАТИСКАННЯ
+===================================================== */
+
+.long-press-countdown {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+
+    width: 90px;
+    height: 90px;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 99999;
+
+    pointer-events: none;
+}
+
+.long-press-countdown.active {
+    display: flex;
+}
+
+#countdownNumber {
+    width: 90px;
+    height: 90px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: rgba(0, 0, 0, 0.75);
+    color: white;
+
+    font-size: 48px;
+    font-weight: 800;
+
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
+
+    animation: countdownPulse 1s ease-in-out;
+}
+
+@keyframes countdownPulse {
+
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.15);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* =====================================================
+   МАРКЕР ПРИ ЗАЖИМАННІ
+===================================================== */
+
+.longPressMarker {
+    background: transparent !important;
+    border: none !important;
+}
+
+.longPressMarkerInner {
+    width: 46px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.longPressMarkerPin {
+    width: 28px;
+    height: 28px;
+    background: #2196f3;
+    border: 4px solid white;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    box-shadow: 0 3px 10px rgba(0,0,0,.35);
+    animation: longPressPin .35s ease-out;
+}
+
+@keyframes longPressPin {
+    from {
+        transform: rotate(-45deg) scale(0);
+        opacity: 0;
+    }
+
+    to {
+        transform: rotate(-45deg) scale(1);
+        opacity: 1;
+    }
+}
+
+
+#categorySelectedContent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    text-align: center;
+}
+
 </style>
 
 </head>
@@ -3498,6 +3613,11 @@ body.night-mode .sheetHandle{
     id="newPointsAdminMessage"
     class="new-points-admin-message"
 ></div>
+
+<!-- ЛІЧИЛЬНИК ДОВГОГО НАТИСКАННЯ -->
+<div id="longPressCountdown" class="long-press-countdown">
+    <div id="countdownNumber">3</div>
+</div>
 <script>
 
 
@@ -3747,6 +3867,92 @@ const map = L.map('map', {
     [49.0,31.0],
     6
 );
+
+
+/* =========================================
+   ПОКАЗ НОВИХ ТОЧОК НА ДАЛЕКОМУ ZOOM
+========================================= */
+
+const NEW_POINT_MIN_ZOOM = 7;
+
+
+/* =========================================
+   КЕРУВАННЯ ВИДИМІСТЮ ТОЧОК
+========================================= */
+
+function updateNewPointsZoom(){
+
+    const zoom =
+        map.getZoom();
+
+
+    Object.values(pointMarkers)
+        .forEach(item => {
+
+            if(
+                !item ||
+                !item.marker
+            ){
+
+                return;
+
+            }
+
+
+            const marker =
+                item.marker;
+
+
+            /* =================================
+               НОВА ТОЧКА
+            ================================= */
+
+            if(
+                marker.isNewUserPoint
+            ){
+
+                if(
+                    zoom >= NEW_POINT_MIN_ZOOM
+                ){
+
+                    if(
+                        !map.hasLayer(marker)
+                    ){
+
+                        marker.addTo(map);
+
+                    }
+
+                }
+
+                else{
+
+                    if(
+                        map.hasLayer(marker)
+                    ){
+
+                        map.removeLayer(marker);
+
+                    }
+
+                }
+
+            }
+
+        });
+
+}
+
+
+/* =========================================
+   ПЕРЕВІРКА ПРИ ЗМІНІ ZOOM
+========================================= */
+
+map.on(
+    "zoomend",
+    updateNewPointsZoom
+);
+
 
 
 /* =====================================================
@@ -4638,20 +4844,203 @@ let userLocationCircle = null;
 
 (function(){
 
-/* =================================================
-   НАЛАШТУВАННЯ
-================================================= */
 
-const LONG_PRESS_TIME = 1500;
+/* =====================================================
+   ДОВГЕ НАТИСКАННЯ НА КАРТУ
+   3 → 2 → 1 → ВІКНО ДОДАВАННЯ
+===================================================== */
+
+const LONG_PRESS_TIME = 2000;
 
 let longPressTimer = null;
+let longPressCountdownTimer = null;
 
-let longPressStartX = 0;
-let longPressStartY = 0;
+let longPressStartLatLng = null;
+let longPressActive = false;
+let longPressMarker = null;
 
-let longPressLatLng = null;
 
-let longPressTriggered = false;
+/* =====================================================
+   МАРКЕР ПІД ЧАС ДОВГОГО НАТИСКАННЯ
+===================================================== */
+
+function showLongPressMarker(latlng) {
+
+    // якщо старий маркер є — видаляємо
+    if (longPressMarker) {
+        map.removeLayer(longPressMarker);
+        longPressMarker = null;
+    }
+
+    longPressMarker = L.marker(latlng, {
+        icon: L.divIcon({
+            className: "longPressMarker",
+            html: `
+                <div class="longPressMarkerInner">
+                    <div class="longPressMarkerPin"></div>
+                </div>
+            `,
+            iconSize: [46, 46],
+            iconAnchor: [23, 46]
+        }),
+        interactive: false
+    }).addTo(map);
+}
+
+
+/* =====================================================
+   СХОВАТИ МАРКЕР
+===================================================== */
+
+function hideLongPressMarker() {
+
+    if (longPressMarker) {
+        map.removeLayer(longPressMarker);
+        longPressMarker = null;
+    }
+}
+
+const countdownBox =
+    document.getElementById("longPressCountdown");
+
+const countdownNumber =
+    document.getElementById("countdownNumber");
+
+
+/* =====================================================
+   ПОКАЗАТИ ЛІЧИЛЬНИК
+===================================================== */
+
+function startLongPressCountdown(latlng){
+
+    longPressActive = true;
+
+    longPressStartLatLng = latlng;
+
+    let number = 3;
+
+    countdownNumber.textContent = number;
+
+    countdownBox.classList.add("active");
+
+    /* перший запуск через 1 секунду */
+    longPressCountdownTimer = setInterval(() => {
+
+        number--;
+
+        if(number > 0){
+
+            countdownNumber.textContent = number;
+
+            /* перезапуск анімації */
+            countdownNumber.style.animation = "none";
+
+            void countdownNumber.offsetWidth;
+
+            countdownNumber.style.animation =
+                "countdownPulse 1s ease-in-out";
+
+        }
+
+    }, 1000);
+
+
+    /* через 3 секунди відкриваємо вікно */
+
+    longPressTimer = setTimeout(() => {
+
+        clearInterval(longPressCountdownTimer);
+
+        countdownBox.classList.remove("active");
+
+        longPressActive = false;
+
+        openAddPointWindow(longPressStartLatLng);
+
+    }, LONG_PRESS_TIME);
+}
+
+
+/* =====================================================
+   СКАСУВАТИ ДОВГЕ НАТИСКАННЯ
+===================================================== */
+
+function cancelLongPress(){
+
+    if(longPressTimer){
+
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+
+    }
+
+    if(longPressCountdownTimer){
+
+        clearInterval(longPressCountdownTimer);
+        longPressCountdownTimer = null;
+
+    }
+
+    countdownBox.classList.remove("active");
+
+    longPressActive = false;
+
+    longPressStartLatLng = null;
+}
+
+
+/* =====================================================
+   TOUCHSTART
+===================================================== */
+
+map.on("touchstart", function(e){
+
+    if(!e.latlng) return;
+
+    cancelLongPress();
+
+    startLongPressCountdown(e.latlng);
+
+});
+
+
+/* =====================================================
+   TOUCHEND
+===================================================== */
+
+map.on("touchend", function(){
+
+    if(!longPressActive) return;
+
+    cancelLongPress();
+
+});
+
+
+/* =====================================================
+   TOUCHMOVE
+   Якщо палець сильно перемістився — скасувати
+===================================================== */
+
+map.on("touchmove", function(e){
+
+    if(!longPressStartLatLng) return;
+
+    const distance =
+        map.distance(
+            longPressStartLatLng,
+            e.latlng
+        );
+
+    /* більше 15 метрів — це вже переміщення карти */
+
+    if(distance > 15){
+
+        cancelLongPress();
+
+    }
+
+});
 
 /* =================================================
    ВІДСТЕЖЕННЯ ПАЛЬЦІВ
@@ -8332,6 +8721,10 @@ function addActiveCategoryIcon(icon){
 
 const POINTS_RADIUS_KM = 20;
 
+// Радіус для нових точок користувачів
+const NEW_POINTS_RADIUS_KM = 150;
+
+
 /* після якого переміщення карти перевіряти нову область */
 const RELOAD_DISTANCE_KM = 5;
 
@@ -8621,15 +9014,16 @@ function createPointMarker(
 
     let pointIcon;
 
-
     /* =========================================
        НОВА ТОЧКА — НЕ ПІДТВЕРДЖЕНА
     ========================================= */
 
-    if(
+    const isNewPoint =
         data &&
-        data.approved === false
-    ){
+        data.approved === false;
+
+
+    if(isNewPoint){
 
         pointIcon =
             L.icon({
@@ -8649,7 +9043,6 @@ function createPointMarker(
             });
 
     }
-
 
     /* =========================================
        ПІДТВЕРДЖЕНА ТОЧКА
@@ -8677,6 +9070,15 @@ function createPointMarker(
                 icon: pointIcon
             }
         );
+
+
+    /* =========================================
+       ЗАПАМ'ЯТОВУЄМО
+       ЧИ ЦЕ НОВА ТОЧКА
+    ========================================= */
+
+    marker.isNewUserPoint =
+        isNewPoint;
 
 
     /* =========================================
@@ -8715,14 +9117,9 @@ function createPointMarker(
     );
 
 
-    /* =========================================
-       ПОВЕРТАЄМО MARKER
-    ========================================= */
-
     return marker;
 
 }
-
 /* =====================================================
    ЗАВАНТАЖЕННЯ ОДНІЄЇ КАТЕГОРІЇ
 ===================================================== */
@@ -8849,15 +9246,30 @@ async function loadCategoryPoints(category){
                 );
 
 
-            if(
-                distance >
-                POINTS_RADIUS_KM
-            ){
+        /* =========================================
+   РАДІУС ПОКАЗУ
 
-                return;
+   Нові точки користувачів —
+   показуємо значно далі
 
-            }
+   Підтверджені —
+   стандартний радіус
+========================================= */
 
+const maxDistance =
+    isNewPoint
+        ? NEW_POINTS_RADIUS_KM
+        : POINTS_RADIUS_KM;
+
+
+if(
+    distance >
+    maxDistance
+){
+
+    return;
+
+}
 
             /* =========================================
                ID
