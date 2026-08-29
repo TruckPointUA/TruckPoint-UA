@@ -2849,31 +2849,6 @@ body.night-mode .sheetHandle{
     object-fit: contain;
 }
 
-/* =====================================================
-   ЛІЧИЛЬНИК 3 2 1 ДЛЯ ДОВГОГО НАТИСКАННЯ
-===================================================== */
-
-.long-press-countdown {
-    position: fixed;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-
-    width: 90px;
-    height: 90px;
-
-    display: none;
-    align-items: center;
-    justify-content: center;
-
-    z-index: 99999;
-
-    pointer-events: none;
-}
-
-.long-press-countdown.active {
-    display: flex;
-}
 
 #countdownNumber {
     width: 90px;
@@ -3614,10 +3589,6 @@ body.night-mode .sheetHandle{
     class="new-points-admin-message"
 ></div>
 
-<!-- ЛІЧИЛЬНИК ДОВГОГО НАТИСКАННЯ -->
-<div id="longPressCountdown" class="long-press-countdown">
-    <div id="countdownNumber">3</div>
-</div>
 <script>
 
 
@@ -3656,7 +3627,20 @@ console.log(
     "🔥 Firebase DB підключено:",
     app.options.projectId
 );
+/* =====================================================
+   🛠️ ПЕРЕВІРКА РОЗРОБНИКА
+===================================================== */
 
+function isDeveloper() {
+
+    const user =
+        firebase.auth().currentUser;
+
+    return !!(
+        user &&
+        user.uid === DEVELOPER_UID
+    );
+}
 /* =====================================================
    ЗБЕРЕГТИ ГЕОЛОКАЦІЮ КОРИСТУВАЧА
    Геолокація використовується ТІЛЬКИ для маркера "Моє місце"
@@ -3868,6 +3852,54 @@ const map = L.map('map', {
     6
 );
 
+
+console.log("🟢 ТЕСТ ЛІЧИЛЬНИКА ЗАПУЩЕНО");
+
+const testCountdown =
+    document.getElementById("longPressCountdown");
+
+const testNumber =
+    document.getElementById("countdownNumber");
+
+console.log("countdown:", testCountdown);
+console.log("number:", testNumber);
+console.log("map:", map);
+
+
+/* ТЕСТ ПРИ НАТИСКАННІ НА КАРТУ */
+
+map.on("touchstart", function(e) {
+
+    console.log("🟡 TOUCHSTART СПРАЦЮВАВ");
+
+    testNumber.textContent = "3";
+
+    testCountdown.classList.add("active");
+
+
+    setTimeout(() => {
+
+        testNumber.textContent = "2";
+
+    }, 700);
+
+
+    setTimeout(() => {
+
+        testNumber.textContent = "1";
+
+    }, 1400);
+
+
+    setTimeout(() => {
+
+        testCountdown.classList.remove("active");
+
+        console.log("🔴 ЛІЧИЛЬНИК ЗАВЕРШИВСЯ");
+
+    }, 2000);
+
+});
 
 /* =========================================
    ПОКАЗ НОВИХ ТОЧОК НА ДАЛЕКОМУ ZOOM
@@ -4844,162 +4876,130 @@ let userLocationCircle = null;
 
 (function(){
 
-
 /* =====================================================
    ДОВГЕ НАТИСКАННЯ НА КАРТУ
-   3 → 2 → 1 → ВІКНО ДОДАВАННЯ
+   ЗАТИСНУВ → ВІДКРИВАЄТЬСЯ ДОДАВАННЯ ТОЧКИ
 ===================================================== */
 
-const LONG_PRESS_TIME = 2000;
+const LONG_PRESS_TIME = 1500;
+const LONG_PRESS_MOVE_LIMIT = 15;
 
 let longPressTimer = null;
-let longPressCountdownTimer = null;
-
 let longPressStartLatLng = null;
 let longPressActive = false;
-let longPressMarker = null;
-
-
-/* =====================================================
-   МАРКЕР ПІД ЧАС ДОВГОГО НАТИСКАННЯ
-===================================================== */
-
-function showLongPressMarker(latlng) {
-
-    // якщо старий маркер є — видаляємо
-    if (longPressMarker) {
-        map.removeLayer(longPressMarker);
-        longPressMarker = null;
-    }
-
-    longPressMarker = L.marker(latlng, {
-        icon: L.divIcon({
-            className: "longPressMarker",
-            html: `
-                <div class="longPressMarkerInner">
-                    <div class="longPressMarkerPin"></div>
-                </div>
-            `,
-            iconSize: [46, 46],
-            iconAnchor: [23, 46]
-        }),
-        interactive: false
-    }).addTo(map);
-}
-
-
-/* =====================================================
-   СХОВАТИ МАРКЕР
-===================================================== */
-
-function hideLongPressMarker() {
-
-    if (longPressMarker) {
-        map.removeLayer(longPressMarker);
-        longPressMarker = null;
-    }
-}
-
-const countdownBox =
-    document.getElementById("longPressCountdown");
-
-const countdownNumber =
-    document.getElementById("countdownNumber");
-
-
-/* =====================================================
-   ПОКАЗАТИ ЛІЧИЛЬНИК
-===================================================== */
-
-function startLongPressCountdown(latlng){
-
-    longPressActive = true;
-
-    longPressStartLatLng = latlng;
-
-    let number = 3;
-
-    countdownNumber.textContent = number;
-
-    countdownBox.classList.add("active");
-
-    /* перший запуск через 1 секунду */
-    longPressCountdownTimer = setInterval(() => {
-
-        number--;
-
-        if(number > 0){
-
-            countdownNumber.textContent = number;
-
-            /* перезапуск анімації */
-            countdownNumber.style.animation = "none";
-
-            void countdownNumber.offsetWidth;
-
-            countdownNumber.style.animation =
-                "countdownPulse 1s ease-in-out";
-
-        }
-
-    }, 1000);
-
-
-    /* через 3 секунди відкриваємо вікно */
-
-    longPressTimer = setTimeout(() => {
-
-        clearInterval(longPressCountdownTimer);
-
-        countdownBox.classList.remove("active");
-
-        longPressActive = false;
-
-        openAddPointWindow(longPressStartLatLng);
-
-    }, LONG_PRESS_TIME);
-}
-
-
-/* =====================================================
-   СКАСУВАТИ ДОВГЕ НАТИСКАННЯ
-===================================================== */
-
-function cancelLongPress(){
-
-    if(longPressTimer){
-
-        clearTimeout(longPressTimer);
-        longPressTimer = null;
-
-    }
-
-    if(longPressCountdownTimer){
-
-        clearInterval(longPressCountdownTimer);
-        longPressCountdownTimer = null;
-
-    }
-
-    countdownBox.classList.remove("active");
-
-    longPressActive = false;
-
-    longPressStartLatLng = null;
-}
 
 
 /* =====================================================
    TOUCHSTART
 ===================================================== */
 
-map.on("touchstart", function(e){
+map.on("touchstart", function(e) {
 
-    if(!e.latlng) return;
+    /* Не працюємо при pinch zoom */
+
+    if (
+        e.originalEvent &&
+        e.originalEvent.touches &&
+        e.originalEvent.touches.length > 1
+    ) {
+        cancelLongPress();
+        return;
+    }
+
+    if (!e.latlng) return;
 
     cancelLongPress();
 
-    startLongPressCountdown(e.latlng);
+    longPressStartLatLng = e.latlng;
+
+    longPressActive = true;
+
+
+    /* =================================================
+       ЧЕРЕЗ 1.5 СЕКУНДИ
+    ================================================= */
+
+    longPressTimer = setTimeout(function() {
+
+        if (!longPressActive) return;
+
+        if (!longPressStartLatLng) return;
+
+
+        const latlng = longPressStartLatLng;
+
+
+        longPressActive = false;
+
+        longPressTimer = null;
+
+        longPressStartLatLng = null;
+
+
+        /* =================================================
+           ВІДКРИВАЄМО ВІКНО ДОДАВАННЯ
+        ================================================= */
+
+        if (
+            typeof openAddPointWindow === "function"
+        ) {
+
+            openAddPointWindow(latlng);
+
+        } else {
+
+            console.error(
+                "❌ openAddPointWindow() не знайдена"
+            );
+
+        }
+
+    }, LONG_PRESS_TIME);
+
+});
+
+
+/* =====================================================
+   TOUCHMOVE
+===================================================== */
+
+map.on("touchmove", function(e) {
+
+    if (!longPressActive) return;
+
+    if (!longPressStartLatLng) return;
+
+
+    /* Pinch zoom */
+
+    if (
+        e.originalEvent &&
+        e.originalEvent.touches &&
+        e.originalEvent.touches.length > 1
+    ) {
+
+        cancelLongPress();
+
+        return;
+    }
+
+
+    /* Відстань від початкової точки */
+
+    const distance =
+        map.distance(
+            longPressStartLatLng,
+            e.latlng
+        );
+
+
+    /* Якщо карта рухається — скасувати */
+
+    if (distance > LONG_PRESS_MOVE_LIMIT) {
+
+        cancelLongPress();
+
+    }
 
 });
 
@@ -5008,9 +5008,27 @@ map.on("touchstart", function(e){
    TOUCHEND
 ===================================================== */
 
-map.on("touchend", function(){
+map.on("touchend", function() {
 
-    if(!longPressActive) return;
+    /*
+       Якщо палець відпустили ДО завершення
+       довгого натискання — скасувати
+    */
+
+    if (longPressActive) {
+
+        cancelLongPress();
+
+    }
+
+});
+
+
+/* =====================================================
+   TOUCHCANCEL
+===================================================== */
+
+map.on("touchcancel", function() {
 
     cancelLongPress();
 
@@ -5018,29 +5036,24 @@ map.on("touchend", function(){
 
 
 /* =====================================================
-   TOUCHMOVE
-   Якщо палець сильно перемістився — скасувати
+   СКАСУВАННЯ
 ===================================================== */
 
-map.on("touchmove", function(e){
+function cancelLongPress() {
 
-    if(!longPressStartLatLng) return;
+    if (longPressTimer) {
 
-    const distance =
-        map.distance(
-            longPressStartLatLng,
-            e.latlng
-        );
+        clearTimeout(longPressTimer);
 
-    /* більше 15 метрів — це вже переміщення карти */
-
-    if(distance > 15){
-
-        cancelLongPress();
+        longPressTimer = null;
 
     }
 
-});
+    longPressActive = false;
+
+    longPressStartLatLng = null;
+
+}
 
 /* =================================================
    ВІДСТЕЖЕННЯ ПАЛЬЦІВ
@@ -5468,7 +5481,7 @@ map.getContainer().addEventListener(
                         navigator.vibrate
                     ){
 
-                        navigator.vibrate(40);
+                       // navigator.vibrate(40); 
                     }
 
 
@@ -6392,6 +6405,7 @@ function openPointInfo(pointId, pointData){
 
     currentPointData = pointData || {};
 
+    
 
     /* =================================================
        СТАН КНОПКИ "НАЗАД"
@@ -7243,7 +7257,7 @@ const isDeveloper =
 
 
 /* =====================================================
-   🗑️ ВИДАЛЕННЯ ВІДГУКУ РОЗРОБНИКОМ
+   🗑️ ВИДАЛЕННЯ ВІДГУКУ ОМ
 ===================================================== */
 
 async function deletePointReview(pointId, reviewId) {
@@ -7256,7 +7270,7 @@ async function deletePointReview(pointId, reviewId) {
         return;
     }
 
-    // 🔐 ТІЛЬКИ РОЗРОБНИК
+    // 🔐 ТІЛЬКИ 
     if (
         firebaseUser.uid !==
         "R9LDnqVzlbdKgEIh0J0fufXlans1"
