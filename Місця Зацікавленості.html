@@ -2938,6 +2938,641 @@ body.night-mode .sheetHandle{
     text-align: center;
 }
 
+
+/* =====================================================
+🛠️ РОЗРОБНИК — ПАНЕЛЬ КООРДИНАТ
+===================================================== */
+
+.developer-coordinates-panel {
+
+display: none;
+
+position: fixed;
+
+top: 80px;
+right: 20px;
+
+width: 330px;
+max-width: calc(100vw - 40px);
+
+padding: 18px;
+
+background: rgba(15, 23, 42, 0.97);
+
+border: 1px solid rgba(255,255,255,0.15);
+
+border-radius: 18px;
+
+box-shadow:
+    0 15px 40px rgba(0,0,0,0.45);
+
+z-index: 99999;
+
+color: white;
+
+font-family: Arial, sans-serif;
+
+}
+
+/* Заголовок */
+
+.developer-coordinates-title {
+
+font-size: 18px;
+
+font-weight: 700;
+
+text-align: center;
+
+margin-bottom: 16px;
+
+color: #ffffff;
+
+}
+
+/* Підписи */
+
+.developer-coordinates-panel label {
+
+display: block;
+
+margin-top: 10px;
+margin-bottom: 5px;
+
+font-size: 13px;
+
+color: #cbd5e1;
+
+}
+
+/* Поля */
+
+.developer-coordinates-panel input,
+.developer-coordinates-panel select,
+.developer-coordinates-panel textarea {
+
+width: 100%;
+
+box-sizing: border-box;
+
+padding: 11px 12px;
+
+border-radius: 10px;
+
+border: 1px solid rgba(255,255,255,0.15);
+
+background: rgba(255,255,255,0.08);
+
+color: white;
+
+outline: none;
+
+font-size: 14px;
+
+}
+
+.developer-coordinates-panel input,
+.developer-coordinates-panel select,
+.developer-coordinates-panel textarea {
+
+border-color: #38bdf8;
+
+box-shadow: 0 0 0 2px rgba(56,189,248,0.15);
+
+}
+
+/* Select */
+
+.developer-coordinates-panel select option {
+
+background: #0f172a;
+
+color: white;
+
+}
+
+/* Опис */
+
+.developer-coordinates-panel textarea {
+
+min-height: 70px;
+
+resize: vertical;
+
+}
+
+/* LAT / LNG */
+
+.developer-coordinate-row {
+
+display: grid;
+
+grid-template-columns: 1fr 1fr;
+
+gap: 10px;
+
+}
+
+/* Кнопки */
+
+.developer-coordinates-btn {
+
+width: 100%;
+
+border: none;
+
+border-radius: 11px;
+
+padding: 12px;
+
+margin-top: 12px;
+
+font-size: 15px;
+
+font-weight: 300;
+
+cursor: pointer;
+
+transition: 0.2s;
+
+}
+
+.developer-coordinates-btn {
+
+transform: translateY(-1px);
+
+}
+
+.developer-coordinates-btn {
+
+transform: scale(0.98);
+
+}
+
+/* Показати */
+
+.developer-coordinates-btn.show {
+
+background: #2563eb;
+
+color: white;
+
+}
+
+/* Додати */
+
+.developer-coordinates-btn.add {
+
+background: #16a34a;
+
+color: white;
+
+}
+
+/* Статус */
+
+#developerCoordinatesStatus {
+
+margin-top: 12px;
+
+padding: 9px;
+
+border-radius: 9px;
+
+font-size: 13px;
+
+text-align: center;
+
+display: none;
+
+}
+
+#developerCoordinatesStatus.success {
+
+display: block;
+
+background: rgba(34,197,94,0.15);
+
+color: #86efac;
+
+}
+
+#developerCoordinatesStatus.error {
+
+display: block;
+
+background: rgba(239,68,68,0.15);
+
+color: #fca5a5;
+
+}
+
+#developerCoordinatesStatus.info {
+
+display: block;
+
+background: rgba(59,130,246,0.15);
+
+color: #93c5fd;
+
+}
+
+/* =====================================================
+📱 ТЕЛЕФОН
+===================================================== */
+
+@media (max-width: 600px) {
+
+.developer-coordinates-panel {
+
+    top: 70px;
+
+    left: 10px;
+    right: 10px;
+
+    width: auto;
+
+    max-width: none;
+
+    padding: 15px;
+}
+
+.developer-coordinates-title {
+
+    font-size: 16px;
+}
+
+}
+
+
+
+/* =====================================================
+   🛠️ КНОПКА РОЗРОБНИКА
+===================================================== */
+
+#openDeveloperCoordinatesBtn {
+
+    display: none;
+
+    position: fixed;
+
+    right: 18px;
+    bottom: 150px;
+
+    left: auto;
+    transform: none;
+
+    z-index: 9999;
+
+    width: 44px;
+    height: 44px;
+
+    padding: 0;
+
+    border: none;
+    border-radius: 50%;
+
+    background: linear-gradient(
+        135deg,
+        #1976d2,
+        #0d47a1
+    );
+
+    color: white;
+
+    font-size: 21px;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 5px 16px rgba(0,0,0,.25);
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+}
+
+/* =====================================================
+   🛠️ ПАНЕЛЬ РОЗРОБНИКА
+===================================================== */
+
+#developerCoordinatesPanel {
+    display: none;
+
+    position: fixed;
+    left: 50%;
+    top: 50%;
+
+    transform: translate(-50%, -50%);
+
+    width: min(92%, 430px);
+    max-height: 90vh;
+
+    overflow-y: auto;
+
+    z-index: 10000;
+
+    background: rgb(155, 153, 153);
+
+    border-radius: 20px;
+
+    padding: 20px;
+
+    box-sizing: border-box;
+
+    box-shadow: 0 15px 50px rgba(0,0,0,.35);
+}
+
+
+#developerCoordinatesPanel.show {
+    display: block;
+}
+
+
+/* ВІДКРИТА ПАНЕЛЬ */
+
+#developerCoordinatesPanel.show {
+    display: block;
+}
+
+
+/* =====================================================
+   ЗАГОЛОВОК
+===================================================== */
+
+.developer-coordinates-title {
+
+    font-size: 19px;
+    font-weight: 800;
+
+    text-align: center;
+
+    margin-bottom: 18px;
+
+    color: #cdd0d1;
+}
+
+
+/* =====================================================
+   ПОЛЯ
+===================================================== */
+
+#developerCoordinatesPanel label {
+
+    display: block;
+
+    margin-top: 12px;
+    margin-bottom: 6px;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    color: #c2d2da;
+}
+
+
+#developerCoordinatesPanel input,
+#developerCoordinatesPanel select,
+#developerCoordinatesPanel textarea {
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding: 11px 12px;
+
+    border: 1px solid #cfd8dc;
+
+    border-radius: 10px;
+
+    font-family: inherit;
+
+    font-size: 14px;
+
+    outline: none;
+}
+
+
+#developerCoordinatesPanel textarea {
+
+    min-height: 80px;
+
+    resize: vertical;
+}
+
+
+/* =====================================================
+   КООРДИНАТИ
+===================================================== */
+
+.developer-coordinate-row {
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 10px;
+}
+
+
+/* =====================================================
+   КНОПКИ
+===================================================== */
+
+.developer-coordinates-btn {
+
+    width: 100%;
+
+    margin-top: 14px;
+
+    padding: 12px;
+
+    border: none;
+
+    border-radius: 11px;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+
+.developer-coordinates-btn.show {
+
+    background: #e3f2fd;
+
+    color: #1565c0;
+}
+
+
+.developer-coordinates-btn.add {
+
+    background: linear-gradient(
+        135deg,
+        #43a047,
+        #2e7d32
+    );
+
+    color: white;
+}
+.close-developer-coordinates {
+    position: absolute;
+
+    top: 10px;
+    right: 10px;
+
+    width: 36px;
+    height: 36px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #f1f3f4;
+
+    color: #455a64;
+
+    font-size: 26px;
+    font-weight: 400;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 10001;
+}
+
+.close-developer-coordinates:hover {
+    background: #e0e0e0;
+}
+
+.developer-category-select {
+    position: relative;
+    width: 100%;
+}
+
+.developer-category-button {
+    width: 100%;
+    min-height: 46px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 8px 12px;
+
+    background: rgb(90, 87, 87);
+    border: 1px solid #87b7cc;
+    border-radius: 10px;
+
+    font-size: 14px;
+    cursor: pointer;
+
+    box-sizing: border-box;
+}
+
+.developer-category-arrow {
+    font-size: 11px;
+    color: #607d8b;
+}
+
+.developer-category-dropdown {
+    display: none;
+
+    position: absolute;
+
+    left: 0;
+    right: 0;
+    top: calc(100% + 5px);
+
+    background: rgb(100, 60, 60);
+
+    border: 1px solid #d5dde2;
+    border-radius: 12px;
+
+    box-shadow: 0 8px 25px rgba(0,0,0,.18);
+
+    overflow: hidden;
+
+    z-index: 10050;
+}
+
+.developer-category-dropdown.show {
+    display: block;
+}
+
+.developer-category-option {
+    min-height: 48px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 7px 12px;
+
+    box-sizing: border-box;
+
+    cursor: pointer;
+
+    font-size: 14px;
+}
+
+.developer-category-option:hover {
+    background: #77797a;
+}
+
+.developer-category-option img {
+    width: 34px;
+    height: 34px;
+
+    object-fit: contain;
+
+    flex-shrink: 0;
+}
+
+.developer-category-option span {
+    flex: 1;
+}
+
+/* ============ 📢 БІГУЧИЙ ТЕКСТ =================== */ 
+.map-running-text 
+{ 
+    position: fixed; 
+    left: 0; right: 0; 
+    bottom: 0; 
+    height: 94px; 
+    background: 
+    transparent; 
+    color: #fbfcfb; 
+    display: flex; 
+    align-items: center; 
+    overflow: hidden; 
+    z-index: 9999; 
+    pointer-events: none; 
+    font-family: Arial, sans-serif; 
+    font-size: 16px; 
+    font-weight: 600; 
+    text-shadow: 0 1px 3px rgba(0,0,0,0.9), 0 0 5px rgba(0,0,0,0.8);
+     } 
+     .map-running-text-inner 
+     { 
+        white-space: nowrap; 
+        padding-left: 100%; 
+        animation: mapRunningText 30s linear infinite; 
+        } 
+        @keyframes mapRunningText 
+        { 0% { transform: translateX(0); }
+         100% 
+         { transform: translateX(-100%); 
+         } 
+         }
 </style>
 
 </head>
@@ -3273,6 +3908,13 @@ body.night-mode .sheetHandle{
 </div>
 
 </div>
+<button
+    type="button"
+    id="openDeveloperCoordinatesBtn"
+    class="developer-coordinates-btn show"
+>
+    📍
+</button>
 <!-- =====================================================
      ВІКНО — ДОДАТИ НОВУ ТОЧКУ
 ===================================================== -->
@@ -3581,6 +4223,154 @@ body.night-mode .sheetHandle{
 
 </button>
 
+<!-- ===================================================== 🛠️ РОЗРОБНИК — ДОДАВАННЯ ТОЧКИ ЗА КООРДИНАТАМИ ===================================================== -->
+
+<div id="developerCoordinatesPanel" class="developer-coordinates-panel">
+    <button
+    type="button"
+    id="closeDeveloperCoordinatesBtn"
+    class="close-developer-coordinates"
+    title="Закрити"
+>
+    ×
+</button>
+
+<div class="developer-coordinates-title">
+    🛠️ Додати точку за координатами
+</div>
+
+<label>Категорія</label>
+<div class="developer-category-select">
+
+    <button
+        type="button"
+        id="developerCategoryButton"
+        class="developer-category-button"
+    >
+        <span id="developerCategorySelected">
+            Оберіть категорію
+        </span>
+
+        <span class="developer-category-arrow">▼</span>
+    </button>
+
+    <div
+        id="developerCategoryDropdown"
+        class="developer-category-dropdown"
+    >
+
+        <div
+            class="developer-category-option"
+            data-value=""
+        >
+            Оберіть категорію
+        </div>
+
+        <div
+            class="developer-category-option"
+            data-value="market"
+        >
+            <img src="maarket_map.svg">
+            <span>Продуктовий магазин</span>
+        </div>
+
+        <div
+            class="developer-category-option"
+            data-value="parking_free"
+        >
+            <img src="parkinglogoo_map.svg">
+            <span>Паркінг безкоштовний</span>
+        </div>
+
+        <div
+            class="developer-category-option"
+            data-value="parking_paid"
+        >
+            <img src="platnii_map.svg">
+            <span>Паркінг платний</span>
+        </div>
+
+        <div
+            class="developer-category-option"
+            data-value="industrial"
+        >
+            <img src="promzona_map.svg">
+            <span>Промислова зона</span>
+        </div>
+
+    </div>
+
+    <!-- Справжнє значення для JavaScript -->
+    <select
+        id="developerPointCategory"
+        style="display:none;"
+    >
+        <option value="">Оберіть категорію</option>
+        <option value="market">Продуктовий магазин</option>
+        <option value="parking_free">Паркінг безкоштовний</option>
+        <option value="parking_paid">Паркінг платний</option>
+        <option value="industrial">Промислова зона</option>
+    </select>
+
+</div>
+
+<label>Назва точки</label>
+<input
+    type="text"
+    id="developerPointName"
+    placeholder="Наприклад: АТБ"
+>
+
+<label>Опис</label>
+<textarea
+    id="developerPointDescription"
+    placeholder="Опис точки"
+></textarea>
+
+<div class="developer-coordinate-row">
+
+    <div>
+        <label>Широта (LAT)</label>
+        <input
+            type="number"
+            id="developerPointLat"
+            step="any"
+            placeholder="50.450100"
+        >
+    </div>
+
+    <div>
+        <label>Довгота (LNG)</label>
+        <input
+            type="number"
+            id="developerPointLng"
+            step="any"
+            placeholder="30.523400"
+        >
+    </div>
+
+</div>
+
+<button
+    type="button"
+    id="developerShowCoordinatesBtn"
+    class="developer-coordinates-btn show"
+>
+    📍 Показати на карті
+</button>
+
+<button
+    type="button"
+    id="developerAddCoordinatesBtn"
+    class="developer-coordinates-btn add"
+>
+    ✅ Додати точку
+</button>
+
+<div id="developerCoordinatesStatus"></div>
+
+</div>
+
 
 <!-- Повідомлення -->
 
@@ -3588,6 +4378,13 @@ body.night-mode .sheetHandle{
     id="newPointsAdminMessage"
     class="new-points-admin-message"
 ></div>
+
+<!-- ========== 📢 БІГУЧИЙ ТЕКСТ ВНИЗУ ЕКРАНА ========= --> 
+ <div class="map-running-text"> 
+    <div class="map-running-text-inner"> 
+        ⚠️ Увага! При довгому натисканні на карті в потрібному місці можна додати нову точку. Вкажіть її категорію, назву та опис, щоб інші користувачі також могли бачити й використовувати цю інформацію.
+    </div> 
+</div>
 
 <script>
 
@@ -3615,18 +4412,6 @@ const usersAuth = app.auth();
 const usersDb = app.database();
 
 
-/* =====================================================
-   🛠️ РОЗРОБНИК
-===================================================== */
-
-const DEVELOPER_UID =
-    "R9LDnqVzlbdKgEIh0J0fufXlans1";
-
-
-console.log(
-    "🔥 Firebase DB підключено:",
-    app.options.projectId
-);
 /* =====================================================
    🛠️ ПЕРЕВІРКА РОЗРОБНИКА
 ===================================================== */
@@ -3853,53 +4638,672 @@ const map = L.map('map', {
 );
 
 
-console.log("🟢 ТЕСТ ЛІЧИЛЬНИКА ЗАПУЩЕНО");
+/* =====================================================
+   🛠️ РОЗРОБНИК — КНОПКА ДОДАВАННЯ ТОЧКИ
+===================================================== */
 
-const testCountdown =
-    document.getElementById("longPressCountdown");
+const DEVELOPER_UID = "R9LDnqVzlbdKgEIh0J0fufXlans1";
 
-const testNumber =
-    document.getElementById("countdownNumber");
+const developerOpenBtn =
+    document.getElementById("openDeveloperCoordinatesBtn");
 
-console.log("countdown:", testCountdown);
-console.log("number:", testNumber);
-console.log("map:", map);
-
-
-/* ТЕСТ ПРИ НАТИСКАННІ НА КАРТУ */
-
-map.on("touchstart", function(e) {
-
-    console.log("🟡 TOUCHSTART СПРАЦЮВАВ");
-
-    testNumber.textContent = "3";
-
-    testCountdown.classList.add("active");
+const developerPanel =
+    document.getElementById("developerCoordinatesPanel");
 
 
-    setTimeout(() => {
-
-        testNumber.textContent = "2";
-
-    }, 700);
-
-
-    setTimeout(() => {
-
-        testNumber.textContent = "1";
-
-    }, 1400);
+/* Панель спочатку ЗАКРИТА */
+if (developerPanel) {
+    developerPanel.classList.remove("show");
+}
 
 
-    setTimeout(() => {
+/* =====================================================
+   🔐 ПЕРЕВІРКА РОЗРОБНИКА
+===================================================== */
 
-        testCountdown.classList.remove("active");
+if (typeof firebase !== "undefined" && firebase.auth) {
 
-        console.log("🔴 ЛІЧИЛЬНИК ЗАВЕРШИВСЯ");
+    firebase.auth().onAuthStateChanged(function(user) {
 
-    }, 2000);
+        const isDeveloper =
+            user &&
+            user.uid === DEVELOPER_UID;
+
+        if (developerOpenBtn) {
+
+            if (isDeveloper) {
+
+                developerOpenBtn.style.display = "block";
+
+                console.log("🛠️ Режим розробника активний");
+
+            } else {
+
+                developerOpenBtn.style.display = "none";
+
+            }
+        }
+
+        /* Для звичайного користувача панель завжди закрита */
+        if (!isDeveloper && developerPanel) {
+            developerPanel.classList.remove("show");
+        }
+
+    });
+
+} else {
+
+    /* Якщо Firebase Auth ще не завантажений */
+    if (developerOpenBtn) {
+        developerOpenBtn.style.display = "none";
+    }
+
+}
+
+
+/* =====================================================
+   📍 ВІДКРИТТЯ ПАНЕЛІ
+===================================================== */
+
+if (developerOpenBtn) {
+
+    developerOpenBtn.addEventListener("click", function() {
+
+        if (!developerPanel) return;
+
+        developerPanel.classList.toggle("show");
+
+        if (developerPanel.classList.contains("show")) {
+
+            console.log("📍 Панель додавання точки відкрита");
+
+        } else {
+
+            console.log("📍 Панель додавання точки закрита");
+
+        }
+
+    });
+
+}
+
+
+/* =====================================================
+   ❌ ЗАКРИТТЯ ПАНЕЛІ ПО ESC
+===================================================== */
+
+document.addEventListener("keydown", function(e) {
+
+    if (e.key === "Escape" && developerPanel) {
+        developerPanel.classList.remove("show");
+    }
 
 });
+
+/* =====================================================
+🛠️ РОЗРОБНИК
+📍 ДОДАВАННЯ ТОЧКИ ЗА КООРДИНАТАМИ
+===================================================== */
+
+let developerCoordinateMarker = null;
+
+/* =====================================================
+🔐 ПОКАЗ ПАНЕЛІ ТІЛЬКИ РОЗРОБНИКУ
+===================================================== */
+
+function initDeveloperCoordinatesPanel() {
+
+    const panel =
+        document.getElementById(
+            "developerCoordinatesPanel"
+        );
+
+    if (!panel) return;
+
+    /* Панель завжди закрита після завантаження */
+    panel.style.display = "none";
+
+    if (isDeveloper()) {
+
+        console.log(
+            "🛠️ Панель координат розробника готова."
+        );
+
+    }
+
+}
+
+/* =====================================================
+📍 ОТРИМАННЯ КООРДИНАТ
+===================================================== */
+
+function getDeveloperCoordinates() {
+
+const latInput =
+    document.getElementById(
+        "developerPointLat"
+    );
+
+const lngInput =
+    document.getElementById(
+        "developerPointLng"
+    );
+
+
+const lat =
+    parseFloat(latInput.value);
+
+const lng =
+    parseFloat(lngInput.value);
+
+
+if (
+    !Number.isFinite(lat) ||
+    !Number.isFinite(lng)
+) {
+
+    return null;
+
+}
+
+
+if (
+    lat < -90 ||
+    lat > 90
+) {
+
+    return null;
+
+}
+
+
+if (
+    lng < -180 ||
+    lng > 180
+) {
+
+    return null;
+
+}
+
+
+return {
+    lat,
+    lng
+};
+
+}
+
+/* =====================================================
+💬 СТАТУС
+===================================================== */
+
+function developerCoordinatesStatus(
+message,
+type = "info"
+) {
+
+const status =
+    document.getElementById(
+        "developerCoordinatesStatus"
+    );
+
+if (!status) return;
+
+
+status.textContent = message;
+
+status.className =
+    "developerCoordinatesStatus " + type;
+
+status.classList.add(type);
+
+}
+
+/* =====================================================
+📍 ПОКАЗАТИ КООРДИНАТИ НА КАРТІ
+===================================================== */
+
+function showDeveloperCoordinatesOnMap() {
+
+if (!isDeveloper()) {
+
+    alert(
+        "⛔ Ця функція доступна тільки розробнику."
+    );
+
+    return;
+
+}
+
+
+const coordinates =
+    getDeveloperCoordinates();
+
+
+if (!coordinates) {
+
+    developerCoordinatesStatus(
+        "❌ Введіть правильні координати.",
+        "error"
+    );
+
+    return;
+
+}
+
+
+const {
+    lat,
+    lng
+} = coordinates;
+
+
+/* ================================================
+   🗺️ ПЕРЕМІЩЕННЯ КАРТИ
+================================================ */
+
+map.setView(
+    [lat, lng],
+    17,
+    {
+        animate: true
+    }
+);
+
+
+/* ================================================
+   🧹 ВИДАЛИТИ ПОПЕРЕДНІЙ ТИМЧАСОВИЙ МАРКЕР
+================================================ */
+
+if (
+    developerCoordinateMarker
+) {
+
+    map.removeLayer(
+        developerCoordinateMarker
+    );
+
+    developerCoordinateMarker = null;
+
+}
+
+
+/* ================================================
+   📍 СТВОРЕННЯ ТИМЧАСОВОГО МАРКЕРА
+================================================ */
+
+developerCoordinateMarker =
+    L.marker(
+        [lat, lng],
+        {
+            zIndexOffset: 10000
+        }
+    )
+    .addTo(map);
+
+
+developerCoordinateMarker.bindPopup(
+    `
+    <div style="
+        text-align:center;
+        min-width:180px;
+    ">
+
+        <strong>🛠️ Точка розробника</strong>
+
+        <br><br>
+
+        <b>LAT:</b> ${lat}
+
+        <br>
+
+        <b>LNG:</b> ${lng}
+
+        <br><br>
+
+        <span style="
+            color:#2563eb;
+            font-size:12px;
+        ">
+            Перевірте місце на карті
+        </span>
+
+    </div>
+    `
+).openPopup();
+
+
+developerCoordinatesStatus(
+    `📍 Координати показано: ${lat}, ${lng}`,
+    "success"
+);
+
+
+console.log(
+    "📍 Розробник переглядає координати:",
+    lat,
+    lng
+);
+
+}
+
+/* =====================================================
+💾 ДОДАВАННЯ ТОЧКИ У FIREBASE
+===================================================== */
+
+async function addDeveloperCoordinatePoint() {
+
+if (!isDeveloper()) {
+
+    alert(
+        "⛔ Додавати точки за координатами може тільки розробник."
+    );
+
+    return;
+
+}
+
+
+/* ================================================
+   📋 ОТРИМУЄМО ДАНІ
+================================================ */
+
+const category =
+    document.getElementById(
+        "developerPointCategory"
+    ).value;
+
+
+const name =
+    document.getElementById(
+        "developerPointName"
+    ).value.trim();
+
+
+const description =
+    document.getElementById(
+        "developerPointDescription"
+    ).value.trim();
+
+
+const coordinates =
+    getDeveloperCoordinates();
+
+
+/* ================================================
+   ❌ ПЕРЕВІРКИ
+================================================ */
+
+if (!category) {
+
+    developerCoordinatesStatus(
+        "❌ Оберіть категорію.",
+        "error"
+    );
+
+    return;
+
+}
+
+
+if (!name) {
+
+    developerCoordinatesStatus(
+        "❌ Введіть назву точки.",
+        "error"
+    );
+
+    return;
+
+}
+
+
+if (!coordinates) {
+
+    developerCoordinatesStatus(
+        "❌ Введіть правильні LAT і LNG.",
+        "error"
+    );
+
+    return;
+
+}
+
+
+const {
+    lat,
+    lng
+} = coordinates;
+
+
+/* ================================================
+   🔑 ID ТОЧКИ
+================================================ */
+
+const pointId =
+    db
+        .ref(
+            "points/" + category
+        )
+        .push()
+        .key;
+
+
+/* ================================================
+   📦 ДАНІ ТОЧКИ
+================================================ */
+
+const pointData = {
+
+    name: name,
+
+    description:
+        description,
+
+    lat: lat,
+
+    lng: lng,
+
+    latitude: lat,
+
+    longitude: lng,
+
+    category: category,
+
+    approved: true,
+
+    createdBy:
+        DEVELOPER_UID,
+
+    authorUid:
+        DEVELOPER_UID,
+
+    author:
+        "Розробник",
+
+    createdAt:
+        firebase.database.ServerValue.TIMESTAMP,
+
+    updatedAt:
+        firebase.database.ServerValue.TIMESTAMP
+
+};
+
+
+/* ================================================
+   💾 ЗАПИС У FIREBASE
+================================================ */
+
+try {
+
+    await db
+        .ref(
+            "points/" +
+            category +
+            "/" +
+            pointId
+        )
+        .set(pointData);
+
+
+    /* ============================================
+       📍 МАРКЕР НА КАРТІ
+    ============================================ */
+
+    if (
+        developerCoordinateMarker
+    ) {
+
+        map.removeLayer(
+            developerCoordinateMarker
+        );
+
+        developerCoordinateMarker = null;
+
+    }
+
+
+    /* ============================================
+       🧹 ОЧИЩЕННЯ
+    ============================================ */
+
+    document.getElementById(
+        "developerPointName"
+    ).value = "";
+
+
+    document.getElementById(
+        "developerPointDescription"
+    ).value = "";
+
+
+    document.getElementById(
+        "developerPointLat"
+    ).value = "";
+
+
+    document.getElementById(
+        "developerPointLng"
+    ).value = "";
+
+
+    document.getElementById(
+        "developerPointCategory"
+    ).value = "";
+
+
+    developerCoordinatesStatus(
+        "✅ Точку успішно додано у Firebase!",
+        "success"
+    );
+
+
+    console.log(
+        "✅ Розробник додав точку:",
+        pointId,
+        pointData
+    );
+
+
+    /* ============================================
+       🔄 ОНОВЛЕННЯ КАРТИ
+    ============================================ */
+
+    if (
+        typeof createPointMarker === "function"
+    ) {
+
+        createPointMarker(
+            category,
+            pointId,
+            pointData,
+            lat,
+            lng
+        );
+
+    }
+
+
+} catch (error) {
+
+    console.error(
+        "❌ Помилка додавання точки:",
+        error
+    );
+
+
+    developerCoordinatesStatus(
+        "❌ Не вдалося додати точку: " +
+        error.message,
+        "error"
+    );
+
+}
+
+}
+
+/* =====================================================
+🔘 КНОПКИ
+===================================================== */
+
+document.addEventListener(
+"DOMContentLoaded",
+function() {
+
+    const showButton =
+        document.getElementById(
+            "developerShowCoordinatesBtn"
+        );
+
+
+    const addButton =
+        document.getElementById(
+            "developerAddCoordinatesBtn"
+        );
+
+
+    if (showButton) {
+
+        showButton.addEventListener(
+            "click",
+            showDeveloperCoordinatesOnMap
+        );
+
+    }
+
+
+    if (addButton) {
+
+        addButton.addEventListener(
+            "click",
+            addDeveloperCoordinatePoint
+        );
+
+    }
+
+}
+
+);
+
+/* =====================================================
+🔐 ПЕРЕВІРКА ПІСЛЯ ВХОДУ FIREBASE
+===================================================== */
+
+firebase.auth().onAuthStateChanged(
+function(user) {
+
+    setTimeout(
+        initDeveloperCoordinatesPanel,
+        300
+    );
+
+}
+
+);
+
+
+
 
 /* =========================================
    ПОКАЗ НОВИХ ТОЧОК НА ДАЛЕКОМУ ZOOM
@@ -10787,6 +12191,190 @@ document.addEventListener(
 
     }
 );
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        const openButton =
+            document.getElementById(
+                "openDeveloperCoordinatesBtn"
+            );
+
+        const panel =
+            document.getElementById(
+                "developerCoordinatesPanel"
+            );
+
+
+        if (openButton && panel) {
+
+            openButton.addEventListener(
+                "click",
+                function() {
+
+                    if (!isDeveloper()) {
+
+                        alert(
+                            "⛔ Доступ тільки для розробника."
+                        );
+
+                        return;
+
+                    }
+
+                    panel.style.display = "block";
+
+                }
+            );
+
+        }
+
+    }
+);
+
+/* =====================================================
+   🛠️ КАТЕГОРІЯ РОЗРОБНИКА
+===================================================== */
+
+const developerCategoryButton =
+    document.getElementById("developerCategoryButton");
+
+const developerCategoryDropdown =
+    document.getElementById("developerCategoryDropdown");
+
+const developerCategorySelected =
+    document.getElementById("developerCategorySelected");
+
+const developerPointCategory =
+    document.getElementById("developerPointCategory");
+
+
+/* ВІДКРИТИ СПИСОК */
+
+developerCategoryButton.addEventListener("click", function(e) {
+
+    e.stopPropagation();
+
+    developerCategoryDropdown.classList.toggle("show");
+
+});
+
+
+/* ВИБІР КАТЕГОРІЇ */
+
+document
+    .querySelectorAll(".developer-category-option")
+    .forEach(function(option) {
+
+        option.addEventListener("click", function() {
+
+            const value =
+                this.dataset.value;
+
+            const text =
+                this.querySelector("span")?.textContent ||
+                this.textContent.trim();
+
+            const img =
+                this.querySelector("img");
+
+            /* Значення для JS */
+            developerPointCategory.value = value;
+
+            /* Очищаємо кнопку */
+            developerCategorySelected.innerHTML = "";
+
+            /* Якщо вибрана SVG-іконка */
+            if (img) {
+
+                const icon =
+                    document.createElement("img");
+
+                icon.src = img.src;
+
+                icon.style.width = "30px";
+                icon.style.height = "30px";
+                icon.style.objectFit = "contain";
+                icon.style.verticalAlign = "middle";
+                icon.style.marginRight = "8px";
+
+                developerCategorySelected.appendChild(icon);
+
+            }
+
+            const label =
+                document.createElement("span");
+
+            label.textContent = text;
+
+            developerCategorySelected.appendChild(label);
+
+            /* Закрити список */
+            developerCategoryDropdown
+                .classList
+                .remove("show");
+
+        });
+
+    });
+
+
+/* =====================================================
+   🛠️ ЗАКРИТТЯ ВІКНА "ДОДАТИ ТОЧКУ"
+===================================================== */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const panel =
+        document.getElementById("developerCoordinatesPanel");
+
+    const closeBtn =
+        document.getElementById("closeDeveloperCoordinatesBtn");
+
+    const openBtn =
+        document.getElementById("openDeveloperCoordinatesBtn");
+
+
+    /* ❌ ЗАКРИТИ */
+
+    if (closeBtn && panel) {
+
+        closeBtn.onclick = function (event) {
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            panel.classList.remove("show");
+
+            /* На всякий випадок */
+            panel.style.display = "none";
+
+            console.log("❌ Вікно розробника закрито");
+        };
+
+    }
+
+
+    /* 📍 ВІДКРИТИ */
+
+    if (openBtn && panel) {
+
+        openBtn.onclick = function (event) {
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            panel.classList.add("show");
+
+            panel.style.display = "block";
+
+            console.log("📍 Вікно розробника відкрите");
+        };
+
+    }
+
+});
 </script>
 
 </body>
