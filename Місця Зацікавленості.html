@@ -4223,161 +4223,282 @@ color: #93c5fd;
 
 </button>
 
-<!-- ===================================================== 🛠️ РОЗРОБНИК — ДОДАВАННЯ ТОЧКИ ЗА КООРДИНАТАМИ ===================================================== -->
+```html
+<!-- =====================================================
+     🛠️ РОЗРОБНИК — ДОДАВАННЯ ТОЧКИ ЗА КООРДИНАТАМИ
+===================================================== -->
 
-<div id="developerCoordinatesPanel" class="developer-coordinates-panel">
-    <button
-    type="button"
-    id="closeDeveloperCoordinatesBtn"
-    class="close-developer-coordinates"
-    title="Закрити"
+<div
+    id="developerCoordinatesPanel"
+    class="developer-coordinates-panel"
 >
-    ×
-</button>
 
-<div class="developer-coordinates-title">
-    🛠️ Додати точку за координатами
-</div>
-
-<label>Категорія</label>
-<div class="developer-category-select">
-
+    <!-- КНОПКА ЗАКРИТИ -->
     <button
         type="button"
-        id="developerCategoryButton"
-        class="developer-category-button"
+        id="closeDeveloperCoordinatesBtn"
+        class="close-developer-coordinates"
+        title="Закрити"
     >
-        <span id="developerCategorySelected">
-            Оберіть категорію
-        </span>
-
-        <span class="developer-category-arrow">▼</span>
+        ×
     </button>
 
-    <div
-        id="developerCategoryDropdown"
-        class="developer-category-dropdown"
-    >
+
+    <!-- ЗАГОЛОВОК -->
+    <div class="developer-coordinates-title">
+        🛠️ Додати точку за координатами
+    </div>
+
+
+    <!-- =================================================
+         КАТЕГОРІЯ
+    ================================================== -->
+
+    <label>Категорія</label>
+
+    <div class="developer-category-select">
+
+        <button
+            type="button"
+            id="developerCategoryButton"
+            class="developer-category-button"
+        >
+            <span id="developerCategorySelected">
+                Оберіть категорію
+            </span>
+
+            <span class="developer-category-arrow">
+                ▼
+            </span>
+        </button>
+
 
         <div
-            class="developer-category-option"
-            data-value=""
+            id="developerCategoryDropdown"
+            class="developer-category-dropdown"
         >
-            Оберіть категорію
-        </div>
 
-        <div
-            class="developer-category-option"
-            data-value="market"
-        >
-            <img src="maarket_map.svg">
-            <span>Продуктовий магазин</span>
-        </div>
+            <div
+                class="developer-category-option"
+                data-value=""
+            >
+                Оберіть категорію
+            </div>
 
-        <div
-            class="developer-category-option"
-            data-value="parking_free"
-        >
-            <img src="parkinglogoo_map.svg">
-            <span>Паркінг безкоштовний</span>
-        </div>
 
-        <div
-            class="developer-category-option"
-            data-value="parking_paid"
-        >
-            <img src="platnii_map.svg">
-            <span>Паркінг платний</span>
-        </div>
+            <div
+                class="developer-category-option"
+                data-value="market"
+            >
+                <img src="maarket_map.svg">
+                <span>Продуктовий магазин</span>
+            </div>
 
-        <div
-            class="developer-category-option"
-            data-value="industrial"
-        >
-            <img src="promzona_map.svg">
-            <span>Промислова зона</span>
+
+            <div
+                class="developer-category-option"
+                data-value="parking_free"
+            >
+                <img src="parkinglogoo_map.svg">
+                <span>Паркінг безкоштовний</span>
+            </div>
+
+
+            <div
+                class="developer-category-option"
+                data-value="parking_paid"
+            >
+                <img src="platnii_map.svg">
+                <span>Паркінг платний</span>
+            </div>
+
+
+            <div
+                class="developer-category-option"
+                data-value="industrial"
+            >
+                <img src="promzona_map.svg">
+                <span>Промислова зона</span>
+            </div>
+
         </div>
 
     </div>
 
-    <!-- Справжнє значення для JavaScript -->
+
+    <!-- =================================================
+         ПРИХОВАНЕ ЗНАЧЕННЯ КАТЕГОРІЇ ДЛЯ JAVASCRIPT
+    ================================================== -->
+
     <select
         id="developerPointCategory"
         style="display:none;"
     >
-        <option value="">Оберіть категорію</option>
-        <option value="market">Продуктовий магазин</option>
-        <option value="parking_free">Паркінг безкоштовний</option>
-        <option value="parking_paid">Паркінг платний</option>
-        <option value="industrial">Промислова зона</option>
+
+        <option value="">
+            Оберіть категорію
+        </option>
+
+        <option value="market">
+            Продуктовий магазин
+        </option>
+
+        <option value="parking_free">
+            Паркінг безкоштовний
+        </option>
+
+        <option value="parking_paid">
+            Паркінг платний
+        </option>
+
+        <option value="industrial">
+            Промислова зона
+        </option>
+
     </select>
 
-</div>
 
-<label>Назва точки</label>
-<input
-    type="text"
-    id="developerPointName"
-    placeholder="Наприклад: АТБ"
->
+    <!-- =================================================
+         👤 АВТОР
+    ================================================== -->
 
-<label>Опис</label>
-<textarea
-    id="developerPointDescription"
-    placeholder="Опис точки"
-></textarea>
+    <label
+        for="developerPointAuthor"
+    >
+        👤 Автор
+    </label>
 
-<div class="developer-coordinate-row">
+    <input
+        type="text"
+        id="developerPointAuthor"
+        placeholder="Введіть ім'я автора"
+        autocomplete="off"
+        maxlength="100"
+    >
 
-    <div>
-        <label>Широта (LAT)</label>
-        <input
-            type="number"
-            id="developerPointLat"
-            step="any"
-            placeholder="50.450100"
-        >
+
+    <!-- =================================================
+         НАЗВА ТОЧКИ
+    ================================================== -->
+
+    <label
+        for="developerPointName"
+    >
+        Назва точки
+    </label>
+
+    <input
+        type="text"
+        id="developerPointName"
+        placeholder="Наприклад: АТБ"
+    >
+
+
+    <!-- =================================================
+         ОПИС
+    ================================================== -->
+
+    <label
+        for="developerPointDescription"
+    >
+        Опис
+    </label>
+
+    <textarea
+        id="developerPointDescription"
+        placeholder="Опис точки"
+    ></textarea>
+
+
+    <!-- =================================================
+         КООРДИНАТИ
+    ================================================== -->
+
+    <div class="developer-coordinate-row">
+
+        <div>
+
+            <label
+                for="developerPointLat"
+            >
+                Широта (LAT)
+            </label>
+
+            <input
+                type="number"
+                id="developerPointLat"
+                step="any"
+                placeholder="50.450100"
+            >
+
+        </div>
+
+
+        <div>
+
+            <label
+                for="developerPointLng"
+            >
+                Довгота (LNG)
+            </label>
+
+            <input
+                type="number"
+                id="developerPointLng"
+                step="any"
+                placeholder="30.523400"
+            >
+
+        </div>
+
     </div>
 
-    <div>
-        <label>Довгота (LNG)</label>
-        <input
-            type="number"
-            id="developerPointLng"
-            step="any"
-            placeholder="30.523400"
-        >
-    </div>
+
+    <!-- =================================================
+         ПОКАЗАТИ НА КАРТІ
+    ================================================== -->
+
+    <button
+        type="button"
+        id="developerShowCoordinatesBtn"
+        class="developer-coordinates-btn show"
+    >
+        📍 Показати на карті
+    </button>
+
+
+    <!-- =================================================
+         ДОДАТИ ТОЧКУ
+    ================================================== -->
+
+    <button
+        type="button"
+        id="developerAddCoordinatesBtn"
+        class="developer-coordinates-btn add"
+    >
+        ✅ Додати точку
+    </button>
+
+
+    <!-- СТАТУС -->
+
+    <div
+        id="developerCoordinatesStatus"
+    ></div>
 
 </div>
 
-<button
-    type="button"
-    id="developerShowCoordinatesBtn"
-    class="developer-coordinates-btn show"
->
-    📍 Показати на карті
-</button>
 
-<button
-    type="button"
-    id="developerAddCoordinatesBtn"
-    class="developer-coordinates-btn add"
->
-    ✅ Додати точку
-</button>
-
-<div id="developerCoordinatesStatus"></div>
-
-</div>
-
-
-<!-- Повідомлення -->
+<!-- =====================================================
+     📢 ПОВІДОМЛЕННЯ ПРО НОВІ ТОЧКИ
+===================================================== -->
 
 <div
     id="newPointsAdminMessage"
     class="new-points-admin-message"
 ></div>
+```
+
 
 <!-- ========== 📢 БІГУЧИЙ ТЕКСТ ВНИЗУ ЕКРАНА ========= --> 
  <div class="map-running-text"> 
@@ -4992,257 +5113,62 @@ console.log(
 💾 ДОДАВАННЯ ТОЧКИ У FIREBASE
 ===================================================== */
 
-async function addDeveloperCoordinatePoint() {
-
-if (!isDeveloper()) {
-
-    alert(
-        "⛔ Додавати точки за координатами може тільки розробник."
-    );
-
-    return;
-
-}
-
-
-/* ================================================
-   📋 ОТРИМУЄМО ДАНІ
-================================================ */
-
-const category =
-    document.getElementById(
-        "developerPointCategory"
-    ).value;
-
-
-const name =
-    document.getElementById(
-        "developerPointName"
-    ).value.trim();
-
-
-const description =
-    document.getElementById(
-        "developerPointDescription"
-    ).value.trim();
-
-
-const coordinates =
-    getDeveloperCoordinates();
-
-
-/* ================================================
-   ❌ ПЕРЕВІРКИ
-================================================ */
-
-if (!category) {
-
-    developerCoordinatesStatus(
-        "❌ Оберіть категорію.",
-        "error"
-    );
-
-    return;
-
-}
-
-
-if (!name) {
-
-    developerCoordinatesStatus(
-        "❌ Введіть назву точки.",
-        "error"
-    );
-
-    return;
-
-}
-
-
-if (!coordinates) {
-
-    developerCoordinatesStatus(
-        "❌ Введіть правильні LAT і LNG.",
-        "error"
-    );
-
-    return;
-
-}
-
-
-const {
-    lat,
-    lng
-} = coordinates;
-
-
-/* ================================================
-   🔑 ID ТОЧКИ
-================================================ */
-
-const pointId =
-    db
-        .ref(
-            "points/" + category
-        )
-        .push()
-        .key;
-
-
-/* ================================================
-   📦 ДАНІ ТОЧКИ
-================================================ */
-
-const pointData = {
-
-    name: name,
-
-    description:
-        description,
-
-    lat: lat,
-
-    lng: lng,
-
-    latitude: lat,
-
-    longitude: lng,
-
-    category: category,
-
-    approved: true,
-
-    createdBy:
-        DEVELOPER_UID,
-
-    authorUid:
-        DEVELOPER_UID,
-
-    author:
-        "Розробник",
-
-    createdAt:
-        firebase.database.ServerValue.TIMESTAMP,
-
-    updatedAt:
-        firebase.database.ServerValue.TIMESTAMP
-
-};
-
-
-/* ================================================
-   💾 ЗАПИС У FIREBASE
-================================================ */
-
-try {
-
-    await db
-        .ref(
-            "points/" +
-            category +
-            "/" +
-            pointId
-        )
-        .set(pointData);
-
-
-    /* ============================================
-       📍 МАРКЕР НА КАРТІ
-    ============================================ */
-
-    if (
-        developerCoordinateMarker
-    ) {
-
-        map.removeLayer(
-            developerCoordinateMarker
-        );
-
-        developerCoordinateMarker = null;
-
-    }
-
-
-    /* ============================================
-       🧹 ОЧИЩЕННЯ
-    ============================================ */
-
-    document.getElementById(
-        "developerPointName"
-    ).value = "";
-
-
-    document.getElementById(
-        "developerPointDescription"
-    ).value = "";
-
-
-    document.getElementById(
-        "developerPointLat"
-    ).value = "";
-
-
-    document.getElementById(
-        "developerPointLng"
-    ).value = "";
-
-
-    document.getElementById(
-        "developerPointCategory"
-    ).value = "";
-
-
-    developerCoordinatesStatus(
-        "✅ Точку успішно додано у Firebase!",
-        "success"
-    );
-
-
-    console.log(
-        "✅ Розробник додав точку:",
-        pointId,
-        pointData
-    );
-
-
-    /* ============================================
-       🔄 ОНОВЛЕННЯ КАРТИ
-    ============================================ */
-
-    if (
-        typeof createPointMarker === "function"
-    ) {
-
-        createPointMarker(
-            category,
-            pointId,
-            pointData,
-            lat,
-            lng
-        );
-
-    }
-
-
-} catch (error) {
-
-    console.error(
-        "❌ Помилка додавання точки:",
-        error
-    );
-
-
-    developerCoordinatesStatus(
-        "❌ Не вдалося додати точку: " +
-        error.message,
-        "error"
-    );
-
-}
-
-}
-
+async function addDeveloperCoordinatePoint() 
+{ if (!isDeveloper()) 
+    { 
+        alert( "⛔ Додавати точки за координатами може тільки розробник." );
+         return; } 
+         /* ================== 📋 ОТРИМУЄМО ДАНІ =================== */ 
+         const category = document.getElementById( "developerPointCategory" ).value; 
+         const name = document.getElementById( "developerPointName" ).value.trim(); 
+         const description = document.getElementById( "developerPointDescription" ).value.trim(); 
+         /* 👤 АВТОР */ 
+         const authorInput = document.getElementById( "developerPointAuthor" ); 
+         const author = authorInput ? authorInput.value.trim() : ""; 
+         const coordinates = getDeveloperCoordinates(); 
+         /* ============================== ❌ ПЕРЕВІРКИ ================================ */ 
+         if (!category) { developerCoordinatesStatus( "❌ Оберіть категорію.", "error" ); 
+         return; 
+        } 
+        if (!author) { developerCoordinatesStatus( "❌ Введіть автора точки.", "error" ); 
+        return; } if (!name) { developerCoordinatesStatus( "❌ Введіть назву точки.", "error" );
+         return; } 
+         if (!coordinates) { developerCoordinatesStatus( "❌ Введіть правильні LAT і LNG.", "error" );
+          return; } const { lat, lng } = coordinates; 
+          /* ================ 🔑 ID ТОЧКИ ============================== */ 
+          const pointId = db .ref( "points/" + category ) .push() .key; 
+          /* ======================= 📦 ДАНІ ТОЧКИ ============================== */ 
+          const pointData = { name: name, description: description, /* 
+            👤 АВТОР */ 
+            author: author, lat: lat, lng: lng, 
+            latitude: lat, longitude: lng, category: category, 
+            approved: true, createdBy: DEVELOPER_UID,
+            authorUid: DEVELOPER_UID, 
+            createdAt: firebase.database.ServerValue.TIMESTAMP, 
+            updatedAt: firebase.database.ServerValue.TIMESTAMP }; 
+            /* ======================= 💾 ЗАПИС У FIREBASE ============================= */ 
+            try { await db .ref( "points/" + category + "/" + pointId ) .set(pointData); 
+            /* ============================== 📍 МАРКЕР НА КАРТІ =============================== */ 
+            if ( developerCoordinateMarker ) 
+            { map.removeLayer( developerCoordinateMarker ); 
+                developerCoordinateMarker = null; } 
+                /* ===================== 🧹 ОЧИЩЕННЯ ============================================ */ 
+                document.getElementById( "developerPointName" ).value = ""; 
+                document.getElementById( "developerPointDescription" ).value = ""; 
+                document.getElementById( "developerPointAuthor" ).value = ""; 
+                document.getElementById( "developerPointLat" ).value = ""; 
+                document.getElementById( "developerPointLng" ).value = ""; 
+                document.getElementById( "developerPointCategory" ).value = ""; 
+                /* Повертаємо напис категорії */ 
+                const categorySelected = document.getElementById( "developerCategorySelected" ); 
+                if (categorySelected) { categorySelected.textContent = "Оберіть категорію"; }
+                 developerCoordinatesStatus( "✅ Точку успішно додано у Firebase!", "success" );
+                  console.log( "✅ Розробник додав точку:", pointId, pointData ); 
+                  /* ====================== 🔄 ОНОВЛЕННЯ КАРТИ ========================= */ 
+                  if ( typeof createPointMarker === "function" ) { 
+                    createPointMarker( category, pointId, pointData, lat, lng ); } } catch (error)
+                     { console.error( "❌ Помилка додавання точки:", error ); developerCoordinatesStatus( 
+                        "❌ Не вдалося додати точку: " + error.message, "error" ); } }
 /* =====================================================
 🔘 КНОПКИ
 ===================================================== */
