@@ -9011,8 +9011,9 @@ descriptionElement.style.fontWeight = "500";
 
 
 
+
 /* =========================================================
-   📤 КРАСИВИЙ ПОДІЛ ТОЧКОЮ
+   📤 ПОДІЛИТИСЯ ТОЧКОЮ
    Назва + опис + координати + Google Maps
 ========================================================= */
 
@@ -9055,11 +9056,6 @@ async function shareCurrentPoint() {
             "❌ У точки відсутні правильні координати."
         );
 
-        console.error(
-            "❌ Дані поточної точки:",
-            currentPointData
-        );
-
         return;
     }
 
@@ -9098,7 +9094,7 @@ async function shareCurrentPoint() {
 
 
     /* =====================================================
-       📋 КРАСИВИЙ ТЕКСТ
+       📋 ТЕКСТ ПОВІДОМЛЕННЯ
     ===================================================== */
 
     const shareText =
@@ -9109,102 +9105,47 @@ async function shareCurrentPoint() {
 🌐 Координати:
 ${lat.toFixed(6)}, ${lng.toFixed(6)}
 
-🗺️ Google Maps:`;
+🗺️ Відкрити точку в Google Maps:`;
 
-
-    /* =====================================================
-       📤 ДАНІ ДЛЯ СИСТЕМИ ПОДІЛУ
-    ===================================================== */
-
-    const shareData = {
-
-        title:
-            "📍 " + pointName,
-
-        text:
-            shareText,
-
-        url:
-            googleMapsUrl
-
-    };
-
-
-    /* =====================================================
-       🧪 ЛОГ
-    ===================================================== */
 
     console.log(
-        "📤 SHARE DATA:",
+        "📤 ПОДІЛ ТОЧКОЮ:",
         {
-            title: shareData.title,
-            text: shareData.text,
-            url: shareData.url
+            name: pointName,
+            description: pointDescription,
+            lat: lat,
+            lng: lng,
+            googleMapsUrl: googleMapsUrl
         }
     );
 
 
     /* =====================================================
-       📱 СИСТЕМНЕ МЕНЮ "ПОДІЛИТИСЯ"
+       📱 ОСНОВНИЙ ВАРІАНТ — ANDROID / IOS SHARE
     ===================================================== */
 
     if (
-        navigator.share
+        typeof navigator.share === "function"
     ) {
 
         try {
 
-            /*
-               Перевіряємо, чи браузер підтримує
-               саме такий формат поділу.
-            */
+            await navigator.share({
 
-            if (
-                navigator.canShare &&
-                !navigator.canShare(
-                    shareData
-                )
-            ) {
+                title:
+                    "📍 " + pointName,
 
-                console.warn(
-                    "⚠️ Браузер не підтримує всі дані shareData."
-                );
+                text:
+                    shareText,
 
-                /*
-                   Запасний варіант:
-                   текст + URL разом.
-                */
+                url:
+                    googleMapsUrl
 
-                await navigator.share({
-
-                    title:
-                        shareData.title,
-
-                    text:
-                        shareText +
-                        "\n" +
-                        googleMapsUrl
-
-                });
-
-            }
-
-            else {
-
-                /*
-                   Основний варіант:
-                   URL передається окремо.
-                */
-
-                await navigator.share(
-                    shareData
-                );
-
-            }
+            });
 
 
             console.log(
-                "✅ Точку успішно передано через системне меню."
+                "✅ Системне меню поділу відкрито."
             );
 
             return;
@@ -9214,14 +9155,13 @@ ${lat.toFixed(6)}, ${lng.toFixed(6)}
         catch (error) {
 
             /*
-               Користувач просто натиснув
-               "Назад" / "Скасувати".
+               Користувач закрив
+               системне меню поділу.
             */
 
             if (
                 error &&
-                error.name ===
-                "AbortError"
+                error.name === "AbortError"
             ) {
 
                 console.log(
@@ -9232,8 +9172,8 @@ ${lat.toFixed(6)}, ${lng.toFixed(6)}
             }
 
 
-            console.error(
-                "❌ Помилка navigator.share:",
+            console.warn(
+                "⚠️ navigator.share не спрацював:",
                 error
             );
 
@@ -9243,7 +9183,8 @@ ${lat.toFixed(6)}, ${lng.toFixed(6)}
 
 
     /* =====================================================
-       📋 ЗАПАСНИЙ ВАРІАНТ — КОПІЮВАННЯ
+       📋 ЗАПАСНИЙ ВАРІАНТ
+       ТІЛЬКИ ЯКЩО SHARE ВЗАГАЛІ НЕ ПІДТРИМУЄТЬСЯ
     ===================================================== */
 
     const copyText =
@@ -9253,55 +9194,13 @@ ${googleMapsUrl}`;
 
     try {
 
-        if (
-            navigator.clipboard &&
-            window.isSecureContext
-        ) {
-
-            await navigator.clipboard.writeText(
-                copyText
-            );
-
-        }
-
-        else {
-
-            const textarea =
-                document.createElement(
-                    "textarea"
-                );
-
-            textarea.value =
-                copyText;
-
-            textarea.style.position =
-                "fixed";
-
-            textarea.style.left =
-                "-9999px";
-
-            textarea.style.top =
-                "0";
-
-            document.body.appendChild(
-                textarea
-            );
-
-            textarea.focus();
-            textarea.select();
-
-            document.execCommand(
-                "copy"
-            );
-
-            textarea.remove();
-
-        }
+        await navigator.clipboard.writeText(
+            copyText
+        );
 
 
         alert(
-            "✅ Дані точки скопійовано!\n\n" +
-            "Тепер можна вставити повідомлення у месенджер."
+            "✅ Дані точки скопійовано!"
         );
 
     }
@@ -9309,9 +9208,10 @@ ${googleMapsUrl}`;
     catch (error) {
 
         console.error(
-            "❌ Не вдалося скопіювати:",
+            "❌ Помилка копіювання:",
             error
         );
+
 
         alert(
             "❌ Не вдалося поділитися точкою."
@@ -9320,6 +9220,7 @@ ${googleMapsUrl}`;
     }
 
 }
+
 
 /* =========================
    ЗАКРИТТЯ
