@@ -8111,24 +8111,23 @@ function openPointInfo(pointId, pointData){
 
     
 
-    /* =================================================
-       СТАН КНОПКИ "НАЗАД"
-       ОПИС ТОЧКИ
-    ================================================= */
+/* =================================================
+   СТАН КНОПКИ "НАЗАД"
+   ОПИС ТОЧКИ
+================================================= */
 
-    if(!pointInfoBackState){
+if (!pointInfoBackState) {
 
-        history.pushState(
-            {
-                pointInfo: true
-            },
-            "",
-            window.location.href
-        );
+    history.pushState(
+        {
+            pointInfo: true
+        },
+        "",
+        window.location.href
+    );
 
-        pointInfoBackState = true;
-
-    }
+    pointInfoBackState = true;
+}
 
 
     const overlay =
