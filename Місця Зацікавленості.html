@@ -8794,20 +8794,13 @@ if (!pointInfoBackState) {
         "Точка";
 
 
-    /* Координати */
+/* Координати */
 
-    const lat =
-        Number(currentPointData.lat);
+const lat = Number(currentPointData.lat);
+const lng = Number(currentPointData.lng);
 
-    const lng =
-        Number(currentPointData.lng);
-
-
-   document.getElementById(
-    "pointInfoCoordinates"
-).textContent =
-    `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-
+document.getElementById("pointInfoCoordinates").innerHTML =
+    `${lat.toFixed(6)}<br>${lng.toFixed(6)}`;
 
 /* =================================================
    🗺️ ІКОНКА GOOGLE MAPS — ПРОКЛАСТИ МАРШРУТ
@@ -8862,7 +8855,7 @@ routeButton.style.cssText = `
     height:44px;
 
     margin-top:8px;
-    margin-left:-30px;
+    margin-left:-120px;
 
     padding:0;
 
