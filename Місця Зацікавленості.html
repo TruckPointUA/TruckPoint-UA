@@ -4380,6 +4380,83 @@ color: #93c5fd;
     }
 
 }
+
+/* =========================================================
+   👤 АВАТАР АВТОРА
+========================================================= */
+
+.reviewAvatar {
+
+    width:38px;
+
+    height:38px;
+
+    min-width:38px;
+
+    position:relative;
+
+    overflow:hidden;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #dcefe7,
+            #c7e2d7
+        );
+
+    color:#315b4d;
+
+    font-size:15px;
+
+    font-weight:800;
+
+}
+
+
+/* =========================================================
+   📷 ФОТО АВТОРА
+========================================================= */
+
+.reviewAvatarImage {
+
+    width:100%;
+
+    height:100%;
+
+    display:block;
+
+    object-fit:cover;
+
+}
+
+
+/* =========================================================
+   🔤 ЗАПАСНА ЛІТЕРА
+========================================================= */
+
+.reviewAvatarFallback {
+
+    width:100%;
+
+    height:100%;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:15px;
+
+    font-weight:800;
+
+}
 </style>
 
 </head>
@@ -9687,26 +9764,18 @@ ${googleMapsUrl}`;
     );
 
 
-    /* =====================================================
+      /* =====================================================
        📱 ANDROID / IOS SHARE
     ===================================================== */
 
-    if (
-        typeof navigator.share === "function"
-    ) {
+    if (typeof navigator.share === "function") {
 
         try {
 
             await navigator.share({
-
-                title:
-                    name,
-
-                text:
-                    message
-
+                title: `📍 ${name}`,
+                text: message
             });
-
 
             console.log(
                 "✅ Системне меню поділу відкрито."
@@ -9714,9 +9783,7 @@ ${googleMapsUrl}`;
 
             return;
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             if (
                 error &&
@@ -9730,13 +9797,42 @@ ${googleMapsUrl}`;
                 return;
             }
 
-
             console.error(
-                "❌ Помилка navigator.share:",
+                "❌ navigator.share не спрацював:",
                 error
             );
 
+            /*
+             * ВАЖЛИВО:
+             * тут НЕ робимо clipboard.writeText()
+             * автоматично.
+             */
+            return;
         }
+    }
+
+    /* =====================================================
+       💻 FALLBACK — ТІЛЬКИ ЯКЩО SHARE ВЗАГАЛІ НЕМАЄ
+    ===================================================== */
+
+    try {
+
+        await navigator.clipboard.writeText(message);
+
+        console.log(
+            "📋 Повідомлення скопійовано."
+        );
+
+        alert(
+            "📋 Повідомлення скопійовано"
+        );
+
+    } catch (error) {
+
+        console.error(
+            "❌ Не вдалося поділитися:",
+            error
+        );
 
     }
 
@@ -10196,29 +10292,32 @@ async function loadPointReviews(pointId) {
                     child.val() || {};
 
 
-                reviews.push({
+     reviews.push({
 
-                    id:
-                        child.key,
+    id: child.key,
 
-                    author:
-                        data.author ||
-                        "Користувач",
+    author:
+        data.author ||
+        "Користувач",
 
-                    userId:
-                        data.userId ||
-                        "",
+    userId:
+        data.userId ||
+        "",
 
-                    text:
-                        data.text ||
-                        "",
+    avatar:
+        data.avatar ||
+        data.photoURL ||
+        data.photoUrl ||
+        "",
 
-                    createdAt:
-                        Number(
-                            data.createdAt
-                        ) || 0
+    text:
+        data.text ||
+        "",
 
-                });
+    createdAt:
+        Number(data.createdAt) || 0
+
+});
 
             }
         );
@@ -10446,11 +10545,34 @@ async function loadPointReviews(pointId) {
                         <div class="reviewUser">
 
 
-                            <div class="reviewAvatar">
+                          <div class="reviewAvatar">
 
-                                ${avatarLetter}
+    ${
+        review.avatar
+            ? `
+                <img
+                    src="${escapeHtml(review.avatar)}"
+                    alt="${author}"
+                    class="reviewAvatarImage"
+                    onerror="
+                        this.style.display='none';
+                        this.nextElementSibling.style.display='flex';
+                    "
+                >
+            `
+            : ""
+    }
 
-                            </div>
+    <div
+        class="reviewAvatarFallback"
+        style="
+            display:${review.avatar ? "none" : "flex"};
+        "
+    >
+        ${avatarLetter}
+    </div>
+
+</div>
 
 
                             <div>
