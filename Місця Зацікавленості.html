@@ -578,14 +578,16 @@ body.night-mode .sheetHandle{
     flex:0 0 42px;
 }
 
+
+
 /* =========================
    КНОПКА ШАРІВ
 ========================= */
 
-.layerControl{
-    position:relative;
+.layerControl {
+    position: relative;
+    pointer-events: auto;
 
-    pointer-events:auto;
 }
 
 
@@ -594,7 +596,7 @@ body.night-mode .sheetHandle{
    СТИЛЬ GOOGLE MAPS
 ========================= */
 
-.layerButton{
+.layersButton {
 
     width:48px;
     height:48px;
@@ -693,7 +695,7 @@ body.night-mode .sheetHandle{
 }
 
 
-.layerButton:active{
+.layersButton:active{
     transform:scale(.94);
     box-shadow:
         0 1px 3px rgba(0,0,0,.35);
@@ -763,7 +765,7 @@ body.night-mode .sheetHandle{
 
     font-family:'Montserrat',sans-serif;
 
-    font-size:11px;
+    font-size:16px;
 
     font-weight:600;
 
@@ -794,6 +796,10 @@ body.night-mode .sheetHandle{
 }
 
 
+#layerButton {
+    transform: translateY(25px) !important;
+    z-index: 9999 !important;
+}
 /* =========================
    МІНІ-ПРЕВ'Ю КАРТИ
 ========================= */
@@ -861,7 +867,7 @@ body.night-mode .sheetHandle{
     }
 
 
-    .layerButton{
+    .layersButton{
 
         width:44px;
         height:44px;
@@ -2212,10 +2218,10 @@ body.night-mode .sheetHandle{
     position: fixed;
 
     right: 15px;
-    top: 75px;
+    top: 340px;
 
-    width: 52px;
-    height: 52px;
+    width: 45px;
+    height: 45px;
 
     border: none;
     border-radius: 50%;
@@ -3573,6 +3579,233 @@ color: #93c5fd;
          { transform: translateX(-100%); 
          } 
          }
+
+
+/* =========================================================
+   🛠️ ВІКНО РОЗРОБНИКА
+========================================================= */
+
+.developer-edit-overlay {
+
+    display: none;
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 999999;
+
+    background: rgba(0,0,0,.55);
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 15px;
+
+}
+
+
+/* =========================================================
+   ВІКНО
+========================================================= */
+
+.developer-edit-window {
+
+    width: 100%;
+
+    max-width: 500px;
+
+    max-height: 90vh;
+
+    overflow-y: auto;
+
+    background: #ffffff;
+
+    border-radius: 20px;
+
+    padding: 20px;
+
+    box-shadow:
+        0 15px 50px rgba(0,0,0,.35);
+
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.developer-edit-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    font-size: 20px;
+
+    font-weight: 700;
+
+    margin-bottom: 18px;
+
+}
+
+
+.developer-edit-close {
+
+    width: 38px;
+
+    height: 38px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background: #eeeeee;
+
+    font-size: 20px;
+
+    cursor: pointer;
+
+}
+
+
+/* =========================================================
+   LABEL
+========================================================= */
+
+.developer-edit-window label {
+
+    display: block;
+
+    margin-top: 12px;
+
+    margin-bottom: 5px;
+
+    font-weight: 600;
+
+    color: #333;
+
+}
+
+
+/* =========================================================
+   INPUT
+========================================================= */
+
+.developer-edit-window input,
+.developer-edit-window select,
+.developer-edit-window textarea {
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    border: 1px solid #d5d5d5;
+
+    border-radius: 10px;
+
+    padding: 11px;
+
+    font-size: 15px;
+
+    outline: none;
+
+    background: #fff;
+
+}
+
+
+.developer-edit-window textarea {
+
+    min-height: 100px;
+
+    resize: vertical;
+
+}
+
+
+.developer-edit-window input:focus,
+.developer-edit-window select:focus,
+.developer-edit-window textarea:focus {
+
+    border-color: #2196f3;
+
+    box-shadow:
+        0 0 0 2px rgba(33,150,243,.12);
+
+}
+
+
+/* =========================================================
+   КНОПКИ
+========================================================= */
+
+.developer-edit-buttons {
+
+    display: flex;
+
+    gap: 10px;
+
+    margin-top: 22px;
+
+}
+
+
+.developer-save-point-button,
+.developer-delete-point-button {
+
+    flex: 1;
+
+    min-height: 48px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    color: white;
+
+    font-size: 16px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+}
+
+
+.developer-save-point-button {
+
+    background:
+        linear-gradient(
+            135deg,
+            #1565c0,
+            #2196f3
+        );
+
+}
+
+
+.developer-delete-point-button {
+
+    background:
+        linear-gradient(
+            135deg,
+            #c62828,
+            #ef5350
+        );
+
+}
+
+
+.developer-save-point-button:active,
+.developer-delete-point-button:active {
+
+    transform: scale(.97);
+
+}
 </style>
 
 </head>
@@ -4507,6 +4740,148 @@ color: #93c5fd;
     </div> 
 </div>
 
+<!-- =========================================================
+     🛠️ ВІКНО ПОВНОГО РЕДАГУВАННЯ ТОЧКИ РОЗРОБНИКОМ
+========================================================= -->
+
+<div id="developerEditPointOverlay" class="developer-edit-overlay">
+
+    <div class="developer-edit-window">
+
+        <div class="developer-edit-header">
+            <span>🛠️ Редагування точки</span>
+
+            <button
+                type="button"
+                class="developer-edit-close"
+                onclick="closeDeveloperEditPoint()"
+            >
+                ✕
+            </button>
+        </div>
+
+
+        <input
+            type="hidden"
+            id="developerEditPointId"
+        >
+
+        <input
+            type="hidden"
+            id="developerEditPointOldCategory"
+        >
+
+
+        <label>Категорія</label>
+
+        <select id="developerEditPointCategory">
+
+            <option value="wash">🚿 Мийка</option>
+            <option value="parking">🅿️ Паркінг</option>
+            <option value="market">🛒 Продуктовий магазин</option>
+            <option value="industrial">🏭 Промислова зона</option>
+            <option value="gas_station">⛽ Заправка</option>
+            <option value="service">🔧 Сервіс</option>
+
+        </select>
+
+
+        <label>Назва точки</label>
+
+        <input
+            type="text"
+            id="developerEditPointName"
+            placeholder="Назва"
+        >
+
+
+        <label>Опис</label>
+
+        <textarea
+            id="developerEditPointDescription"
+            placeholder="Опис точки"
+        ></textarea>
+
+
+        <label>Автор</label>
+
+        <input
+            type="text"
+            id="developerEditPointAuthor"
+            placeholder="Автор"
+        >
+
+
+        <label>Телефон</label>
+
+        <input
+            type="text"
+            id="developerEditPointPhone"
+            placeholder="Телефон"
+        >
+
+
+        <label>Широта</label>
+
+        <input
+            type="number"
+            step="any"
+            id="developerEditPointLat"
+            placeholder="50.00000"
+        >
+
+
+        <label>Довгота</label>
+
+        <input
+            type="number"
+            step="any"
+            id="developerEditPointLng"
+            placeholder="10.00000"
+        >
+
+
+        <label>Статус</label>
+
+        <select id="developerEditPointApproved">
+
+            <option value="true">
+                ✅ Підтверджена
+            </option>
+
+            <option value="false">
+                🕐 Не підтверджена
+            </option>
+
+        </select>
+
+
+        <div class="developer-edit-buttons">
+
+            <button
+                type="button"
+                class="developer-save-point-button"
+                onclick="saveDeveloperPointEdit()"
+            >
+                💾 Зберегти
+            </button>
+
+
+            <button
+                type="button"
+                class="developer-delete-point-button"
+                onclick="deleteDeveloperPoint()"
+            >
+                🗑️ Видалити
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
 <script>
 
 
@@ -4654,15 +5029,14 @@ function getCategoryFromIcon(icon){
 
 const points = [
 
-   {
-    name: "Промислова зона",
-    lat: 50.644199,
-    lng: 26.2161,
-    author: "Viachaslau Drakon",
-    description: "Освещение",
+{
+    name: "Продуктовий магазин",
+    lat: 53.219313,
+    lng: 12.214961,
+    author: "",
+    description: "Рядом autohof АЗС , недалеко Промышленная зона",
     reviews: [],
-    icon: "promzona_map.svg"
-
+    icon: "maarket_map.svg"
 }
 //Вставити координати точок
 ];
@@ -7982,6 +8356,644 @@ if (!shareButton) {
 }
 
 descriptionElement.style.color = "#557568";
+/* =========================================================
+   🛠️ ПАНЕЛЬ РОЗРОБНИКА
+========================================================= */
+
+let developerPanel =
+    document.getElementById(
+        "developerPointControls"
+    );
+
+
+/* =========================================================
+   🔐 ТІЛЬКИ ДЛЯ РОЗРОБНИКА
+========================================================= */
+
+if (isDeveloper()) {
+
+    /* Якщо панелі ще немає — створюємо */
+
+    if (!developerPanel) {
+
+        developerPanel =
+            document.createElement("div");
+
+        developerPanel.id =
+            "developerPointControls";
+
+        developerPanel.style.cssText = `
+            margin-top:15px;
+            padding-top:15px;
+            border-top:1px solid #ddd;
+        `;
+
+    }
+
+
+    /* =====================================================
+       HTML ПАНЕЛІ
+    ===================================================== */
+
+    developerPanel.innerHTML = `
+
+        <div style="
+            font-weight:700;
+            margin-bottom:10px;
+            color:#1565c0;
+            font-size:16px;
+        ">
+            🛠️ Панель розробника
+        </div>
+
+
+        <button
+            type="button"
+            id="developerEditPointButton"
+            style="
+                width:100%;
+                min-height:46px;
+                border:0;
+                border-radius:12px;
+
+                background:linear-gradient(
+                    135deg,
+                    #1565c0,
+                    #2196f3
+                );
+
+                color:white;
+
+                font-size:16px;
+                font-weight:700;
+
+                cursor:pointer;
+
+                margin-bottom:8px;
+            "
+        >
+            ✏️ Повністю редагувати
+        </button>
+
+
+        <button
+            type="button"
+            id="developerDeletePointButton"
+            style="
+                width:100%;
+                min-height:46px;
+                border:0;
+                border-radius:12px;
+
+                background:linear-gradient(
+                    135deg,
+                    #c62828,
+                    #ef5350
+                );
+
+                color:white;
+
+                font-size:16px;
+                font-weight:700;
+
+                cursor:pointer;
+            "
+        >
+            🗑️ Видалити точку
+        </button>
+
+    `;
+
+
+    /* =====================================================
+       ✏️ КНОПКА РЕДАГУВАННЯ
+    ===================================================== */
+
+    const editButton =
+        developerPanel.querySelector(
+            "#developerEditPointButton"
+        );
+
+
+    if (editButton) {
+
+        editButton.onclick = function(){
+
+            const pointCategory =
+                currentPointData.category ||
+                currentPointData.type ||
+                "";
+
+
+            openDeveloperEditPoint(
+
+                currentPointId,
+
+                pointCategory,
+
+                currentPointData
+
+            );
+
+        };
+
+    }
+
+
+    /* =====================================================
+       🗑️ КНОПКА ВИДАЛЕННЯ
+    ===================================================== */
+
+    const deleteButton =
+        developerPanel.querySelector(
+            "#developerDeletePointButton"
+        );
+
+
+    if (deleteButton) {
+
+  /* =====================================================
+   🗑️ ПОВНЕ ВИДАЛЕННЯ ТОЧКИ
+===================================================== */
+
+deleteButton.onclick = async function () {
+
+    /* =====================================================
+       🔐 ПЕРЕВІРКА РОЗРОБНИКА
+    ===================================================== */
+
+    if (!isDeveloper()) {
+
+        alert(
+            "⛔ Видаляти точки може тільки розробник."
+        );
+
+        return;
+    }
+
+
+    /* =====================================================
+       📌 ОТРИМУЄМО КАТЕГОРІЮ
+    ===================================================== */
+
+    const pointCategory =
+        currentPointData?.category ||
+        currentPointData?.type ||
+        "";
+
+
+    /* =====================================================
+       🆔 ОТРИМУЄМО ID ТОЧКИ
+       
+       currentPointId може бути:
+
+       market_market_-P0Eug...
+       market_-P0Eug...
+       -P0Eug...
+
+       Нам потрібен тільки:
+
+       -P0Eug...
+    ===================================================== */
+
+const rawPointId =
+    String(
+        currentPointId || ""
+    );
+
+
+/*
+   currentPointId може бути:
+
+   market_old_point_0
+   market_-P0Eug...
+   industrial_old_point_197
+   industrial_-P123...
+
+   Потрібно прибрати тільки
+   category + "_".
+
+   ВАЖЛИВО:
+   old_point_0 має залишитися
+   old_point_197 має залишитися
+*/
+
+let pointId =
+    rawPointId;
+
+
+/* Прибираємо тільки category_ */
+
+if (
+    pointCategory &&
+    rawPointId.startsWith(
+        pointCategory + "_"
+    )
+) {
+
+    pointId =
+        rawPointId.substring(
+            pointCategory.length + 1
+        );
+
+}
+
+
+console.log(
+    "🆔 currentPointId:",
+    rawPointId
+);
+
+console.log(
+    "🆔 Правильний Firebase child ID:",
+    pointId
+);
+
+
+    /* =====================================================
+       🗺️ ПРАВИЛЬНИЙ ID МАРКЕРА
+       
+       pointMarkers має:
+
+       market_-P0Eug...
+    ===================================================== */
+
+    const mapPointId =
+        pointCategory +
+        "_" +
+        pointId;
+
+
+    console.log(
+        "🆔 currentPointId:",
+        rawPointId
+    );
+
+    console.log(
+        "🆔 ЧИСТИЙ Firebase child ID:",
+        pointId
+    );
+
+    console.log(
+        "🗺️ ID маркера:",
+        mapPointId
+    );
+
+
+    /* =====================================================
+       ❌ ПЕРЕВІРКА ID
+    ===================================================== */
+
+    if (
+        !pointId ||
+        pointId === "undefined" ||
+        pointId === "null"
+    ) {
+
+        alert(
+            "❌ Не визначено ID точки."
+        );
+
+        return;
+    }
+
+
+    /* =====================================================
+       ❌ ПЕРЕВІРКА КАТЕГОРІЇ
+    ===================================================== */
+
+    if (!pointCategory) {
+
+        alert(
+            "❌ Не визначена категорія точки."
+        );
+
+        console.error(
+            "❌ Дані точки:",
+            currentPointData
+        );
+
+        return;
+    }
+
+
+    /* =====================================================
+       ⚠️ ПІДТВЕРДЖЕННЯ
+    ===================================================== */
+
+    const confirmed =
+        confirm(
+            "⚠️ УВАГА!\n\n" +
+            "Ви дійсно хочете повністю видалити цю точку?\n\n" +
+            "Точка буде видалена з карти та Firebase.\n\n" +
+            "Цю дію неможливо скасувати."
+        );
+
+
+    if (!confirmed) {
+
+        return;
+    }
+
+
+    try {
+
+        /* =================================================
+           🗺️ 1. ВИДАЛЯЄМО МАРКЕР З КАРТИ
+        ================================================= */
+
+        let markerData =
+            pointMarkers[mapPointId];
+
+
+        /*
+           Якщо з якоїсь причини маркер має
+           старий формат ID — знаходимо його
+           автоматично за category + координатами.
+        */
+
+        if (!markerData) {
+
+            markerData =
+                pointMarkers[rawPointId];
+
+        }
+
+
+        if (markerData) {
+
+            console.log(
+                "🗺️ ЗНАЙДЕНО МАРКЕР:",
+                markerData
+            );
+
+
+            if (
+                markerData.marker &&
+                map.hasLayer(
+                    markerData.marker
+                )
+            ) {
+
+                map.removeLayer(
+                    markerData.marker
+                );
+
+                console.log(
+                    "🗺️ МАРКЕР ФІЗИЧНО ВИДАЛЕНО З MAP"
+                );
+
+            }
+
+
+            /*
+               Видаляємо його з pointMarkers.
+            */
+
+            const markerKey =
+                Object.keys(
+                    pointMarkers
+                ).find(
+                    key =>
+                        pointMarkers[key] ===
+                        markerData
+                );
+
+
+            if (markerKey) {
+
+                delete pointMarkers[
+                    markerKey
+                ];
+
+                console.log(
+                    "🧹 pointMarkers очищено:",
+                    markerKey
+                );
+
+            }
+
+        }
+
+        else {
+
+            console.warn(
+                "⚠️ Маркер не знайдений:",
+                mapPointId
+            );
+
+        }
+
+
+        /* =================================================
+           🗑️ 2. ВИДАЛЯЄМО САМЕ З FIREBASE
+        ================================================= */
+
+        const firebaseRef =
+            firebase
+                .database()
+                .ref(
+                    "points/" +
+                    pointCategory +
+                    "/" +
+                    pointId
+                );
+
+
+        console.log(
+            "🗑️ Firebase шлях видалення:",
+            firebaseRef.toString()
+        );
+
+
+   /* =================================================
+   🗑️ ВИДАЛЯЄМО ТОЧКУ З FIREBASE
+================================================= */
+
+await firebaseRef.remove();
+
+
+/* =================================================
+   🔎 ПЕРЕВІРЯЄМО, ЩО ТОЧКИ ДІЙСНО НЕМАЄ
+================================================= */
+
+const deletedCheck =
+    await firebaseRef.once(
+        "value"
+    );
+
+
+if (
+    deletedCheck.exists()
+) {
+
+    console.error(
+        "❌ УВАГА! Точка все ще існує у Firebase:",
+        firebaseRef.toString()
+    );
+
+    throw new Error(
+        "Firebase не видалив точку."
+    );
+
+}
+
+
+console.log(
+    "✅ Точку гарантовано видалено з Firebase:",
+    pointCategory,
+    pointId
+);
+
+
+        /* =================================================
+           🧹 3. ВИДАЛЯЄМО ВІДГУКИ
+        ================================================= */
+
+        try {
+
+            await firebase
+                .database()
+                .ref(
+                    "reviews/" +
+                    pointId
+                )
+                .remove();
+
+
+            console.log(
+                "✅ Reviews видалено:",
+                pointId
+            );
+
+        }
+
+        catch (error) {
+
+            console.warn(
+                "⚠️ Reviews не видалено:",
+                error
+            );
+
+        }
+
+
+        /* =================================================
+           🧹 4. ВИДАЛЯЄМО ОЦІНКИ
+        ================================================= */
+
+        try {
+
+            await firebase
+                .database()
+                .ref(
+                    "reviewRatings/" +
+                    pointId
+                )
+                .remove();
+
+
+            console.log(
+                "✅ ReviewRatings видалено:",
+                pointId
+            );
+
+        }
+
+        catch (error) {
+
+            console.warn(
+                "⚠️ ReviewRatings не видалено:",
+                error
+            );
+
+        }
+
+
+        /* =================================================
+           🗺️ 5. ЗАКРИВАЄМО ВІКНО
+        ================================================= */
+
+        if (
+            typeof closePointInfo ===
+            "function"
+        ) {
+
+            closePointInfo();
+
+        }
+
+
+        /* =================================================
+           🧹 6. ОЧИЩАЄМО ПОТОЧНІ ДАНІ
+        ================================================= */
+
+        currentPointId =
+            null;
+
+        currentPointData =
+            null;
+
+
+        /* =================================================
+           🚫 НЕ ПЕРЕЗАВАНТАЖУЄМО КАТЕГОРІЮ
+        ================================================= */
+
+        console.log(
+            "🗑️ Повне видалення завершено:",
+            pointId
+        );
+
+
+        alert(
+            "🗑️ Точку успішно видалено."
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "❌ Помилка видалення точки:",
+            error
+        );
+
+
+        alert(
+            "❌ Не вдалося видалити точку:\n\n" +
+            error.message
+        );
+
+    }
+
+}
+};
+
+
+    /* =====================================================
+       📌 ДОДАЄМО ПАНЕЛЬ ПІСЛЯ КНОПКИ "ПОДІЛИТИСЯ"
+    ===================================================== */
+
+    const shareButtonElement =
+        document.getElementById(
+            "pointShareButton"
+        );
+
+
+    if (
+        shareButtonElement &&
+        shareButtonElement.parentNode
+    ) {
+
+        shareButtonElement.parentNode
+            .insertBefore(
+                developerPanel,
+                shareButtonElement.nextSibling
+            );
+
+    }
+
+}
 descriptionElement.style.fontWeight = "500";
 
 
@@ -8175,7 +9187,237 @@ function closePointInfo(){
 
 }
 
+/* =========================================================
+   🗑️ ПОВНЕ ВИДАЛЕННЯ МАРКЕРА З КАРТИ
+========================================================= */
 
+function removePointMarkerFromMap(pointId){
+
+    console.log(
+        "🗑️ Починаємо очищення карти:",
+        pointId
+    );
+
+
+    /* =====================================================
+       1️⃣ ЗАКРИВАЄМО ВІДКРИТИЙ POPUP
+    ===================================================== */
+
+    try {
+
+        map.closePopup();
+
+    }
+    catch(error){
+
+        console.warn(
+            "⚠️ Не вдалося закрити popup:",
+            error
+        );
+
+    }
+
+
+    /* =====================================================
+       2️⃣ ВИДАЛЯЄМО ЧЕРЕЗ pointMarkers
+    ===================================================== */
+
+    if(
+        typeof pointMarkers !== "undefined" &&
+        pointMarkers &&
+        pointMarkers[pointId]
+    ){
+
+        const item =
+            pointMarkers[pointId];
+
+
+        if(
+            item.marker &&
+            map.hasLayer(item.marker)
+        ){
+
+            map.removeLayer(
+                item.marker
+            );
+
+            console.log(
+                "✅ Маркер видалено через pointMarkers:",
+                pointId
+            );
+
+        }
+
+
+        delete pointMarkers[pointId];
+
+    }
+
+
+    /* =====================================================
+       3️⃣ ДОДАТКОВО ШУКАЄМО МАРКЕР НА КАРТІ
+       
+       Це потрібно, якщо marker десь залишився,
+       але запису в pointMarkers вже немає.
+    ===================================================== */
+
+    const targetLat =
+        Number(
+            currentPointData?.lat ??
+            currentPointData?.latitude
+        );
+
+
+    const targetLng =
+        Number(
+            currentPointData?.lng ??
+            currentPointData?.lon ??
+            currentPointData?.longitude
+        );
+
+
+    map.eachLayer(function(layer){
+
+        /* Тільки Leaflet Marker */
+
+        if(
+            !layer ||
+            !layer.getLatLng
+        ){
+
+            return;
+
+        }
+
+
+        const position =
+            layer.getLatLng();
+
+
+        if(!position){
+
+            return;
+
+        }
+
+
+        /* =================================================
+           Перевіряємо координати
+        ================================================= */
+
+        const sameCoordinates =
+            Number.isFinite(targetLat) &&
+            Number.isFinite(targetLng) &&
+            Math.abs(
+                position.lat - targetLat
+            ) < 0.000001 &&
+            Math.abs(
+                position.lng - targetLng
+            ) < 0.000001;
+
+
+        /* =================================================
+           Перевіряємо pointId
+        ================================================= */
+
+        const samePointId =
+            layer._pointId === pointId ||
+            layer.pointId === pointId;
+
+
+        if(
+            samePointId ||
+            sameCoordinates
+        ){
+
+            try {
+
+                /* Закриваємо popup саме цього marker */
+
+                if(
+                    typeof layer.closePopup ===
+                    "function"
+                ){
+
+                    layer.closePopup();
+
+                }
+
+
+                /* Видаляємо marker */
+
+                if(
+                    map.hasLayer(layer)
+                ){
+
+                    map.removeLayer(
+                        layer
+                    );
+
+                }
+
+
+                console.log(
+                    "✅ Знайдений і видалений залишковий marker:",
+                    pointId
+                );
+
+            }
+            catch(error){
+
+                console.warn(
+                    "⚠️ Помилка видалення marker:",
+                    error
+                );
+
+            }
+
+        }
+
+    });
+
+
+    /* =====================================================
+       4️⃣ ЩЕ РАЗ ВИДАЛЯЄМО З МАСИВУ
+    ===================================================== */
+
+    if(
+        typeof pointMarkers !== "undefined"
+    ){
+
+        delete pointMarkers[pointId];
+
+    }
+
+
+    /* =====================================================
+       5️⃣ ЗАКРИВАЄМО ІНФОРМАЦІЙНЕ ВІКНО
+    ===================================================== */
+
+    const overlay =
+        document.getElementById(
+            "pointInfoOverlay"
+        );
+
+
+    if(overlay){
+
+        overlay.classList.remove(
+            "show"
+        );
+
+    }
+
+
+    document.body.style.overflow = "";
+
+
+    console.log(
+        "✅ Карта повністю очищена від точки:",
+        pointId
+    );
+
+}
 
 /* =====================================================
    ЗАВАНТАЖЕННЯ ВІДГУКІВ + РЕДАГУВАННЯ + ОЦІНЮВАННЯ
@@ -10063,7 +11305,7 @@ function addActiveCategoryIcon(icon){
    НАЛАШТУВАННЯ
 ===================================================== */
 
-const POINTS_RADIUS_KM = 20;
+const POINTS_RADIUS_KM = 30;
 
 // Радіус для нових точок користувачів
 const NEW_POINTS_RADIUS_KM = 150;
@@ -10351,7 +11593,14 @@ function createPointMarker(
     lat,
     lng
 ){
-
+console.trace(
+    "🧭 CREATE POINT MARKER:",
+    {
+        category,
+        pointId,
+        data
+    }
+);
     /* =========================================
        ВИБІР ІКОНКИ
     ========================================= */
@@ -10470,6 +11719,13 @@ function createPointMarker(
 
 async function loadCategoryPoints(category){
 
+    console.log(
+    "🔍 LOAD CATEGORY:",
+    category,
+    "TIME:",
+    Date.now()
+);
+
     /* =========================================
        ЗАВАНТАЖУЄМО КАТЕГОРІЮ
     ========================================= */
@@ -10511,7 +11767,17 @@ async function loadCategoryPoints(category){
 
             const data =
                 child.val();
-
+console.log(
+    "📍 FIREBASE POINT:",
+    {
+        category: category,
+        firebaseKey: child.key,
+        lat: data?.lat,
+        lng: data?.lng,
+        name: data?.name,
+        approved: data?.approved
+    }
+);
 
             if(!data){
                 return;
@@ -10635,7 +11901,18 @@ if(
 
             }
 
-
+console.log(
+    "🚨 МАРКЕР БУДЕ СТВОРЕНО:",
+    {
+        category: category,
+        firebaseKey: child.key,
+        pointId: pointId,
+        name: data.name,
+        lat: lat,
+        lng: lng,
+        approved: data.approved
+    }
+);
             /* =========================================
                СТВОРЮЄМО МАРКЕР
             ========================================= */
@@ -10945,23 +12222,27 @@ map.on(
 
                     lastPointsCenter = {
 
-                        lat:center.lat,
+                        lat: center.lat,
 
-                        lng:center.lng
+                        lng: center.lng
 
                     };
 
 
-                    console.log("🗺 Нова область карти");
+                    console.log(
+                        "🗺 Нова область карти"
+                    );
 
-loadCategoryPoints("market");
-loadCategoryPoints("industrial");
 
-/* Нові точки — показуємо завжди */
-loadCategoryPoints("other");
+                    /*
+                       ЄДИНЕ завантаження категорій.
 
+                       loadActiveCategories()
+                       сама перевіряє активні категорії.
+                    */
 
                     await loadActiveCategories();
+
 
                 },
                 300
@@ -10969,7 +12250,6 @@ loadCategoryPoints("other");
 
     }
 );
-
 
 /* =====================================================
    ЗАВАНТАЖЕННЯ КАТЕГОРІЇ ПРИ НАТИСКАННІ
@@ -12301,6 +13581,645 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 });
+
+/* =========================================================
+   🛠️ РОЗРОБНИК — ПОВНЕ РЕДАГУВАННЯ ТОЧКИ
+========================================================= */
+
+
+/* =========================================================
+   🔐 ПЕРЕВІРКА РОЗРОБНИКА
+========================================================= */
+
+function checkDeveloperAccess() {
+
+    if (
+        typeof firebase === "undefined" ||
+        !firebase.auth()
+    ) {
+        return false;
+    }
+
+    const user = firebase.auth().currentUser;
+
+    if (!user) {
+        return false;
+    }
+
+    return user.uid === DEVELOPER_UID;
+}
+
+
+/* =========================================================
+   ✏️ ВІДКРИТИ РЕДАГУВАННЯ
+========================================================= */
+
+function openDeveloperEditPoint(
+    pointId,
+    category,
+    data
+) {
+
+    if (!checkDeveloperAccess()) {
+
+        alert(
+            "⛔ Редагувати точки може тільки розробник."
+        );
+
+        return;
+    }
+
+
+    if (!pointId) {
+
+        alert("❌ Не знайдено ID точки.");
+
+        return;
+    }
+
+
+    data = data || {};
+
+
+    document.getElementById(
+        "developerEditPointId"
+    ).value = pointId;
+
+
+    document.getElementById(
+        "developerEditPointOldCategory"
+    ).value = category || "";
+
+
+    document.getElementById(
+        "developerEditPointCategory"
+    ).value = category || "wash";
+
+
+    document.getElementById(
+        "developerEditPointName"
+    ).value = data.name || "";
+
+
+    document.getElementById(
+        "developerEditPointDescription"
+    ).value = data.description || "";
+
+
+    document.getElementById(
+        "developerEditPointAuthor"
+    ).value =
+        data.author ||
+        data.userName ||
+        "";
+
+
+    document.getElementById(
+        "developerEditPointPhone"
+    ).value =
+        data.phone ||
+        data.phoneNumber ||
+        "";
+
+
+    document.getElementById(
+        "developerEditPointLat"
+    ).value =
+        data.lat ??
+        data.latitude ??
+        "";
+
+
+    document.getElementById(
+        "developerEditPointLng"
+    ).value =
+        data.lng ??
+        data.longitude ??
+        "";
+
+
+    document.getElementById(
+        "developerEditPointApproved"
+    ).value =
+        data.approved === false
+            ? "false"
+            : "true";
+
+
+    document.getElementById(
+        "developerEditPointOverlay"
+    ).style.display = "flex";
+}
+
+
+/* =========================================================
+   ❌ ЗАКРИТИ ВІКНО
+========================================================= */
+
+function closeDeveloperEditPoint() {
+
+    const overlay =
+        document.getElementById(
+            "developerEditPointOverlay"
+        );
+
+    if (overlay) {
+
+        overlay.style.display = "none";
+
+    }
+
+}
+
+
+/* =========================================================
+   💾 ЗБЕРЕГТИ РЕДАГУВАННЯ
+========================================================= */
+
+async function saveDeveloperPointEdit() {
+
+    if (!checkDeveloperAccess()) {
+
+        alert(
+            "⛔ Недостатньо прав."
+        );
+
+        return;
+    }
+
+
+    const pointId =
+        document.getElementById(
+            "developerEditPointId"
+        ).value;
+
+
+    const oldCategory =
+        document.getElementById(
+            "developerEditPointOldCategory"
+        ).value;
+
+
+    const newCategory =
+        document.getElementById(
+            "developerEditPointCategory"
+        ).value;
+
+
+    const name =
+        document.getElementById(
+            "developerEditPointName"
+        ).value.trim();
+
+
+    const description =
+        document.getElementById(
+            "developerEditPointDescription"
+        ).value.trim();
+
+
+    const author =
+        document.getElementById(
+            "developerEditPointAuthor"
+        ).value.trim();
+
+
+    const phone =
+        document.getElementById(
+            "developerEditPointPhone"
+        ).value.trim();
+
+
+    const lat =
+        parseFloat(
+            document.getElementById(
+                "developerEditPointLat"
+            ).value
+        );
+
+
+    const lng =
+        parseFloat(
+            document.getElementById(
+                "developerEditPointLng"
+            ).value
+        );
+
+
+    const approved =
+        document.getElementById(
+            "developerEditPointApproved"
+        ).value === "true";
+
+
+    /* =====================================================
+       ПРОВІРКА
+    ===================================================== */
+
+    if (!name) {
+
+        alert(
+            "⚠️ Введіть назву точки."
+        );
+
+        return;
+    }
+
+
+    if (
+        !Number.isFinite(lat) ||
+        !Number.isFinite(lng)
+    ) {
+
+        alert(
+            "⚠️ Неправильні координати."
+        );
+
+        return;
+    }
+
+
+    if (
+        lat < -90 ||
+        lat > 90 ||
+        lng < -180 ||
+        lng > 180
+    ) {
+
+        alert(
+            "⚠️ Координати знаходяться поза допустимим діапазоном."
+        );
+
+        return;
+    }
+
+
+    if (!newCategory) {
+
+        alert(
+            "⚠️ Оберіть категорію."
+        );
+
+        return;
+    }
+
+
+    const updates = {
+
+        name: name,
+
+        description: description,
+
+        author: author,
+
+        phone: phone,
+
+        lat: lat,
+
+        lng: lng,
+
+        approved: approved,
+
+        updatedBy: firebase.auth().currentUser.uid,
+
+        updatedAt:
+            firebase.database.ServerValue.TIMESTAMP
+
+    };
+
+
+    try {
+
+        /* =================================================
+           🔄 ЯКЩО КАТЕГОРІЯ НЕ ЗМІНИЛАСЯ
+        ================================================= */
+
+        if (
+            oldCategory === newCategory
+        ) {
+
+            await firebase
+                .database()
+                .ref(
+                    "points/" +
+                    oldCategory +
+                    "/" +
+                    pointId
+                )
+                .update(updates);
+
+        }
+
+
+        /* =================================================
+           🔄 ЯКЩО КАТЕГОРІЯ ЗМІНИЛАСЯ
+        ================================================= */
+
+        else {
+
+            const oldRef =
+                firebase
+                    .database()
+                    .ref(
+                        "points/" +
+                        oldCategory +
+                        "/" +
+                        pointId
+                    );
+
+
+            const snapshot =
+                await oldRef.once("value");
+
+
+            if (!snapshot.exists()) {
+
+                throw new Error(
+                    "Точку не знайдено."
+                );
+
+            }
+
+
+            const oldData =
+                snapshot.val();
+
+
+            const newData = {
+
+                ...oldData,
+
+                ...updates,
+
+                category: newCategory
+
+            };
+
+
+            await firebase
+                .database()
+                .ref(
+                    "points/" +
+                    newCategory +
+                    "/" +
+                    pointId
+                )
+                .set(newData);
+
+
+            await oldRef.remove();
+
+        }
+
+
+        /* =================================================
+           🗺️ ОНОВЛЕННЯ КАРТИ
+        ================================================= */
+
+        closeDeveloperEditPoint();
+
+
+        alert(
+            "✅ Точку успішно відредаговано."
+        );
+
+
+        /*
+           Якщо у твоєму коді вже є функція
+           перезавантаження точок — викликаємо її.
+        */
+
+        if (
+            typeof loadCategoryPoints ===
+            "function"
+        ) {
+
+            try {
+
+                await loadCategoryPoints(
+                    newCategory
+                );
+
+            } catch (e) {
+
+                console.warn(
+                    "Не вдалося автоматично оновити шар:",
+                    e
+                );
+
+            }
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "❌ Помилка редагування точки:",
+            error
+        );
+
+
+        alert(
+            "❌ Не вдалося зберегти зміни:\n\n" +
+            error.message
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   🗑️ ПОВНЕ ВИДАЛЕННЯ ТОЧКИ
+========================================================= */
+
+async function deleteDeveloperPoint() {
+
+    if (!checkDeveloperAccess()) {
+
+        alert(
+            "⛔ Видаляти точки може тільки розробник."
+        );
+
+        return;
+    }
+
+
+    const pointId =
+        document.getElementById(
+            "developerEditPointId"
+        ).value;
+
+
+    const category =
+        document.getElementById(
+            "developerEditPointOldCategory"
+        ).value;
+
+
+    if (!pointId || !category) {
+
+        alert(
+            "❌ Не вдалося визначити точку."
+        );
+
+        return;
+    }
+
+
+    const confirmed =
+        confirm(
+            "⚠️ УВАГА!\n\n" +
+            "Ви дійсно хочете ПОВНІСТЮ видалити цю точку?\n\n" +
+            "Цю дію не можна скасувати."
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    try {
+
+        /* =================================================
+           🗑️ ВИДАЛЯЄМО ОСНОВНУ ТОЧКУ
+        ================================================= */
+
+        await firebase
+            .database()
+            .ref(
+                "points/" +
+                category +
+                "/" +
+                pointId
+            )
+            .remove();
+
+/* =====================================================
+   🧹 ВИДАЛЕННЯ ПОВ'ЯЗАНИХ ДАНИХ
+===================================================== */
+
+/*
+   Видаляємо окремими запитами.
+   НЕ використовуємо:
+   
+   firebase.database().ref().update(...)
+   
+   тому що це update кореня "/".
+*/
+
+
+try {
+
+    await firebase
+        .database()
+        .ref(
+            "reviews/" +
+            currentPointId
+        )
+        .remove();
+
+    console.log(
+        "✅ Відгуки точки видалено"
+    );
+
+}
+
+catch(error) {
+
+    console.warn(
+        "⚠️ Відгуки не видалені:",
+        error
+    );
+
+}
+
+
+try {
+
+    await firebase
+        .database()
+        .ref(
+            "reviewRatings/" +
+            currentPointId
+        )
+        .remove();
+
+    console.log(
+        "✅ Оцінки відгуків видалено"
+    );
+
+}
+
+catch(error) {
+
+    console.warn(
+        "⚠️ Оцінки не видалені:",
+        error
+    );
+
+}
+
+
+        /* =================================================
+           🗺️ ЗАКРИВАЄМО ВІКНО
+        ================================================= */
+
+        closeDeveloperEditPoint();
+
+
+        alert(
+            "🗑️ Точку повністю видалено."
+        );
+
+
+        /* =================================================
+           🔄 ОНОВЛЕННЯ КАРТИ
+        ================================================= */
+
+        if (
+            typeof loadCategoryPoints ===
+            "function"
+        ) {
+
+            try {
+
+                await loadCategoryPoints(
+                    category
+                );
+
+            } catch (e) {
+
+                console.warn(
+                    "Не вдалося оновити карту:",
+                    e
+                );
+
+            }
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "❌ Помилка видалення:",
+            error
+        );
+
+
+        alert(
+            "❌ Не вдалося видалити точку:\n\n" +
+            error.message
+        );
+
+    }
+
+}
 </script>
 
 </body>
