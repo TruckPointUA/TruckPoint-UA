@@ -9010,36 +9010,34 @@ descriptionElement.style.fontWeight = "500";
 }
 
 
-/* =====================================================
+
+/* =========================================================
    📤 ПОДІЛИТИСЯ ПОТОЧНОЮ ТОЧКОЮ
-===================================================== */
+   Google Maps + назва + опис + координати
+========================================================= */
+
 async function shareCurrentPoint() {
 
-    /* ==========================================
-       ПЕРЕВІРКА ТОЧКИ
-    ========================================== */
+    /* =====================================================
+       🔎 ПЕРЕВІРЯЄМО ПОТОЧНУ ТОЧКУ
+    ===================================================== */
 
-    if (!currentPointId || !currentPointData) {
+    if (
+        !currentPointData ||
+        typeof currentPointData !== "object"
+    ) {
 
-        alert("Точку не вибрано.");
+        alert(
+            "❌ Не вдалося отримати дані точки."
+        );
 
         return;
     }
 
 
-    /* ==========================================
-       НАЗВА ТОЧКИ
-    ========================================== */
-
-    const title =
-        currentPointData.name ||
-        document.getElementById("pointInfoTitle")?.textContent?.trim() ||
-        "Точка";
-
-
-    /* ==========================================
-       КООРДИНАТИ
-    ========================================== */
+    /* =====================================================
+       📍 ОТРИМУЄМО КООРДИНАТИ
+    ===================================================== */
 
     const lat =
         Number(currentPointData.lat);
@@ -9048,121 +9046,238 @@ async function shareCurrentPoint() {
         Number(currentPointData.lng);
 
 
-    /* ==========================================
-       ПОСИЛАННЯ НА ТОЧКУ
-    ========================================== */
-
-    const pointId =
-        currentPointId;
-
-    const url =
-        window.location.origin +
-        window.location.pathname +
-        "?point=" +
-        encodeURIComponent(pointId);
-
-
-    /* ==========================================
-       ТІЛЬКИ НАЗВА + КООРДИНАТИ
-    ========================================== */
-
-    const text =
-        `${title}\n` +
-        `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-
-
-    /* ==========================================
-       📱 APK TRUCKPOINT UA
-    ========================================== */
-
     if (
-        window.Android &&
-        typeof Android.share === "function"
+        !Number.isFinite(lat) ||
+        !Number.isFinite(lng)
     ) {
 
-        Android.share(
-            title,
-            text,
-            url
+        alert(
+            "❌ У цієї точки немає правильних координат."
+        );
+
+        console.error(
+            "❌ Дані точки:",
+            currentPointData
         );
 
         return;
     }
 
 
-    /* ==========================================
-       📱 ЗВИЧАЙНИЙ БРАУЗЕР
-    ========================================== */
+    /* =====================================================
+       🏷️ НАЗВА
+    ===================================================== */
+
+    const pointName =
+        currentPointData.name ||
+        "Точка";
+
+
+    /* =====================================================
+       📝 ОПИС
+    ===================================================== */
+
+    const pointDescription =
+        currentPointData.description ||
+        "Опис відсутній";
+
+
+    /* =====================================================
+       🌐 GOOGLE MAPS
+    ===================================================== */
+
+    const googleMapsUrl =
+        "https://www.google.com/maps/search/?api=1&query=" +
+        encodeURIComponent(
+            lat + "," + lng
+        );
+
+
+    /* =====================================================
+       📤 ТЕКСТ ДЛЯ МЕСЕНДЖЕРА
+    ===================================================== */
+
+    const shareText =
+`📍 ${pointName}
+
+📝 ${pointDescription}
+
+🌐 Координати:
+${lat.toFixed(6)}, ${lng.toFixed(6)}
+
+🗺️ Google Maps:
+${googleMapsUrl}`;
+
+
+    console.log(
+        "📤 ПІДГОТОВЛЕНО ПОДІЛИТИСЯ:",
+        {
+            name: pointName,
+            description: pointDescription,
+            lat: lat,
+            lng: lng,
+            googleMapsUrl: googleMapsUrl
+        }
+    );
+
+
+    /* =====================================================
+       📱 СИСТЕМНЕ МЕНЮ ПОДІЛУ
+    ===================================================== */
 
     if (
-        navigator.share &&
-        typeof navigator.share === "function"
+        navigator.share
     ) {
 
         try {
 
             await navigator.share({
 
-                title: title,
+                title:
+                    "📍 " + pointName,
 
-                text: text,
-
-                url: url
+                text:
+                    shareText
 
             });
 
+            console.log(
+                "✅ Точку передано в системне меню поділу."
+            );
+
             return;
 
         }
 
-        catch(error) {
+        catch (error) {
 
-            if (error.name === "AbortError") {
+            /*
+               Якщо користувач просто закрив
+               меню "Поділитися" —
+               нічого не робимо.
+            */
+
+            if (
+                error &&
+                error.name ===
+                "AbortError"
+            ) {
+
+                console.log(
+                    "ℹ️ Поділ скасовано користувачем."
+                );
+
                 return;
             }
 
-            console.error(
-                "❌ Помилка navigator.share:",
+
+            console.warn(
+                "⚠️ navigator.share не спрацював:",
                 error
             );
+
         }
+
     }
 
 
-    /* ==========================================
-       💻 РЕЗЕРВНИЙ ВАРІАНТ
-    ========================================== */
+    /* =====================================================
+       📋 ЗАПАСНИЙ ВАРІАНТ —
+       КОПІЮВАННЯ ВСЬОГО ТЕКСТУ
+    ===================================================== */
 
     try {
 
-        if (
-            navigator.clipboard &&
-            window.isSecureContext
-        ) {
+        await navigator.clipboard.writeText(
+            shareText
+        );
 
-            await navigator.clipboard.writeText(text);
 
-            alert("Назву та координати скопійовано");
+        alert(
+            "✅ Дані точки скопійовано!\n\n" +
+            "Тепер вставте їх у Telegram, Viber, WhatsApp або інший месенджер."
+        );
 
-            return;
-        }
+
+        return;
 
     }
 
-    catch(error) {
+    catch (error) {
 
-        console.error(
-            "❌ Clipboard error:",
+        console.warn(
+            "⚠️ Clipboard API недоступний:",
             error
         );
+
     }
 
 
-    prompt(
-        "Скопіюйте:",
-        text
+    /* =====================================================
+       🔄 СТАРИЙ РЕЗЕРВНИЙ МЕТОД КОПІЮВАННЯ
+    ===================================================== */
+
+    const textarea =
+        document.createElement(
+            "textarea"
+        );
+
+
+    textarea.value =
+        shareText;
+
+
+    textarea.style.position =
+        "fixed";
+
+    textarea.style.left =
+        "-9999px";
+
+
+    document.body.appendChild(
+        textarea
     );
+
+
+    textarea.focus();
+
+    textarea.select();
+
+
+    try {
+
+        document.execCommand(
+            "copy"
+        );
+
+
+        alert(
+            "✅ Дані точки скопійовано!"
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "❌ Не вдалося скопіювати:",
+            error
+        );
+
+
+        alert(
+            "❌ Не вдалося поділитися точкою."
+        );
+
+    }
+
+
+    textarea.remove();
+
 }
+
+
+
 /* =========================
    ЗАКРИТТЯ
 ========================= */
