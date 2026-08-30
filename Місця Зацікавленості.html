@@ -8809,6 +8809,137 @@ if (!pointInfoBackState) {
         `📍 ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
 
 
+/* =================================================
+   🗺️ ІКОНКА GOOGLE MAPS — ПРОКЛАСТИ МАРШРУТ
+================================================= */
+
+let routeButton =
+    document.getElementById("pointRouteButton");
+
+
+if (!routeButton) {
+
+    routeButton =
+        document.createElement("button");
+
+    routeButton.id =
+        "pointRouteButton";
+
+    routeButton.type =
+        "button";
+
+
+    /* =================================================
+       🗺️ ІКОНКА GOOGLE MAPS
+    ================================================= */
+
+    routeButton.innerHTML = `
+        <img
+            src="Google_Maps_Logo.svg"
+            width="35"
+            height="35"
+            alt="Google Maps"
+            style="
+                display:block;
+                width:45px;
+                height:45px;
+                object-fit:contain;
+            "
+        >
+    `;
+
+
+    /* =================================================
+       🎨 СТИЛЬ — БЕЗ ФОНУ
+    ================================================= */
+
+   routeButton.style.cssText = `
+        display:flex;
+        align-items:center;
+        justify-content:center;
+
+        width:44px;
+        height:44px;
+
+        margin-top:8px;
+
+        padding:0;
+
+        border:none;
+        background:transparent;
+
+        cursor:pointer;
+
+        box-shadow:none;
+
+        transition:
+            transform .15s ease,
+            opacity .15s ease;
+    `;
+
+    /* =================================================
+       👆 НАТИСКАННЯ
+    ================================================= */
+
+    routeButton.onmousedown = function(){
+
+        routeButton.style.transform =
+            "scale(.90)";
+
+    };
+
+
+    routeButton.onmouseup = function(){
+
+        routeButton.style.transform =
+            "scale(1)";
+
+    };
+
+
+    routeButton.onmouseleave = function(){
+
+        routeButton.style.transform =
+            "scale(1)";
+
+    };
+
+
+    /* =================================================
+       🗺️ ВІДКРИТИ GOOGLE MAPS
+    ================================================= */
+
+    routeButton.onclick =
+        function(){
+
+            openGoogleRoute(
+                lat,
+                lng
+            );
+
+        };
+
+
+    /* =================================================
+       📍 ПОСТАВИТИ ПІД КООРДИНАТАМИ
+    ================================================= */
+
+    const coordinatesElement =
+        document.getElementById(
+            "pointInfoCoordinates"
+        );
+
+
+    if (coordinatesElement) {
+
+        coordinatesElement.insertAdjacentElement(
+            "afterend",
+            routeButton
+        );
+
+    }
+
+}
     /* Автор */
 
     document.getElementById(
@@ -9006,6 +9137,81 @@ if (!shareButton) {
 }
 
 descriptionElement.style.color = "#557568";
+
+
+/* =================================================
+   🗺️ GOOGLE MAPS — ПРОКЛАСТИ МАРШРУТ
+================================================= */
+
+function openGoogleRoute(lat, lng) {
+
+    lat = Number(lat);
+    lng = Number(lng);
+
+
+    if (
+        !Number.isFinite(lat) ||
+        !Number.isFinite(lng)
+    ) {
+
+        alert(
+            "❌ Неправильні координати точки."
+        );
+
+        return;
+    }
+
+
+    console.log(
+        "🗺️ Маршрут до:",
+        lat,
+        lng
+    );
+
+
+    /* =================================================
+       🤖 ANDROID APK
+    ================================================= */
+
+    if (
+        typeof Android !== "undefined" &&
+        typeof Android.openRoute === "function"
+    ) {
+
+        console.log(
+            "📱 Відкриваємо маршрут через Android"
+        );
+
+        Android.openRoute(
+            lat,
+            lng
+        );
+
+        return;
+    }
+
+
+    /* =================================================
+       🌐 БРАУЗЕР / IOS
+    ================================================= */
+
+    const routeUrl =
+        "https://www.google.com/maps/dir/?api=1" +
+        "&destination=" +
+        lat +
+        "," +
+        lng +
+        "&travelmode=driving";
+
+
+    window.open(
+        routeUrl,
+        "_blank"
+    );
+
+}
+
+
 /* =========================================================
    🛠️ ПАНЕЛЬ РОЗРОБНИКА
 ========================================================= */
@@ -9853,6 +10059,102 @@ alert(
 return;
 
 }
+
+
+/* =========================================================
+   🗺️ ПРОКЛАСТИ МАРШРУТ GOOGLE MAPS
+========================================================= */
+
+function routeCurrentPoint() {
+
+    /* =====================================================
+       🔎 ПЕРЕВІРКА ТОЧКИ
+    ===================================================== */
+
+    if (
+        !currentPointData ||
+        typeof currentPointData !== "object"
+    ) {
+
+        alert(
+            "❌ Не вдалося отримати дані точки."
+        );
+
+        return;
+    }
+
+
+    /* =====================================================
+       📍 КООРДИНАТИ
+    ===================================================== */
+
+    const lat =
+        Number(currentPointData.lat);
+
+    const lng =
+        Number(currentPointData.lng);
+
+
+    if (
+        !Number.isFinite(lat) ||
+        !Number.isFinite(lng)
+    ) {
+
+        alert(
+            "❌ У точки немає правильних координат."
+        );
+
+        return;
+    }
+
+
+    /* =====================================================
+       🗺️ GOOGLE MAPS ROUTE
+    ===================================================== */
+
+    const routeUrl =
+        "https://www.google.com/maps/dir/?api=1" +
+        "&destination=" +
+        lat +
+        "," +
+        lng +
+        "&travelmode=driving";
+
+
+    console.log(
+        "🗺️ Відкриваємо маршрут:",
+        routeUrl
+    );
+
+
+    /* =====================================================
+       🤖 ANDROID
+    ===================================================== */
+
+    if (
+        typeof Android !== "undefined" &&
+        typeof Android.openRoute === "function"
+    ) {
+
+        Android.openRoute(
+            lat,
+            lng
+        );
+
+        return;
+    }
+
+
+    /* =====================================================
+       🌐 БРАУЗЕР / IOS
+    ===================================================== */
+
+    window.open(
+        routeUrl,
+        "_blank"
+    );
+}
+
 
 /* =========================
    ЗАКРИТТЯ
