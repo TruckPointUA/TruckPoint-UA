@@ -9011,16 +9011,14 @@ descriptionElement.style.fontWeight = "500";
 
 
 
-
 /* =========================================================
-   📤 ПОДІЛИТИСЯ ТОЧКОЮ
-   Назва + опис + координати + Google Maps
+   📤 ПОДІЛИТИСЯ ПОТОЧНОЮ ТОЧКОЮ
 ========================================================= */
 
 async function shareCurrentPoint() {
 
     /* =====================================================
-       🔎 ПЕРЕВІРКА ПОТОЧНОЇ ТОЧКИ
+       🔎 ПЕРЕВІРКА
     ===================================================== */
 
     if (
@@ -9053,7 +9051,7 @@ async function shareCurrentPoint() {
     ) {
 
         alert(
-            "❌ У точки відсутні правильні координати."
+            "❌ У точки немає правильних координат."
         );
 
         return;
@@ -9064,7 +9062,7 @@ async function shareCurrentPoint() {
        🏷️ НАЗВА
     ===================================================== */
 
-    const pointName =
+    const name =
         String(
             currentPointData.name ||
             "Точка"
@@ -9075,7 +9073,7 @@ async function shareCurrentPoint() {
        📝 ОПИС
     ===================================================== */
 
-    const pointDescription =
+    const description =
         String(
             currentPointData.description ||
             "Опис відсутній"
@@ -9088,40 +9086,35 @@ async function shareCurrentPoint() {
 
     const googleMapsUrl =
         "https://www.google.com/maps/search/?api=1&query=" +
-        encodeURIComponent(
-            lat + "," + lng
-        );
+        lat +
+        "," +
+        lng;
 
 
     /* =====================================================
-       📋 ТЕКСТ ПОВІДОМЛЕННЯ
+       📤 ГОТОВЕ ПОВІДОМЛЕННЯ
     ===================================================== */
 
-    const shareText =
-`📍 ${pointName}
+    const message =
+`📍 ${name}
 
-📝 ${pointDescription}
+📝 ${description}
 
 🌐 Координати:
 ${lat.toFixed(6)}, ${lng.toFixed(6)}
 
-🗺️ Відкрити точку в Google Maps:`;
+🗺️ Google Maps:
+${googleMapsUrl}`;
 
 
     console.log(
-        "📤 ПОДІЛ ТОЧКОЮ:",
-        {
-            name: pointName,
-            description: pointDescription,
-            lat: lat,
-            lng: lng,
-            googleMapsUrl: googleMapsUrl
-        }
+        "📤 Готове повідомлення:",
+        message
     );
 
 
     /* =====================================================
-       📱 ОСНОВНИЙ ВАРІАНТ — ANDROID / IOS SHARE
+       📱 ANDROID / IOS SHARE
     ===================================================== */
 
     if (
@@ -9133,13 +9126,10 @@ ${lat.toFixed(6)}, ${lng.toFixed(6)}
             await navigator.share({
 
                 title:
-                    "📍 " + pointName,
+                    name,
 
                 text:
-                    shareText,
-
-                url:
-                    googleMapsUrl
+                    message
 
             });
 
@@ -9154,26 +9144,21 @@ ${lat.toFixed(6)}, ${lng.toFixed(6)}
 
         catch (error) {
 
-            /*
-               Користувач закрив
-               системне меню поділу.
-            */
-
             if (
                 error &&
                 error.name === "AbortError"
             ) {
 
                 console.log(
-                    "ℹ️ Поділ скасовано користувачем."
+                    "ℹ️ Поділ скасовано."
                 );
 
                 return;
             }
 
 
-            console.warn(
-                "⚠️ navigator.share не спрацював:",
+            console.error(
+                "❌ Помилка navigator.share:",
                 error
             );
 
@@ -9183,24 +9168,18 @@ ${lat.toFixed(6)}, ${lng.toFixed(6)}
 
 
     /* =====================================================
-       📋 ЗАПАСНИЙ ВАРІАНТ
-       ТІЛЬКИ ЯКЩО SHARE ВЗАГАЛІ НЕ ПІДТРИМУЄТЬСЯ
+       📋 РЕЗЕРВ — КОПІЮВАННЯ
     ===================================================== */
-
-    const copyText =
-`${shareText}
-${googleMapsUrl}`;
-
 
     try {
 
         await navigator.clipboard.writeText(
-            copyText
+            message
         );
 
 
         alert(
-            "✅ Дані точки скопійовано!"
+            "✅ Повідомлення скопійовано."
         );
 
     }
@@ -9212,7 +9191,6 @@ ${googleMapsUrl}`;
             error
         );
 
-
         alert(
             "❌ Не вдалося поділитися точкою."
         );
@@ -9220,7 +9198,6 @@ ${googleMapsUrl}`;
     }
 
 }
-
 
 /* =========================
    ЗАКРИТТЯ
@@ -13250,14 +13227,20 @@ function closeBottomSheetSafe() {
    3. Тільки потім дозволяє вийти зі сторінки
 ===================================================== */
 
+/* =========================================================
+   ⬅️ ANDROID / BROWSER BACK
+========================================================= */
+
 window.addEventListener("popstate", function () {
 
-    /* =================================================
+    /* =====================================================
        1. СПОЧАТКУ ЗАКРИВАЄМО ОПИС ТОЧКИ
-    ================================================= */
+    ===================================================== */
 
     const pointOverlay =
-        document.getElementById("pointInfoOverlay");
+        document.getElementById(
+            "pointInfoOverlay"
+        );
 
 
     if (
@@ -13268,59 +13251,87 @@ window.addEventListener("popstate", function () {
 
         pointInfoBackState = false;
 
-        pointOverlay.classList.remove("show");
 
-        document.body.style.overflow = "";
+        pointOverlay.classList.remove(
+            "show"
+        );
 
-        currentPointId = null;
-        currentPointData = null;
+
+        document.body.style.overflow =
+            "";
+
+
+        currentPointId =
+            null;
+
+        currentPointData =
+            null;
+
 
         console.log(
             "⬅️ Back → опис точки закрито"
         );
 
+
         return;
     }
 
 
-    /* =================================================
+    /* =====================================================
        2. ПОТІМ ЗАКРИВАЄМО ШТОРКУ
-    ================================================= */
+    ===================================================== */
 
-    if (sheetBackState) {
+    if (
+        sheetBackState
+    ) {
 
         sheetBackState = false;
 
 
-        sheet.classList.remove("open");
+        sheet.classList.remove(
+            "open"
+        );
+
 
         sheet.style.transition =
             "height .3s ease";
+
 
         sheet.style.height =
             CLOSED_HEIGHT + "px";
 
 
-        /* Повертаємо кнопки карти */
+        /* -----------------------------------------------
+           ПОВЕРТАЄМО КНОПКИ КАРТИ
+        ----------------------------------------------- */
 
-        if (myLocationButtonElement) {
+        if (
+            myLocationButtonElement
+        ) {
 
             myLocationButtonElement.style.visibility =
                 "visible";
+
         }
 
 
-        if (mapControlsElement) {
+        if (
+            mapControlsElement
+        ) {
 
             mapControlsElement.style.visibility =
                 "visible";
+
         }
 
 
-        if (activeCategoryIconsElement) {
+        if (
+            activeCategoryIconsElement
+        ) {
 
             activeCategoryIconsElement.style.visibility =
                 "visible";
+
         }
 
 
@@ -13328,19 +13339,43 @@ window.addEventListener("popstate", function () {
             "⬅️ Back → шторка закрита, карта залишилась"
         );
 
+
         return;
     }
 
 
-    /* =================================================
-       3. НІ ОПИСУ, НІ ШТОРКИ
-    ================================================= */
+    /* =====================================================
+       3. НІЧОГО НЕ ВІДКРИТО
+       
+       ❗ НЕ ПЕРЕХОПЛЮЄМО BACK
+       
+       Даємо браузеру / Android виконати
+       нормальний перехід назад.
+    ===================================================== */
 
     console.log(
-        "⬅️ Back → активних елементів немає"
+        "⬅️ Back → активних елементів немає → вихід назад"
     );
 
+
+    /*
+       ВАЖЛИВО:
+       Тут НЕ повинно бути:
+       
+       return;
+       
+       history.pushState(...);
+       
+       history.forward();
+       
+       window.location.href = ...
+       
+       Ми просто дозволяємо браузеру
+       завершити стандартну Back-навігацію.
+    */
+
 });
+
 /* =========================================
    КАТЕГОРІЇ — ВЛАСНИЙ DROPDOWN
 ========================================= */
