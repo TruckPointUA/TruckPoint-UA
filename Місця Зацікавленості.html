@@ -9768,13 +9768,20 @@ ${googleMapsUrl}`;
    📱 SHARE
 ===================================================== */
 
+/* =====================================================
+   📱 ANDROID / IOS SHARE
+===================================================== */
+
 if (typeof navigator.share === "function") {
 
     try {
 
         await navigator.share({
+
             title: `📍 ${name}`,
+
             text: message
+
         });
 
         console.log(
@@ -9783,16 +9790,20 @@ if (typeof navigator.share === "function") {
 
         return;
 
-    } catch (error) {
+    }
 
-        if (error?.name === "AbortError") {
+    catch (error) {
+
+        if (
+            error &&
+            error.name === "AbortError"
+        ) {
 
             console.log(
-                "ℹ️ Поділ скасовано користувачем."
+                "ℹ️ Поділ скасовано."
             );
 
             return;
-
         }
 
         console.error(
@@ -9800,57 +9811,15 @@ if (typeof navigator.share === "function") {
             error
         );
 
-        alert(
-            "❌ Не вдалося відкрити меню поділу."
-        );
-
         return;
     }
 }
 
-
-/* =====================================================
-   💻 SHARE НЕДОСТУПНИЙ
-===================================================== */
-
 console.warn(
-    "⚠️ navigator.share недоступний у цьому браузері."
-);
-
-alert(
-    "📋 Функція поділу недоступна. Скопіюйте координати вручну."
+    "⚠️ navigator.share недоступний."
 );
 
 return;
-    /* =====================================================
-       📋 РЕЗЕРВ — КОПІЮВАННЯ
-    ===================================================== */
-
-    try {
-
-        await navigator.clipboard.writeText(
-            message
-        );
-
-
-        alert(
-            "✅ Повідомлення скопійовано."
-        );
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "❌ Помилка копіювання:",
-            error
-        );
-
-        alert(
-            "❌ Не вдалося поділитися точкою."
-        );
-
-    }
 
 }
 
