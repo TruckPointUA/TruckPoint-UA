@@ -1597,13 +1597,10 @@ body.night-mode .sheetHandle{
         border .2s ease,
         box-shadow .2s ease,
         transform .2s ease;
+        display: flex;
+    align-items: center;
+    gap: 5px;
 }
-
-
-
-
-
-
 
 
 /* Неактивні кнопки */
@@ -1633,11 +1630,11 @@ body.night-mode .sheetHandle{
 /* ===== ВЕЛИКІ ІКОНКИ В ШТОРЦІ ===== */
 
 .categoryIcon {
-    width: 40px;
-    height: 40px;
+    width: 22px;
+    height: 22px;
     object-fit: contain;
-    vertical-align: middle;
-    margin-right: 8px;
+    flex-shrink: 0;
+    margin-right: 6px;
 }
 
 
@@ -8861,7 +8858,7 @@ routeButton.style.cssText = `
     height:44px;
 
     margin-top:8px;
-    margin-left:-80px;
+    margin-left:-60px;
 
     padding:0;
 
