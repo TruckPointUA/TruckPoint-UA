@@ -1609,7 +1609,7 @@ body.night-mode .sheetHandle{
     background:#f8fafb;
     color:#37474f;
     font-family:'Montserrat',sans-serif;
-    font-size:17px;
+    font-size:14px;
     font-weight:700;
     text-align:left;
     box-shadow:0 3px 8px rgba(55,71,79,.12);
@@ -4816,7 +4816,11 @@ color: #93c5fd;
     Продуктові магазини
 </button>
 
-<button class="subCategoryBtn" onclick="selectCategory(this)">
+<button
+ class="subCategoryBtn" 
+ onclick="toggleShoppingTIR(this)">
+ 
+    <img src="Trucks_Supermarket_map.svg" class="categoryIcon">
     Магазини ТІР
 </button>
 
@@ -4857,15 +4861,23 @@ color: #93c5fd;
 
     <button
         class="subCategoryBtn"
-        onclick="selectParking(this)"
+        onclick="togglePaidParking(this)" 
     >
+    <img
+                    src="platnii_map.svg"
+                    class="categoryIcon"
+                >
          Паркування платне
     </button>
 
     <button
         class="subCategoryBtn"
-        onclick="selectParking(this)"
+        onclick="toggleFirmaParking(this)"
     >
+    <img
+                    src="Pfirma_map.svg"
+                    class="categoryIcon"
+                >
           Паркування біля фірми
     </button>
 
@@ -4937,9 +4949,12 @@ color: #93c5fd;
     >
         <option value="">Оберіть категорію</option>
         <option value="market">Продуктовий магазин</option>
+        <option value="truck_schop">Магазин ТІР</option>
         <option value="free_parking">Паркування безкоштовне</option>
+        <option value="Paid_parking">Паркування платне</option>
         <option value="road_parking">Паркування при дорозі</option>
         <option value="industrial">Промислова зона</option>
+        <option value="industrial">Паркування біля фірми</option>
         <option value="other">Інше</option>
     </select>
 
@@ -4980,7 +4995,14 @@ color: #93c5fd;
             <img src="maarket_map.svg">
             <span>Продуктовий магазин</span>
         </div>
-
+   
+        <div
+            class="categoryOption"
+            data-value="truck_schop"
+        >
+            <img src="Trucks_Supermarket_map.svg">
+            <span>Магазини ТІР</span>
+        </div>
 
         <div
             class="categoryOption"
@@ -4992,7 +5014,7 @@ color: #93c5fd;
 
             <div
             class="categoryOption"
-            data-value="parking"
+            data-value="Paid_parking"
         >
             <img src="platnii_map.svg">
             <span>Паркінг платний</span>
@@ -5014,6 +5036,14 @@ color: #93c5fd;
         >
             <img src="promzona_map.svg">
             <span>Промислова зона</span>
+        </div>
+
+        <div
+            class="categoryOption"
+            data-value="parking_firma"
+        >
+            <img src="Pfirma_map.svg">
+            <span>Паркінг біля фірми</span>
         </div>
 
 
@@ -5260,6 +5290,13 @@ color: #93c5fd;
                 <span>Продуктовий магазин</span>
             </div>
 
+            <div
+                class="developer-category-option"
+                data-value="truck_schop"
+            >
+                <img src="Trucks_Supermarket_map.svg">
+                <span>Магаини ТІР</span>
+            </div>
 
             <div
                 class="developer-category-option"
@@ -5272,7 +5309,7 @@ color: #93c5fd;
 
             <div
                 class="developer-category-option"
-                data-value="parking_paid"
+                data-value="Paid_parking"
             >
                 <img src="platnii_map.svg">
                 <span>Паркінг платний</span>
@@ -5285,6 +5322,14 @@ color: #93c5fd;
             >
                 <img src="promzona_map.svg">
                 <span>Промислова зона</span>
+            </div>
+
+            <div
+                class="developer-category-option"
+                data-value="parking_firma"
+            >
+                <img src="Pfirma_map.svg">
+                <span>Паркінг біля фірми</span>
             </div>
 
         </div>
@@ -5309,6 +5354,10 @@ color: #93c5fd;
             Продуктовий магазин
         </option>
 
+         <option value="truck_schop">
+            Магазини ТІР
+        </option>
+
         <option value="parking_free">
             Паркінг безкоштовний
         </option>
@@ -5319,6 +5368,10 @@ color: #93c5fd;
 
         <option value="industrial">
             Промислова зона
+        </option>
+
+        <option value="parking_firma">
+            Паркінг біля фірми
         </option>
 
     </select>
@@ -5512,6 +5565,7 @@ color: #93c5fd;
             <option value="wash">🚿 Мийка</option>
             <option value="parking">🅿️ Паркінг</option>
             <option value="market">🛒 Продуктовий магазин</option>
+            <option value="truck_schop">🛒 Магазин ТІР</option>
             <option value="industrial">🏭 Промислова зона</option>
             <option value="gas_station">⛽ Заправка</option>
             <option value="service">🔧 Сервіс</option>
@@ -5689,7 +5743,19 @@ function getCategoryFromIcon(icon){
 
     const name = String(icon || "").toLowerCase();
 
-    /* Продуктові магазини */
+    /* =================================================
+       Магазини ТІР
+       Перевіряємо ПЕРШИМИ
+    ================================================= */
+  if(
+    name.includes("trucks_supermarket_map")
+){
+    return "truck_schop";
+}
+
+    /* =================================================
+       Продуктові магазини
+    ================================================= */
     if(
         name.includes("maarket") ||
         name.includes("market")
@@ -5697,14 +5763,18 @@ function getCategoryFromIcon(icon){
         return "market";
     }
 
-    /* Паркування при дорозі */
+    /* =================================================
+       Паркування при дорозі
+    ================================================= */
     if(
         name.includes("pocket")
     ){
         return "road_parking";
     }
 
-    /* Промислова зона */
+    /* =================================================
+       Промислова зона
+    ================================================= */
     if(
         name.includes("promzona") ||
         name.includes("industrial")
@@ -5712,17 +5782,36 @@ function getCategoryFromIcon(icon){
         return "industrial";
     }
 
-  /* Паркінг безкоштовний */
+    /* =================================================
+       Паркінг безкоштовний
+    ================================================= */
+    if(
+        name.includes("parkinglogoo")
+    ){
+        return "free_parking";
+    }
 
-if(
+    /* =================================================
+       Паркінг платний
+    ================================================= */
+    if(
+        name.includes("platnii_map")
+    ){
+        return "Paid_parking";
+    }
 
-    name.includes("parkinglogoo")
-    
-){
-    return "free_parking";
-}
+    /* =================================================
+       Паркінг біля фірми
+    ================================================= */
+    if(
+        name.includes("pfirma_map")
+    ){
+        return "parking_firma";
+    }
 
-    /* АЗС */
+    /* =================================================
+       АЗС
+    ================================================= */
     if(
         name.includes("gas") ||
         name.includes("azs") ||
@@ -5731,22 +5820,18 @@ if(
         return "gas_station";
     }
 
-    /* Звичайне паркування */
+    /* =================================================
+       Звичайне паркування
+    ================================================= */
     if(
         name.includes("parking")
     ){
         return "parking";
     }
 
-    /* Магазини ТІР */
-    if(
-        name.includes("truck_shop") ||
-        name.includes("tir_shop")
-    ){
-        return "truck_shop";
-    }
-
-    /* Блошиний ринок */
+    /* =================================================
+       Блошиний ринок
+    ================================================= */
     if(
         name.includes("flea") ||
         name.includes("market_flea")
@@ -5756,7 +5841,6 @@ if(
 
     return "other";
 }
-
 
 // ======================================================
 //                     ТОЧКИ
@@ -6541,10 +6625,11 @@ map.on(
         "market",
         "industrial",
         "free_parking",
+        "Paid_parking",
         "road_parking",
         "wash",
         "gas_station",
-        "truck_shop",
+        "truck_schop",
         "flea_market",
         "other"
 
@@ -7248,6 +7333,12 @@ function getApprovedIcon(category){
         free_parking:
             "parkinglogoo_map.svg",
 
+        Paid_parking:
+            "platnii_map.svg",
+
+        parking_firma:
+            "Pfirma_map.svg",
+
         road_parking:
             "pocket_map.svg",
 
@@ -7257,14 +7348,14 @@ function getApprovedIcon(category){
         gas_station:
             "gas_map.svg",
 
-        truck_shop:
-            "truck_shop_map.svg",
+        truck_schop:
+            "Trucks_Supermarket_map.svg",
 
         flea_market:
             "flea_market_map.svg",
 
         other:
-            "maarket_map.svg"
+            "info_marker.svg"
 
     };
 
@@ -12253,8 +12344,8 @@ function updateActiveCategoryIcons(){
         );
 
     if(
-        groceryButton &&
-        groceryButton.classList.contains("active")
+        groceryButton  &&
+        groceryButton .classList.contains("active")
     ){
 
         const img =
@@ -12271,7 +12362,35 @@ function updateActiveCategoryIcons(){
         container.appendChild(img);
 
     }
+ 
+/* =========================
+   МАГАЗИНИ ТІР
+========================= */
 
+const tirButton =
+    document.querySelector(
+        '#shoppingCategories button[onclick*="toggleShoppingTIR"]'
+    );
+
+if (
+    tirButton &&
+    tirButton.classList.contains("active")
+) {
+
+    const img =
+        document.createElement("img");
+
+    img.src =
+        "Trucks_Supermarket_map.svg";
+
+    img.className =
+        "activeMapCategoryIcon";
+
+    img.title =
+        "Магазини ТІР";
+
+    container.appendChild(img);
+}
 
     /* =========================
        ПРОМИСЛОВА ЗОНА
@@ -12365,10 +12484,19 @@ function updateActiveCategoryIcons(){
         parkingButtons[3].classList.contains("active")
     ){
 
-        addActiveMapEmojiIcon(
-            "💳",
-            "Паркування платне"
-        );
+        const img =
+            document.createElement("img");
+
+        img.src =
+            "platnii_map.svg";
+
+        img.className =
+            "activeMapCategoryIcon";
+
+        img.title =
+            "Паркування платне";
+
+        container.appendChild(img);
 
     }
 
@@ -12382,10 +12510,19 @@ function updateActiveCategoryIcons(){
         parkingButtons[4].classList.contains("active")
     ){
 
-        addActiveMapEmojiIcon(
-            "🏢",
-            "Паркування біля фірми"
-        );
+        const img =
+            document.createElement("img");
+
+        img.src =
+            "Pfirma_map.svg";
+
+        img.className =
+            "activeMapCategoryIcon";
+
+        img.title =
+            "Паркування біля фірми";
+
+        container.appendChild(img);
 
     }
 
@@ -12455,25 +12592,25 @@ function updateActiveCategories(){
     }
 
 
-    /* =====================
-       МАГАЗИНИ ТІР
-    ===================== */
+/* =====================
+   МАГАЗИНИ ТІР
+===================== */
 
-    const shoppingButtons =
-        document.querySelectorAll(
-            "#shoppingCategories .subCategoryBtn"
-        );
+const tirButton =
+    document.querySelector(
+        '#shoppingCategories button[onclick*="toggleShoppingTIR"]'
+    );
 
-    if(
-        shoppingButtons[1] &&
-        shoppingButtons[1].classList.contains("active")
-    ){
+if (
+    tirButton &&
+    tirButton.classList.contains("active")
+) {
 
-        addActiveCategoryIcon(
-            "🚛"
-        );
+    addActiveCategoryIcon(
+        "🚛"
+    );
 
-    }
+}
 
 
     /* =====================
@@ -12711,37 +12848,150 @@ function getCategoryIcon(category, data = {}){
        Іконка з Firebase
     ------------------------- */
 
-    if(iconFile.includes("maarket_map")){
+    if(
+        iconFile.includes("maarket_map")
+    ){
 
         return L.icon({
+
             iconUrl:"maarket_map.svg",
+
             iconSize:[40,40],
+
             iconAnchor:[20,40],
+
             popupAnchor:[0,-40]
+
         });
 
     }
 
 
-    if(iconFile.includes("pocket_map")){
+    /* -------------------------
+       Магазини ТІР
+    ------------------------- */
+
+    if(
+        iconFile.includes("trucks_supermarket_map")
+    ){
 
         return L.icon({
+
+            iconUrl:"Trucks_Supermarket_map.svg",
+
+            iconSize:[40,40],
+
+            iconAnchor:[20,40],
+
+            popupAnchor:[0,-40]
+
+        });
+
+    }
+
+
+    /* -------------------------
+       Паркування при дорозі
+    ------------------------- */
+
+    if(
+        iconFile.includes("pocket_map")
+    ){
+
+        return L.icon({
+
             iconUrl:"pocket_map.svg",
+
             iconSize:[40,40],
+
             iconAnchor:[20,40],
+
             popupAnchor:[0,-40]
+
         });
 
     }
 
 
-    if(iconFile.includes("promzona_map")){
+    /* -------------------------
+       Промислова зона
+    ------------------------- */
+
+    if(
+        iconFile.includes("promzona_map")
+    ){
 
         return L.icon({
+
             iconUrl:"promzona_map.svg",
+
             iconSize:[40,40],
+
             iconAnchor:[20,40],
+
             popupAnchor:[0,-40]
+
+        });
+
+    }
+
+
+    /* -------------------------
+       Інші іконки з Firebase
+    ------------------------- */
+
+    if(
+        iconFile.includes("parkinglogoo_map")
+    ){
+
+        return L.icon({
+
+            iconUrl:"parkinglogoo_map.svg",
+
+            iconSize:[40,40],
+
+            iconAnchor:[20,40],
+
+            popupAnchor:[0,-40]
+
+        });
+
+    }
+
+
+    if(
+        iconFile.includes("platnii_map")
+    ){
+
+        return L.icon({
+
+            iconUrl:"platnii_map.svg",
+
+            iconSize:[40,40],
+
+            iconAnchor:[20,40],
+
+            popupAnchor:[0,-40]
+
+        });
+
+    }
+
+
+    if(
+        iconFile.includes("pfirma_map")
+    ){
+
+        return L.icon({
+
+            iconUrl:"Pfirma_map.svg",
+
+            iconSize:[40,40],
+
+            iconAnchor:[20,40],
+
+            popupAnchor:[0,-40]
+
         });
 
     }
@@ -12753,30 +13003,54 @@ function getCategoryIcon(category, data = {}){
 
     const icons = {
 
-        market:"maarket_map.svg",
+        market:
+            "maarket_map.svg",
 
-        road_parking:"pocket_map.svg",
+        truck_schop:
+            "Trucks_Supermarket_map.svg",
 
-        industrial:"promzona_map.svg",
+        road_parking:
+            "pocket_map.svg",
 
-        free_parking:"parkinglogoo_map.svg",
+        industrial:
+            "promzona_map.svg",
 
-        wash:"wash_map.svg",
+        free_parking:
+            "parkinglogoo_map.svg",
 
-        gas_station:"gas_map.svg",
+        Paid_parking:
+            "platnii_map.svg",
 
-        restaurant:"restaurant_map.svg",
+        parking_firma:
+            "Pfirma_map.svg",
 
-        hotel:"hotel_map.svg",
+        wash:
+            "wash_map.svg",
 
-        service:"service_map.svg",
+        gas_station:
+            "gas_map.svg",
 
-        tire:"tire_map.svg",
+        restaurant:
+            "restaurant_map.svg",
 
-        truck_service:"truck_service_map.svg"
+        hotel:
+            "hotel_map.svg",
+
+        service:
+            "service_map.svg",
+
+        tire:
+            "tire_map.svg",
+
+        truck_service:
+            "truck_service_map.svg"
 
     };
 
+
+    /* -------------------------
+       Вибираємо іконку
+    ------------------------- */
 
     const iconUrl =
         icons[category] ||
@@ -12796,7 +13070,6 @@ function getCategoryIcon(category, data = {}){
     });
 
 }
-
 
 /* =====================================================
    ЧИ КАТЕГОРІЯ АКТИВНА
@@ -12838,7 +13111,7 @@ function isCategoryActive(category){
        Магазини ТІР
     ------------------------- */
 
-    if(category === "truck_shop"){
+    if(category === "truck_schop"){
 
         return !!(
             shoppingButtons[1] &&
@@ -12898,6 +13171,19 @@ function isCategoryActive(category){
         return !!(
             parkingButtons[2] &&
             parkingButtons[2].classList.contains("active")
+        );
+
+    }
+
+         /* -------------------------
+       Паркування платне
+    ------------------------- */
+
+    if(category === "Paid_parking"){
+
+        return !!(
+            parkingButtons[3] &&
+            parkingButtons[3].classList.contains("active")
         );
 
     }
@@ -13552,7 +13838,7 @@ async function loadActiveCategories(){
 
             "market",
 
-            "truck_shop",
+            "truck_schop",
 
             "flea_market",
 
@@ -13561,6 +13847,8 @@ async function loadActiveCategories(){
             "road_parking",
 
             "free_parking",
+
+            "Paid_parking",
 
             "wash",
 
@@ -13840,49 +14128,49 @@ function saveActiveCategories(){
 
     const categories = [
 
-        {
-            category:"market",
+    {
+        category:"market",
+        selector:
+            '#shoppingCategories button[onclick*="toggleGroceryStores"]'
+    },
 
-            selector:
-                '#shoppingCategories button[onclick*="toggleGroceryStores"]'
-        },
+    {
+        category:"truck_schop",
+        selector:
+            '#shoppingCategories .subCategoryBtn[onclick*="toggleShoppingTIR"]'
+    },
 
-        {
-            category:"truck_shop",
+    {
+        category:"flea_market",
+        selector:
+            '#shoppingCategories .subCategoryBtn[onclick*="toggleFleaMarket"]'
+    },
 
-            selector:
-                '#shoppingCategories .subCategoryBtn:nth-child(2)'
-        },
+    {
+        category:"industrial",
+        selector:
+            '#parkingCategories .subCategoryBtn:nth-child(1)'
+    },
 
-        {
-            category:"flea_market",
+    {
+        category:"road_parking",
+        selector:
+            '#parkingCategories .subCategoryBtn:nth-child(2)'
+    },
 
-            selector:
-                '#shoppingCategories .subCategoryBtn:nth-child(3)'
-        },
+    {
+        category:"free_parking",
+        selector:
+            '#parkingCategories .subCategoryBtn:nth-child(3)'
+    },
 
-        {
-            category:"industrial",
+    {
+        category:"Paid_parking",
+        selector:
+            '#parkingCategories .subCategoryBtn:nth-child(4)'
+    }
 
-            selector:
-                '#parkingCategories .subCategoryBtn:nth-child(1)'
-        },
-
-        {
-            category:"road_parking",
-
-            selector:
-                '#parkingCategories .subCategoryBtn:nth-child(2)'
-        },
-
-        {
-            category:"free_parking",
-
-            selector:
-                '#parkingCategories .subCategoryBtn:nth-child(3)'
-        }
-
-    ];
+];
 
 
     categories.forEach(item => {
@@ -13976,24 +14264,26 @@ async function restoreActiveCategories(){
     }
 
 
-    /* =========================
-       МАГАЗИНИ ТІР
-    ========================= */
+   /* =========================
+   МАГАЗИНИ ТІР
+========================= */
 
-    if(
-        saved.includes("truck_shop")
-    ){
+if(
+    saved.includes("truck_schop")
+){
 
-        const buttons =
-            document.querySelectorAll(
-                "#shoppingCategories .subCategoryBtn"
-            );
+    const button =
+        document.querySelector(
+            '#shoppingCategories .subCategoryBtn[onclick*="toggleShoppingTIR"]'
+        );
 
-        if(buttons[1]){
-            buttons[1].classList.add("active");
-        }
+    if(button){
+
+        button.classList.add("active");
 
     }
+
+}
 
 
     /* =========================
@@ -14075,6 +14365,25 @@ async function restoreActiveCategories(){
 
     }
 
+    /* =========================
+       ПАРКУВАННЯ Платне
+    ========================= */
+
+    if(
+        saved.includes("Paid_parking")
+    ){
+
+        const buttons =
+            document.querySelectorAll(
+                "#parkingCategories .subCategoryBtn"
+            );
+
+        if(buttons[3]){
+            buttons[3].classList.add("active");
+        }
+
+    }
+
 
     updateActiveCategoryIcons();
 
@@ -14114,6 +14423,27 @@ async function toggleGroceryStores(button){
 
 }
 
+/* =====================================================
+   МАГАЗИНИ ТІР
+===================================================== */
+
+async function toggleShoppingTIR(button){
+
+    button.classList.toggle(
+        "active"
+    );
+
+
+    await reloadCategory(
+        "truck_schop"
+    );
+
+
+    saveActiveCategories();
+
+    updateActiveCategoryIcons();
+
+}
 
 /* =====================================================
    ПЕРША КАТЕГОРІЯ — ЗАКУПИ
@@ -14483,6 +14813,49 @@ async function toggleFreeParking(button){
 
     await reloadCategory(
         "free_parking"
+    );
+
+
+    saveActiveCategories();
+
+    updateActiveCategoryIcons();
+
+}
+/* =====================================================
+   ПЛАТНЕ ПАРКУВАННЯ
+===================================================== */
+
+async function togglePaidParking(button){
+
+    button.classList.toggle(
+        "active"
+    );
+
+
+    await reloadCategory(
+        "Paid_parking"
+    );
+
+
+    saveActiveCategories();
+
+    updateActiveCategoryIcons();
+
+}
+
+/* =====================================================
+    ПАРКУВАННЯ  БІЛЯ ФІРМИ
+===================================================== */
+
+async function toggleFirmaParking(button){
+
+    button.classList.toggle(
+        "active"
+    );
+
+
+    await reloadCategory(
+        "parking_firma"
     );
 
 
