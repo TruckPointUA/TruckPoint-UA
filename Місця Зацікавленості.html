@@ -4481,7 +4481,7 @@ color: #93c5fd;
 
     position: absolute;
 
-    top: 580px;
+    top: 550px;
     right: 10px;
 
     width: 44px;
@@ -5896,7 +5896,9 @@ if (compassButton) {
 
     compassButton.addEventListener("click", async () => {
 
-        /* iPhone / iPad */
+        /* =========================================
+           iPhone / iPad — дозвіл
+        ========================================= */
 
         if (
             typeof DeviceOrientationEvent !== "undefined" &&
@@ -5929,21 +5931,19 @@ if (compassButton) {
         }
 
 
-        compassEnabled =
-            !compassEnabled;
+        /* =========================================
+           🔴 ВИМИКАЄМО КОМПАС
+        ========================================= */
 
+        if (compassEnabled) {
 
-        compassButton.classList.toggle(
-            "active",
-            compassEnabled
-        );
-
-
-        if (!compassEnabled) {
+            compassEnabled = false;
 
             lastHeading = null;
 
-            /* Повернути карту на північ */
+            compassButton.classList.remove("active");
+
+            /* Повертаємо на ПІВНІЧ */
 
             if (
                 typeof map.setBearing === "function"
@@ -5957,14 +5957,38 @@ if (compassButton) {
         }
 
 
+        /* =========================================
+           🟢 ВМИКАЄМО КОМПАС
+        ========================================= */
+
+        compassEnabled = true;
+
+        compassButton.classList.add("active");
+
+
+        /* =========================================
+           🌅 ПЕРШЕ НАТИСКАННЯ → ЗАХІД
+        ========================================= */
+
+        if (
+            typeof map.setBearing === "function"
+        ) {
+
+            map.setBearing(270);
+
+        }
+
+
+        lastHeading = 270;
+
+
         console.log(
-            "🧭 Автоматичний компас увімкнено"
+            "🧭 Компас увімкнено — карта на ЗАХІД"
         );
 
     });
 
 }
-
 
 /* =================================================
    🧭 ОТРИМУЄМО НАПРЯМОК ТЕЛЕФОНА
