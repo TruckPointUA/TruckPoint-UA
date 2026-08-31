@@ -4547,6 +4547,7 @@ color: #93c5fd;
     text-align: center !important;
     border: none !important;
 }
+
 </style>
 
 </head>
@@ -4820,13 +4821,41 @@ color: #93c5fd;
     Паркування
 </button>
 
-        <button class="categoryBtn">Сервіси</button>
+        <button class="categoryBtn" onclick="toggleServices(this)">
+    Сервіси
+</button>
 
     </div>
 
   <div class="sheetContent">
 
-    <div id="shoppingCategories" class="subCategories">
+    <div id="servicesCategories" class="subCategories">
+
+<button
+    class="subCategoryBtn"
+    onclick="selectWater(this)"
+>
+    <img
+        src="water_map.svg"
+        class="categoryIcon"
+    >
+    Набрати воду
+</button>
+
+    <button class="subCategoryBtn">
+        
+        Розробляється
+    </button>
+
+    <button class="subCategoryBtn">
+        
+        Розробляється
+    </button>
+
+</div>
+
+    <div id="shoppingCategories" 
+    class="subCategories">
 
 <button 
     class="subCategoryBtn" 
@@ -4901,8 +4930,9 @@ color: #93c5fd;
           Паркування біля фірми
     </button>
 
-</div>
+    
 
+</div>
 </div>
 
 </div>
@@ -7381,7 +7411,10 @@ function getApprovedIcon(category){
             "flea_market_map.svg",
 
         other:
-            "info_marker.svg"
+            "info_marker.svg",
+
+        water: 
+            "water_map.svg",
 
     };
 
@@ -11964,13 +11997,6 @@ if(!sheetBackState){
 }
 
 /* =========================
-   ПЕРША КАТЕГОРІЯ — ЗАКУПИ
-========================= */
-
-
-
-
-/* =========================
    ЗАКРИТИ ШТОРКУ
 ========================= */
 
@@ -12551,6 +12577,35 @@ if (
         container.appendChild(img);
 
     }
+/* =========================
+   НАБРАТИ ВОДУ
+========================= */
+
+const waterButton =
+    document.querySelector(
+        '#servicesCategories .subCategoryBtn[onclick*="selectWater"]'
+    );
+
+if(
+    waterButton &&
+    waterButton.classList.contains("active")
+){
+
+    const img =
+        document.createElement("img");
+
+    img.src =
+        "water_map.svg";
+
+    img.className =
+        "activeMapCategoryIcon waterActiveIcon";
+
+    img.title =
+        "Набрати воду";
+
+    container.appendChild(img);
+
+}
 
 }
 
@@ -13022,6 +13077,24 @@ function getCategoryIcon(category, data = {}){
 
     }
 
+    if(
+    iconFile.includes("water")
+){
+
+    return L.icon({
+
+        iconUrl:"Water_map.svg",
+
+        iconSize:[40,40],
+
+        iconAnchor:[20,40],
+
+        popupAnchor:[0,-40]
+
+    });
+
+}
+
 
     /* -------------------------
        Іконка за категорією
@@ -13069,7 +13142,10 @@ function getCategoryIcon(category, data = {}){
             "tire_map.svg",
 
         truck_service:
-            "truck_service_map.svg"
+            "truck_service_map.svg",
+
+        water: 
+            "water_map.svg",
 
     };
 
@@ -14194,7 +14270,13 @@ function saveActiveCategories(){
         category:"Paid_parking",
         selector:
             '#parkingCategories .subCategoryBtn:nth-child(4)'
-    }
+    },
+
+    {
+    category:"water",
+    selector:
+        '#servicesCategories .subCategoryBtn[onclick*="selectWater"]'
+}
 
 ];
 
@@ -14411,6 +14493,27 @@ if(
     }
 
 
+    /* =========================
+   НАБРАТИ ВОДУ
+========================= */
+
+if(
+    saved.includes("water")
+){
+
+    const button =
+        document.querySelector(
+            '#servicesCategories .subCategoryBtn[onclick*="selectWater"]'
+        );
+
+    if(button){
+
+        button.classList.add("active");
+
+    }
+
+}
+
     updateActiveCategoryIcons();
 
 
@@ -14471,9 +14574,9 @@ async function toggleShoppingTIR(button){
 
 }
 
-/* =====================================================
-   ПЕРША КАТЕГОРІЯ — ЗАКУПИ
-===================================================== */
+ /* =====================================================
+    ПЕРША КАТЕГОРІЯ — ЗАКУПИ
+ ===================================================== */
 
 function openDefaultCategory(){
 
@@ -14483,15 +14586,25 @@ function openDefaultCategory(){
     const parkingCategories =
         document.getElementById("parkingCategories");
 
+    const servicesCategories =
+        document.getElementById("servicesCategories");
+
     const categoryButtons =
         document.querySelectorAll(
             ".categoryScroll .categoryBtn"
         );
 
+
+    /* =========================
+       ПЕРЕВІРКА
+    ========================= */
+
     if(!shoppingCategories){
+
         console.error(
             "❌ Не знайдено #shoppingCategories"
         );
+
         return;
     }
 
@@ -14506,8 +14619,39 @@ function openDefaultCategory(){
         parkingCategories.classList.remove("active");
 
         parkingCategories.style.display = "none";
-
     }
+
+
+    /* =========================
+       ЗАКРИВАЄМО СЕРВІСИ
+    ========================= */
+
+    if(servicesCategories){
+
+        servicesCategories.classList.remove("show");
+        servicesCategories.classList.remove("active");
+
+        servicesCategories.style.display = "none";
+    }
+
+
+    /* =========================
+       ЗАКРИВАЄМО ІНШІ ПІДКАТЕГОРІЇ
+    ========================= */
+
+    document.querySelectorAll(
+        ".subCategories"
+    ).forEach(category => {
+
+        if(category !== shoppingCategories){
+
+            category.classList.remove("show");
+            category.classList.remove("active");
+
+            category.style.display = "none";
+        }
+
+    });
 
 
     /* =========================
@@ -14521,41 +14665,83 @@ function openDefaultCategory(){
 
 
     /* =========================
-   КНОПКИ ВЕРХНЬОЇ КАТЕГОРІЇ
+       КНОПКИ ВЕРХНЬОЇ КАТЕГОРІЇ
+    ========================= */
+
+    categoryButtons.forEach(button => {
+
+        button.classList.remove("active");
+
+    });
+
+
+    /* =========================
+       АКТИВУЄМО "ЗАКУПИ"
+    ========================= */
+
+    if(categoryButtons[0]){
+
+        categoryButtons[0].classList.add("active");
+
+    }
+
+    /* =========================
+   ПРОКРУЧУЄМО ДО "ЗАКУПИ"
 ========================= */
 
-const savedCategories =
-    getSavedActiveCategories();
+if(categoryButtons[0]){
 
+    setTimeout(() => {
 
-categoryButtons.forEach(button => {
+        categoryButtons[0].scrollIntoView({
+            behavior: "smooth",
+            inline: "start",
+            block: "nearest"
+        });
 
-    button.classList.remove("active");
-
-});
-
-
-/*
-   Якщо нічого не збережено —
-   відкриваємо "Закупи".
-*/
-
-if(
-    savedCategories.length === 0 &&
-    categoryButtons[0]
-){
-
-    categoryButtons[0].classList.add(
-        "active"
-    );
+    }, 100);
 
 }
 }
-
 
 
 /* =====================================================
-   ЗАКУПИ
+   НАБРАТИ ВОДУ
+===================================================== */
+
+async function selectWater(button){
+
+    button.classList.toggle("active");
+
+
+    /* =========================
+       ЗАВАНТАЖЕННЯ ТОЧОК ВОДИ
+    ========================= */
+
+    if(button.classList.contains("active")){
+
+        await reloadCategory("water");
+
+    }
+
+
+    /* =========================
+       ІКОНКА ЗЛІВА ЗВЕРХУ
+    ========================= */
+
+    updateActiveCategoryIcons();
+
+
+    /* =========================
+       ЗБЕРЕЖЕННЯ
+    ========================= */
+
+    saveActiveCategories();
+
+}
+
+/* =====================================================
+   🛒 ЗАКУПИ
 ===================================================== */
 
 function toggleShopping(){
@@ -14570,16 +14756,19 @@ function toggleShopping(){
             "parkingCategories"
         );
 
+    const services =
+        document.getElementById(
+            "servicesCategories"
+        );
+
     const buttons =
         document.querySelectorAll(
             ".categoryScroll .categoryBtn"
         );
 
-    const shoppingButton =
-        buttons[0];
-
-    const parkingButton =
-        buttons[1];
+    const shoppingButton = buttons[0];
+    const parkingButton = buttons[1];
+    const servicesButton = buttons[2];
 
 
     if(!shopping){
@@ -14598,9 +14787,7 @@ function toggleShopping(){
 
         shopping.classList.remove("show");
         shopping.classList.remove("active");
-
         shopping.style.display = "none";
-
 
         if(shoppingButton){
 
@@ -14622,8 +14809,20 @@ function toggleShopping(){
 
         parking.classList.remove("show");
         parking.classList.remove("active");
-
         parking.style.display = "none";
+
+    }
+
+
+    /* =========================
+       🔴 ЗАКРИВАЄМО СЕРВІСИ
+    ========================= */
+
+    if(services){
+
+        services.classList.remove("show");
+        services.classList.remove("active");
+        services.style.display = "none";
 
     }
 
@@ -14634,9 +14833,12 @@ function toggleShopping(){
 
     shopping.classList.add("show");
     shopping.classList.add("active");
-
     shopping.style.display = "flex";
 
+
+    /* =========================
+       КНОПКИ
+    ========================= */
 
     if(shoppingButton){
 
@@ -14654,12 +14856,20 @@ function toggleShopping(){
 
     }
 
+    if(servicesButton){
+
+        servicesButton.classList.remove(
+            "active"
+        );
+
+    }
+
 
     console.log(
         "🛒 Відкрито категорію «Закупи»"
     );
-}
 
+}
 
 
 /* =====================================================
@@ -14678,6 +14888,12 @@ function toggleParking(){
             "shoppingCategories"
         );
 
+    const services =
+        document.getElementById(
+            "servicesCategories"
+        );
+
+
     const buttons =
         document.querySelectorAll(
             ".categoryScroll .categoryBtn"
@@ -14688,6 +14904,9 @@ function toggleParking(){
 
     const parkingButton =
         buttons[1];
+
+    const servicesButton =
+        buttons[2];
 
 
     if(!parking){
@@ -14737,6 +14956,20 @@ function toggleParking(){
 
 
     /* =========================
+       ЗАКРИВАЄМО СЕРВІСИ
+    ========================= */
+
+    if(services){
+
+        services.classList.remove("show");
+        services.classList.remove("active");
+
+        services.style.display = "none";
+
+    }
+
+
+    /* =========================
        ВІДКРИВАЄМО ПАРКУВАННЯ
     ========================= */
 
@@ -14745,6 +14978,10 @@ function toggleParking(){
 
     parking.style.display = "flex";
 
+
+    /* =========================
+       КНОПКИ
+    ========================= */
 
     if(parkingButton){
 
@@ -14762,12 +14999,20 @@ function toggleParking(){
 
     }
 
+    if(servicesButton){
+
+        servicesButton.classList.remove(
+            "active"
+        );
+
+    }
+
 
     console.log(
         "🅿️ Відкрито категорію «Паркування»"
     );
-}
 
+}
 
 /* =====================================================
    ПРОМИСЛОВА ЗОНА
@@ -14802,6 +15047,140 @@ async function selectParking(button){
     updateActiveCategoryIcons();
 
 }
+
+/* =====================================================
+   🛠️ СЕРВІСИ
+===================================================== */
+
+async function toggleServices(){
+
+    const services =
+        document.getElementById(
+            "servicesCategories"
+        );
+
+    const shopping =
+        document.getElementById(
+            "shoppingCategories"
+        );
+
+    const parking =
+        document.getElementById(
+            "parkingCategories"
+        );
+
+    const buttons =
+        document.querySelectorAll(
+            ".categoryScroll .categoryBtn"
+        );
+
+    const shoppingButton = buttons[0];
+    const parkingButton = buttons[1];
+    const servicesButton = buttons[2];
+
+
+    if(!services){
+        return;
+    }
+
+
+    /* =========================
+       ЯКЩО СЕРВІСИ ВЖЕ ВІДКРИТІ
+       — ЗАКРИВАЄМО
+    ========================= */
+
+    if(
+        services.classList.contains("show")
+    ){
+
+        services.classList.remove("show");
+        services.classList.remove("active");
+
+        services.style.display = "none";
+
+        if(servicesButton){
+
+            servicesButton.classList.remove(
+                "active"
+            );
+
+        }
+
+        return;
+    }
+
+
+    /* =========================
+       ЗАКРИВАЄМО ЗАКУПИ
+    ========================= */
+
+    if(shopping){
+
+        shopping.classList.remove("show");
+        shopping.classList.remove("active");
+
+        shopping.style.display = "none";
+    }
+
+
+    /* =========================
+       ЗАКРИВАЄМО ПАРКУВАННЯ
+    ========================= */
+
+    if(parking){
+
+        parking.classList.remove("show");
+        parking.classList.remove("active");
+
+        parking.style.display = "none";
+    }
+
+
+    /* =========================
+       ВІДКРИВАЄМО СЕРВІСИ
+    ========================= */
+
+    services.classList.add("show");
+    services.classList.add("active");
+
+    services.style.display = "flex";
+
+
+    /* =========================
+       КНОПКИ
+    ========================= */
+
+    if(shoppingButton){
+
+        shoppingButton.classList.remove(
+            "active"
+        );
+
+    }
+
+    if(parkingButton){
+
+        parkingButton.classList.remove(
+            "active"
+        );
+
+    }
+
+    if(servicesButton){
+
+        servicesButton.classList.add(
+            "active"
+        );
+
+    }
+
+
+    console.log(
+        "🛠️ Відкрито категорію «Сервіси»"
+    );
+
+}
+window.toggleServices = toggleServices;
 
 
 /* =====================================================
@@ -14890,6 +15269,10 @@ async function toggleFirmaParking(button){
     updateActiveCategoryIcons();
 
 }
+
+
+
+
 /* =====================================================
    ВІДНОВИТИ ТОЧКИ ПІСЛЯ ЗАВАНТАЖЕННЯ СТОРІНКИ
 ===================================================== */
