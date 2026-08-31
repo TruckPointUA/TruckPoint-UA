@@ -5878,18 +5878,23 @@ const map = L.map('map', {
 
 /* =================================================
    🧭 АВТОМАТИЧНИЙ КОМПАС
-   Карта повертається разом із телефоном
+   Перше натискання = карта горизонтально
+   Подальше обертання телефона = обертання карти
 ================================================= */
 
 const compassButton =
     document.getElementById("compassButton");
 
 let compassEnabled = false;
+
 let lastHeading = null;
+
+/* Початковий напрямок телефона */
+let compassStartHeading = null;
 
 
 /* =================================================
-   КНОПКА КОМПАСА
+   🧭 КНОПКА КОМПАСА
 ================================================= */
 
 if (compassButton) {
@@ -5897,7 +5902,7 @@ if (compassButton) {
     compassButton.addEventListener("click", async () => {
 
         /* =========================================
-           iPhone / iPad — дозвіл
+           📱 iPhone / iPad — дозвіл
         ========================================= */
 
         if (
@@ -5941,9 +5946,14 @@ if (compassButton) {
 
             lastHeading = null;
 
+            compassStartHeading = null;
+
             compassButton.classList.remove("active");
 
-            /* Повертаємо на ПІВНІЧ */
+            /*
+             * Повертаємо карту в горизонтальне
+             * положення
+             */
 
             if (
                 typeof map.setBearing === "function"
@@ -5952,6 +5962,10 @@ if (compassButton) {
                 map.setBearing(0);
 
             }
+
+            console.log(
+                "🧭 Компас вимкнено"
+            );
 
             return;
         }
@@ -5963,37 +5977,37 @@ if (compassButton) {
 
         compassEnabled = true;
 
+        lastHeading = null;
+
+        compassStartHeading = null;
+
         compassButton.classList.add("active");
 
 
-        /* =========================================
-   🟢 ПЕРШЕ НАТИСКАННЯ
-   ВИРІВНЮЄМО НАПИСИ КАРТИ
-========================================= */
+        /*
+         * 🔥 ВАЖЛИВО
+         *
+         * При першому натисканні карта одразу
+         * стає горизонтальною.
+         */
 
-compassEnabled = true;
+        if (
+            typeof map.setBearing === "function"
+        ) {
 
-compassButton.classList.add("active");
+            map.setBearing(0);
 
-lastHeading = 0;
-
-
-/* Карта рівно по горизонталі */
-
-if (typeof map.setBearing === "function") {
-
-    map.setBearing(0);
-
-}
+        }
 
 
-console.log(
-    "🧭 Карта вирівняна — написи горизонтально"
-);
+        console.log(
+            "🧭 Компас увімкнено — карта горизонтально"
+        );
 
     });
 
 }
+
 
 /* =================================================
    🧭 ОТРИМУЄМО НАПРЯМОК ТЕЛЕФОНА
@@ -6009,9 +6023,9 @@ function handleDeviceOrientation(event) {
     let heading = null;
 
 
-    /* -----------------------------------------
-       iPhone / iOS
-    ----------------------------------------- */
+    /* =========================================
+       🍎 iPhone / iOS
+    ========================================= */
 
     if (
         event.webkitCompassHeading !== undefined &&
@@ -6024,9 +6038,9 @@ function handleDeviceOrientation(event) {
     }
 
 
-    /* -----------------------------------------
-       Android
-    ----------------------------------------- */
+    /* =========================================
+       🤖 Android
+    ========================================= */
 
     else if (
         event.alpha !== null &&
@@ -6039,22 +6053,89 @@ function handleDeviceOrientation(event) {
     }
 
 
+    /* =========================================
+       ❌ Немає напрямку
+    ========================================= */
+
     if (heading === null) {
         return;
     }
 
 
-    /* -----------------------------------------
-       Нормалізація
-    ----------------------------------------- */
+    /* =========================================
+       🔄 Нормалізація
+    ========================================= */
 
     heading =
         (heading + 360) % 360;
 
 
-    /* -----------------------------------------
-       Не крутимо карту через дрібні коливання
-    ----------------------------------------- */
+    /* =========================================
+       🟢 ПЕРШИЙ ОТРИМАНИЙ НАПРЯМОК
+    ========================================= */
+
+    if (compassStartHeading === null) {
+
+        /*
+         * Запам'ятовуємо положення телефона
+         * у момент першого показання компаса.
+         */
+
+        compassStartHeading =
+            heading;
+
+        lastHeading =
+            heading;
+
+        /*
+         * Карта вже встановлена в 0°
+         */
+
+        if (
+            typeof map.setBearing === "function"
+        ) {
+
+            map.setBearing(0);
+
+        }
+
+        console.log(
+            "🧭 Початковий напрямок:",
+            compassStartHeading
+        );
+
+        return;
+    }
+
+
+    /* =========================================
+       📐 РАХУЄМО ВІДХИЛЕННЯ ВІД ПОЧАТКОВОГО
+    ========================================= */
+
+    let relativeHeading =
+        heading - compassStartHeading;
+
+
+    /*
+     * Нормалізація від -180 до +180
+     */
+
+    if (relativeHeading > 180) {
+
+        relativeHeading -= 360;
+
+    }
+
+    if (relativeHeading < -180) {
+
+        relativeHeading += 360;
+
+    }
+
+
+    /* =========================================
+       🛑 Дрібні коливання ігноруємо
+    ========================================= */
 
     if (
         lastHeading !== null &&
@@ -6071,16 +6152,16 @@ function handleDeviceOrientation(event) {
         heading;
 
 
-    /* -----------------------------------------
-       Повертаємо Leaflet карту
-    ----------------------------------------- */
+    /* =========================================
+       🗺️ ПОВЕРТАЄМО КАРТУ
+    ========================================= */
 
     if (
         typeof map.setBearing === "function"
     ) {
 
         map.setBearing(
-            heading
+            relativeHeading
         );
 
     }
@@ -6097,6 +6178,8 @@ window.addEventListener(
     handleDeviceOrientation,
     true
 );
+
+
 
 /* =====================================================
    🛠️ РОЗРОБНИК — КНОПКА ДОДАВАННЯ ТОЧКИ
@@ -9168,8 +9251,8 @@ routeButton.style.cssText = `
     width:44px;
     height:44px;
 
-    margin-top:6px;
-    margin-left:-20px;
+    margin-top:4px;
+    margin-left:-10px;
 
     padding:0;
 
