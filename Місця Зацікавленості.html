@@ -4476,6 +4476,57 @@ color: #93c5fd;
     font-weight:800;
 
 }
+
+.compassButton {
+
+    position: absolute;
+
+    top: 580px;
+    right: 10px;
+
+    width: 44px;
+    height: 44px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: white;
+
+    box-shadow:
+        0 2px 8px rgba(0,0,0,0.25);
+
+    font-size: 24px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 1000;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.15s ease,
+        background 0.2s ease;
+}
+
+
+.compassButton:active {
+
+    transform: scale(0.9);
+
+}
+
+
+.compassButton.active {
+
+    background: #e8f1ff;
+
+    box-shadow:
+        0 0 0 3px rgba(0,123,255,0.2),
+        0 2px 8px rgba(0,0,0,0.25);
+
+}
 </style>
 
 </head>
@@ -4513,6 +4564,14 @@ color: #93c5fd;
 </div>
 
 <div id="map"></div>
+
+<button
+    id="compassButton"
+    class="compassButton"
+    title="Компас"
+>
+    🧭
+</button>
 <!-- =====================================================
      ВІКНО ІНФОРМАЦІЇ ПРО ТОЧКУ
 ===================================================== -->
@@ -5817,6 +5876,198 @@ const map = L.map('map', {
 );
 
 
+/* =================================================
+   🧭 АВТОМАТИЧНИЙ КОМПАС
+   Карта повертається разом із телефоном
+================================================= */
+
+const compassButton =
+    document.getElementById("compassButton");
+
+let compassEnabled = false;
+let lastHeading = null;
+
+
+/* =================================================
+   КНОПКА КОМПАСА
+================================================= */
+
+if (compassButton) {
+
+    compassButton.addEventListener("click", async () => {
+
+        /* iPhone / iPad */
+
+        if (
+            typeof DeviceOrientationEvent !== "undefined" &&
+            typeof DeviceOrientationEvent.requestPermission === "function"
+        ) {
+
+            try {
+
+                const permission =
+                    await DeviceOrientationEvent.requestPermission();
+
+                if (permission !== "granted") {
+
+                    alert(
+                        "Дозволь використання компаса для карти."
+                    );
+
+                    return;
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Помилка дозволу компаса:",
+                    error
+                );
+
+                return;
+            }
+        }
+
+
+        compassEnabled =
+            !compassEnabled;
+
+
+        compassButton.classList.toggle(
+            "active",
+            compassEnabled
+        );
+
+
+        if (!compassEnabled) {
+
+            lastHeading = null;
+
+            /* Повернути карту на північ */
+
+            if (
+                typeof map.setBearing === "function"
+            ) {
+
+                map.setBearing(0);
+
+            }
+
+            return;
+        }
+
+
+        console.log(
+            "🧭 Автоматичний компас увімкнено"
+        );
+
+    });
+
+}
+
+
+/* =================================================
+   🧭 ОТРИМУЄМО НАПРЯМОК ТЕЛЕФОНА
+================================================= */
+
+function handleDeviceOrientation(event) {
+
+    if (!compassEnabled) {
+        return;
+    }
+
+
+    let heading = null;
+
+
+    /* -----------------------------------------
+       iPhone / iOS
+    ----------------------------------------- */
+
+    if (
+        event.webkitCompassHeading !== undefined &&
+        event.webkitCompassHeading !== null
+    ) {
+
+        heading =
+            event.webkitCompassHeading;
+
+    }
+
+
+    /* -----------------------------------------
+       Android
+    ----------------------------------------- */
+
+    else if (
+        event.alpha !== null &&
+        event.alpha !== undefined
+    ) {
+
+        heading =
+            360 - event.alpha;
+
+    }
+
+
+    if (heading === null) {
+        return;
+    }
+
+
+    /* -----------------------------------------
+       Нормалізація
+    ----------------------------------------- */
+
+    heading =
+        (heading + 360) % 360;
+
+
+    /* -----------------------------------------
+       Не крутимо карту через дрібні коливання
+    ----------------------------------------- */
+
+    if (
+        lastHeading !== null &&
+        Math.abs(
+            heading - lastHeading
+        ) < 1
+    ) {
+
+        return;
+    }
+
+
+    lastHeading =
+        heading;
+
+
+    /* -----------------------------------------
+       Повертаємо Leaflet карту
+    ----------------------------------------- */
+
+    if (
+        typeof map.setBearing === "function"
+    ) {
+
+        map.setBearing(
+            heading
+        );
+
+    }
+
+}
+
+
+/* =================================================
+   📱 СЛУХАЄМО КОМПАС
+================================================= */
+
+window.addEventListener(
+    "deviceorientation",
+    handleDeviceOrientation,
+    true
+);
 
 /* =====================================================
    🛠️ РОЗРОБНИК — КНОПКА ДОДАВАННЯ ТОЧКИ
@@ -8888,8 +9139,8 @@ routeButton.style.cssText = `
     width:44px;
     height:44px;
 
-    margin-top:10px;
-    margin-left:-40px;
+    margin-top:6px;
+    margin-left:-20px;
 
     padding:0;
 
