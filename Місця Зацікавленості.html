@@ -7,20 +7,42 @@
 
 <title>Місця Зацікавленості</title>
 
+
+<!-- Firebase -->
+
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Leaflet CSS -->
 
 <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
 />
 
+
+<!-- Leaflet -->
+
 <script
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
 </script>
+
+
+<!-- Leaflet Rotate -->
+
+<script
+    src="https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate.js">
+</script>
+
+
+<!-- Google Fonts -->
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+>
 <style>
 
 *{
@@ -4856,7 +4878,7 @@ color: #93c5fd;
     >
         <option value="">Оберіть категорію</option>
         <option value="market">Продуктовий магазин</option>
-        <option value="parking">Паркування безкоштовне</option>
+        <option value="free_parking">Паркування безкоштовне</option>
         <option value="road_parking">Паркування при дорозі</option>
         <option value="industrial">Промислова зона</option>
         <option value="other">Інше</option>
@@ -4903,7 +4925,7 @@ color: #93c5fd;
 
         <div
             class="categoryOption"
-            data-value="parking"
+            data-value="free_parking"
         >
             <img src="parkinglogoo_map.svg">
             <span>Паркінг безкоштовний</span>
@@ -5634,9 +5656,9 @@ function getCategoryFromIcon(icon){
   /* Паркінг безкоштовний */
 
 if(
-    name.includes("free_parking") ||
-    name.includes("parkinglogoo") ||
-    name.includes("паркінг безкоштовний")
+
+    name.includes("parkinglogoo")
+    
 ){
     return "free_parking";
 }
@@ -5778,13 +5800,22 @@ async function importPointsToFirebase(){
 
  //importPointsToFirebase();
 
-
 const map = L.map('map', {
-    zoomControl:false
+
+    zoomControl: false,
+
+    rotate: true,
+    touchRotate: true,
+    rotateControl: false
+
 }).setView(
+
     [49.0,31.0],
+
     6
+
 );
+
 
 
 /* =====================================================
@@ -8857,8 +8888,8 @@ routeButton.style.cssText = `
     width:44px;
     height:44px;
 
-    margin-top:8px;
-    margin-left:-60px;
+    margin-top:10px;
+    margin-left:-40px;
 
     padding:0;
 
@@ -12625,7 +12656,7 @@ function getCategoryIcon(category, data = {}){
 
         industrial:"promzona_map.svg",
 
-        parking:"parking_map.svg",
+        free_parking:"parkinglogoo_map.svg",
 
         wash:"wash_map.svg",
 
@@ -12751,6 +12782,19 @@ function isCategoryActive(category){
         return !!(
             parkingButtons[1] &&
             parkingButtons[1].classList.contains("active")
+        );
+
+    }
+
+        /* -------------------------
+       Паркування Безплатне
+    ------------------------- */
+
+    if(category === "free_parking"){
+
+        return !!(
+            parkingButtons[2] &&
+            parkingButtons[2].classList.contains("active")
         );
 
     }
@@ -12912,12 +12956,32 @@ console.trace(
 
 async function loadCategoryPoints(category){
 
+    const MIN_POINT_ZOOM = 8;
+
     console.log(
-    "🔍 LOAD CATEGORY:",
-    category,
-    "TIME:",
-    Date.now()
-);
+        "🔍 LOAD CATEGORY:",
+        category,
+        "ZOOM:",
+        map.getZoom(),
+        "TIME:",
+        Date.now()
+    );
+
+
+    /* =========================================
+       НЕ ПОКАЗУЄМО ТОЧКИ ПРИ МАЛОМУ ЗУМІ
+    ========================================= */
+
+    if(map.getZoom() < MIN_POINT_ZOOM){
+
+        console.log(
+            "🔭 Зум занадто малий — точки приховані:",
+            map.getZoom()
+        );
+
+        return;
+    }
+
 
     /* =========================================
        ЗАВАНТАЖУЄМО КАТЕГОРІЮ
@@ -12949,7 +13013,6 @@ async function loadCategoryPoints(category){
             );
 
             return;
-
         }
 
 
@@ -12960,17 +13023,20 @@ async function loadCategoryPoints(category){
 
             const data =
                 child.val();
-console.log(
-    "📍 FIREBASE POINT:",
-    {
-        category: category,
-        firebaseKey: child.key,
-        lat: data?.lat,
-        lng: data?.lng,
-        name: data?.name,
-        approved: data?.approved
-    }
-);
+
+
+            console.log(
+                "📍 FIREBASE POINT:",
+                {
+                    category: category,
+                    firebaseKey: child.key,
+                    lat: data?.lat,
+                    lng: data?.lng,
+                    name: data?.name,
+                    approved: data?.approved
+                }
+            );
+
 
             if(!data){
                 return;
@@ -12979,9 +13045,6 @@ console.log(
 
             /* =========================================
                НЕПІДТВЕРДЖЕНА ТОЧКА
-               
-               ВОНА МАЄ ПОКАЗУВАТИСЯ ВСІМ
-               НЕЗАЛЕЖНО ВІД АКТИВНОЇ КАТЕГОРІЇ
             ========================================= */
 
             const isNewPoint =
@@ -12990,8 +13053,6 @@ console.log(
 
             /* =========================================
                ПІДТВЕРДЖЕНІ ТОЧКИ
-               
-               Показуємо тільки якщо категорія активна
             ========================================= */
 
             if(
@@ -13000,7 +13061,6 @@ console.log(
             ){
 
                 return;
-
             }
 
 
@@ -13029,7 +13089,6 @@ console.log(
             ){
 
                 return;
-
             }
 
 
@@ -13045,34 +13104,27 @@ console.log(
 
                     lat,
                     lng
-
                 );
 
 
-        /* =========================================
-   РАДІУС ПОКАЗУ
+            /* =========================================
+               РАДІУС ПОКАЗУ
+            ========================================= */
 
-   Нові точки користувачів —
-   показуємо значно далі
-
-   Підтверджені —
-   стандартний радіус
-========================================= */
-
-const maxDistance =
-    isNewPoint
-        ? NEW_POINTS_RADIUS_KM
-        : POINTS_RADIUS_KM;
+            const maxDistance =
+                isNewPoint
+                    ? NEW_POINTS_RADIUS_KM
+                    : POINTS_RADIUS_KM;
 
 
-if(
-    distance >
-    maxDistance
-){
+            if(
+                distance >
+                maxDistance
+            ){
 
-    return;
+                return;
+            }
 
-}
 
             /* =========================================
                ID
@@ -13091,21 +13143,23 @@ if(
             if(pointMarkers[pointId]){
 
                 return;
-
             }
 
-console.log(
-    "🚨 МАРКЕР БУДЕ СТВОРЕНО:",
-    {
-        category: category,
-        firebaseKey: child.key,
-        pointId: pointId,
-        name: data.name,
-        lat: lat,
-        lng: lng,
-        approved: data.approved
-    }
-);
+
+            console.log(
+                "🚨 МАРКЕР БУДЕ СТВОРЕНО:",
+                {
+                    category: category,
+                    firebaseKey: child.key,
+                    pointId: pointId,
+                    name: data.name,
+                    lat: lat,
+                    lng: lng,
+                    approved: data.approved
+                }
+            );
+
+
             /* =========================================
                СТВОРЮЄМО МАРКЕР
             ========================================= */
@@ -13122,7 +13176,6 @@ console.log(
                     lat,
 
                     lng
-
                 );
 
 
@@ -13132,13 +13185,13 @@ console.log(
             pointMarkers[pointId] =
                 {
 
-                    marker:marker,
+                    marker: marker,
 
-                    category:category,
+                    category: category,
 
-                    lat:lat,
+                    lat: lat,
 
-                    lng:lng
+                    lng: lng
 
                 };
 
@@ -13157,7 +13210,7 @@ console.log(
     catch(error){
 
         console.error(
-            "❌ Помилка: ",
+            "❌ Помилка:",
             category,
             error
         );
@@ -13166,6 +13219,124 @@ console.log(
 
 }
 
+
+/* =================================================
+   🔭 ХОВАЄМО ТОЧКИ ПРИ МАЛОМУ ЗУМІ
+================================================= */
+
+const MIN_POINT_ZOOM = 8;
+
+let previousPointZoomState = null;
+
+
+map.on("zoomend", async function(){
+
+    const zoom =
+        map.getZoom();
+
+
+    const shouldShow =
+        zoom >= MIN_POINT_ZOOM;
+
+
+    console.log(
+        "🔭 ZOOM:",
+        zoom,
+        "ПОКАЗУВАТИ ТОЧКИ:",
+        shouldShow
+    );
+
+
+    /* =========================================
+       СТАН НЕ ЗМІНИВСЯ
+    ========================================= */
+
+    if(
+        previousPointZoomState === shouldShow
+    ){
+
+        return;
+    }
+
+
+    previousPointZoomState =
+        shouldShow;
+
+
+    /* =========================================
+       🔴 ХОВАЄМО ТОЧКИ
+    ========================================= */
+
+    if(!shouldShow){
+
+        console.log(
+            "🚫 Ховаємо всі точки"
+        );
+
+
+        Object.keys(pointMarkers).forEach(
+            pointId => {
+
+                const item =
+                    pointMarkers[pointId];
+
+
+                if(
+                    item &&
+                    item.marker
+                ){
+
+                    map.removeLayer(
+                        item.marker
+                    );
+
+                }
+
+            }
+        );
+
+
+        /*
+           ОЧИЩАЄМО СПИСОК МАРКЕРІВ,
+           ЩОБ ПРИ НАБЛИЖЕННІ ЇХ
+           МОЖНА БУЛО СТВОРИТИ ЗНОВУ
+        */
+
+        Object.keys(pointMarkers).forEach(
+            pointId => {
+
+                delete pointMarkers[pointId];
+
+            }
+        );
+
+
+        return;
+    }
+
+
+    /* =========================================
+       🟢 ЗНОВУ ПОКАЗУЄМО ТОЧКИ
+    ========================================= */
+
+    console.log(
+        "🟢 Зум достатній — завантажуємо точки"
+    );
+
+
+    /*
+       Тут потрібно викликати твою
+       існуючу функцію завантаження
+       всіх категорій.
+    */
+
+    if(typeof loadAllPoints === "function"){
+
+        await loadAllPoints();
+
+    }
+
+});
 
 
 /* =====================================================
@@ -13286,7 +13457,7 @@ async function loadActiveCategories(){
 
             "road_parking",
 
-            "parking",
+            "free_parking",
 
             "wash",
 
@@ -13602,7 +13773,7 @@ function saveActiveCategories(){
         },
 
         {
-            category:"parking",
+            category:"free_parking",
 
             selector:
                 '#parkingCategories .subCategoryBtn:nth-child(3)'
@@ -13783,11 +13954,11 @@ async function restoreActiveCategories(){
 
 
     /* =========================
-       ПАРКУВАННЯ
+       ПАРКУВАННЯ Безкоштовне
     ========================= */
 
     if(
-        saved.includes("parking")
+        saved.includes("free_parking")
     ){
 
         const buttons =
