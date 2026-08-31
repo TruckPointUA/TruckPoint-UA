@@ -5967,24 +5967,29 @@ if (compassButton) {
 
 
         /* =========================================
-           🌅 ПЕРШЕ НАТИСКАННЯ → ЗАХІД
-        ========================================= */
+   🟢 ПЕРШЕ НАТИСКАННЯ
+   ВИРІВНЮЄМО НАПИСИ КАРТИ
+========================================= */
 
-        if (
-            typeof map.setBearing === "function"
-        ) {
+compassEnabled = true;
 
-            map.setBearing(270);
+compassButton.classList.add("active");
 
-        }
-
-
-        lastHeading = 270;
+lastHeading = 0;
 
 
-        console.log(
-            "🧭 Компас увімкнено — карта на ЗАХІД"
-        );
+/* Карта рівно по горизонталі */
+
+if (typeof map.setBearing === "function") {
+
+    map.setBearing(0);
+
+}
+
+
+console.log(
+    "🧭 Карта вирівняна — написи горизонтально"
+);
 
     });
 
