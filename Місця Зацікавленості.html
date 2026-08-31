@@ -5877,307 +5877,47 @@ const map = L.map('map', {
 
 
 /* =================================================
-   🧭 АВТОМАТИЧНИЙ КОМПАС
-   Перше натискання = карта горизонтально
-   Подальше обертання телефона = обертання карти
+   🧭 КНОПКА КОМПАСА
+   Тільки вирівнює карту по горизонталі
+   Без відстеження телефона
 ================================================= */
 
 const compassButton =
     document.getElementById("compassButton");
-
-let compassEnabled = false;
-
-let lastHeading = null;
-
-/* Початковий напрямок телефона */
-let compassStartHeading = null;
-
-
-/* =================================================
-   🧭 КНОПКА КОМПАСА
-================================================= */
 
 if (compassButton) {
 
     compassButton.addEventListener("click", async () => {
 
         /* =========================================
-           📱 iPhone / iPad — дозвіл
+           📱 iPhone / iPad
+           Дозвіл компаса більше НЕ ПОТРІБЕН
         ========================================= */
-
-        if (
-            typeof DeviceOrientationEvent !== "undefined" &&
-            typeof DeviceOrientationEvent.requestPermission === "function"
-        ) {
-
-            try {
-
-                const permission =
-                    await DeviceOrientationEvent.requestPermission();
-
-                if (permission !== "granted") {
-
-                    alert(
-                        "Дозволь використання компаса для карти."
-                    );
-
-                    return;
-                }
-
-            } catch (error) {
-
-                console.error(
-                    "Помилка дозволу компаса:",
-                    error
-                );
-
-                return;
-            }
-        }
-
 
         /* =========================================
-           🔴 ВИМИКАЄМО КОМПАС
+           🗺️ ВИРІВНЮЄМО КАРТУ
         ========================================= */
 
-        if (compassEnabled) {
-
-            compassEnabled = false;
-
-            lastHeading = null;
-
-            compassStartHeading = null;
-
-            compassButton.classList.remove("active");
-
-            /*
-             * Повертаємо карту в горизонтальне
-             * положення
-             */
-
-            if (
-                typeof map.setBearing === "function"
-            ) {
-
-                map.setBearing(0);
-
-            }
-
-            console.log(
-                "🧭 Компас вимкнено"
-            );
-
-            return;
-        }
-
-
-        /* =========================================
-           🟢 ВМИКАЄМО КОМПАС
-        ========================================= */
-
-        compassEnabled = true;
-
-        lastHeading = null;
-
-        compassStartHeading = null;
-
-        compassButton.classList.add("active");
-
-
-        /*
-         * 🔥 ВАЖЛИВО
-         *
-         * При першому натисканні карта одразу
-         * стає горизонтальною.
-         */
-
-        if (
-            typeof map.setBearing === "function"
-        ) {
+        if (typeof map.setBearing === "function") {
 
             map.setBearing(0);
 
         }
 
+        /*
+         * Робимо кнопку активною
+         */
+
+        compassButton.classList.add("active");
 
         console.log(
-            "🧭 Компас увімкнено — карта горизонтально"
+            "🧭 Карта вирівняна горизонтально"
         );
 
     });
 
 }
 
-
-/* =================================================
-   🧭 ОТРИМУЄМО НАПРЯМОК ТЕЛЕФОНА
-================================================= */
-
-function handleDeviceOrientation(event) {
-
-    if (!compassEnabled) {
-        return;
-    }
-
-
-    let heading = null;
-
-
-    /* =========================================
-       🍎 iPhone / iOS
-    ========================================= */
-
-    if (
-        event.webkitCompassHeading !== undefined &&
-        event.webkitCompassHeading !== null
-    ) {
-
-        heading =
-            event.webkitCompassHeading;
-
-    }
-
-
-    /* =========================================
-       🤖 Android
-    ========================================= */
-
-    else if (
-        event.alpha !== null &&
-        event.alpha !== undefined
-    ) {
-
-        heading =
-            360 - event.alpha;
-
-    }
-
-
-    /* =========================================
-       ❌ Немає напрямку
-    ========================================= */
-
-    if (heading === null) {
-        return;
-    }
-
-
-    /* =========================================
-       🔄 Нормалізація
-    ========================================= */
-
-    heading =
-        (heading + 360) % 360;
-
-
-    /* =========================================
-       🟢 ПЕРШИЙ ОТРИМАНИЙ НАПРЯМОК
-    ========================================= */
-
-    if (compassStartHeading === null) {
-
-        /*
-         * Запам'ятовуємо положення телефона
-         * у момент першого показання компаса.
-         */
-
-        compassStartHeading =
-            heading;
-
-        lastHeading =
-            heading;
-
-        /*
-         * Карта вже встановлена в 0°
-         */
-
-        if (
-            typeof map.setBearing === "function"
-        ) {
-
-            map.setBearing(0);
-
-        }
-
-        console.log(
-            "🧭 Початковий напрямок:",
-            compassStartHeading
-        );
-
-        return;
-    }
-
-
-    /* =========================================
-       📐 РАХУЄМО ВІДХИЛЕННЯ ВІД ПОЧАТКОВОГО
-    ========================================= */
-
-    let relativeHeading =
-        heading - compassStartHeading;
-
-
-    /*
-     * Нормалізація від -180 до +180
-     */
-
-    if (relativeHeading > 180) {
-
-        relativeHeading -= 360;
-
-    }
-
-    if (relativeHeading < -180) {
-
-        relativeHeading += 360;
-
-    }
-
-
-    /* =========================================
-       🛑 Дрібні коливання ігноруємо
-    ========================================= */
-
-    if (
-        lastHeading !== null &&
-        Math.abs(
-            heading - lastHeading
-        ) < 1
-    ) {
-
-        return;
-    }
-
-
-    lastHeading =
-        heading;
-
-
-    /* =========================================
-       🗺️ ПОВЕРТАЄМО КАРТУ
-    ========================================= */
-
-    if (
-        typeof map.setBearing === "function"
-    ) {
-
-        map.setBearing(
-            relativeHeading
-        );
-
-    }
-
-}
-
-
-/* =================================================
-   📱 СЛУХАЄМО КОМПАС
-================================================= */
-
-window.addEventListener(
-    "deviceorientation",
-    handleDeviceOrientation,
-    true
-);
 
 
 
