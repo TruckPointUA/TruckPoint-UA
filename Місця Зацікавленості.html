@@ -4766,12 +4766,16 @@ color: #93c5fd;
 </button>
  
 
-    <button
-        class="subCategoryBtn"
-        onclick="selectParking(this)"
-    >
-         Паркування безкоштовне
-    </button>
+            <button
+                class="subCategoryBtn"
+                onclick="toggleFreeParking(this)"
+            >
+                <img
+                    src="parkinglogoo_map.svg"
+                    class="categoryIcon"
+                >
+                Паркування безкоштовне
+            </button>
 
     <button
         class="subCategoryBtn"
@@ -5630,13 +5634,15 @@ function getCategoryFromIcon(icon){
         return "industrial";
     }
 
-    /* Мийки */
-    if(
-        name.includes("wash") ||
-        name.includes("miyka")
-    ){
-        return "wash";
-    }
+  /* Паркінг безкоштовний */
+
+if(
+    name.includes("free_parking") ||
+    name.includes("parkinglogoo") ||
+    name.includes("паркінг безкоштовний")
+){
+    return "free_parking";
+}
 
     /* АЗС */
     if(
@@ -6403,7 +6409,7 @@ map.on(
 
         "market",
         "industrial",
-        "parking",
+        "free_parking",
         "road_parking",
         "wash",
         "gas_station",
@@ -7093,43 +7099,43 @@ map.on(
     }
 
 
-    /* =================================================
-       ІКОНКИ ПІСЛЯ ПІДТВЕРДЖЕННЯ
-    ================================================= */
+/* =================================================
+   ІКОНКИ ПІСЛЯ ПІДТВЕРДЖЕННЯ
+================================================= */
 
-    function getApprovedIcon(category){
+function getApprovedIcon(category){
 
-        const icons = {
+    const icons = {
 
-            market:
-                "maarket_map.svg",
+        market:
+            "maarket_map.svg",
 
-            industrial:
-                "promzona_map.svg",
+        industrial:
+            "promzona_map.svg",
 
-            parking:
-                "parking_map.svg",
 
-            road_parking:
-                "pocket_map.svg",
+        free_parking:
+            "parkinglogoo_map.svg",
 
-            wash:
-                "wash_map.svg",
+        road_parking:
+            "pocket_map.svg",
 
-            gas_station:
-                "gas_map.svg",
+        wash:
+            "wash_map.svg",
 
-            truck_shop:
-                "truck_shop_map.svg",
+        gas_station:
+            "gas_map.svg",
 
-            flea_market:
-                "flea_market_map.svg",
+        truck_shop:
+            "truck_shop_map.svg",
 
-            other:
-                "maarket_map.svg"
+        flea_market:
+            "flea_market_map.svg",
 
-        };
+        other:
+            "maarket_map.svg"
 
+    };
 
         return (
             icons[category] ||
@@ -8855,7 +8861,7 @@ routeButton.style.cssText = `
     height:44px;
 
     margin-top:8px;
-    margin-left:-120px;
+    margin-left:-80px;
 
     padding:0;
 
@@ -12203,13 +12209,21 @@ function updateActiveCategoryIcons(){
         parkingButtons[2].classList.contains("active")
     ){
 
-        addActiveMapEmojiIcon(
-            "🅿️",
-            "Паркування безкоштовне"
-        );
+        const img =
+            document.createElement("img");
+
+        img.src =
+            "parkinglogoo_map.svg";
+
+        img.className =
+            "activeMapCategoryIcon";
+
+        img.title =
+            "Паркування безкоштовне";
+
+        container.appendChild(img);
 
     }
-
 
     /* =========================
        ПЛАТНЕ ПАРКУВАННЯ
@@ -14185,6 +14199,27 @@ async function toggleRoadParking(button){
 
 }
 
+/* =====================================================
+   БЕЗПЛАТНЕ ПАРКУВАННЯ
+===================================================== */
+
+async function toggleFreeParking(button){
+
+    button.classList.toggle(
+        "active"
+    );
+
+
+    await reloadCategory(
+        "free_parking"
+    );
+
+
+    saveActiveCategories();
+
+    updateActiveCategoryIcons();
+
+}
 /* =====================================================
    ВІДНОВИТИ ТОЧКИ ПІСЛЯ ЗАВАНТАЖЕННЯ СТОРІНКИ
 ===================================================== */
