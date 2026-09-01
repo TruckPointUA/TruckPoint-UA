@@ -541,39 +541,105 @@ body.night-mode .sheetHandle{
 
 
 /* =========================
-   БЛИМАЮЧІ ІКОНКИ ЗЛІВА
+   БЛИМАЮЧІ ІКОНКИ — НА ВСЮ ШИРИНУ
 ========================= */
 
 #activeCategoryIcons{
 
-    position:fixed;
+    position:fixed !important;
 
-    top:12px;
-    left:12px;
+    top:12px !important;
+    left:0 !important;
+    right:0 !important;
 
-    z-index:10001;
+    width:100vw !important;
+    max-width:100vw !important;
 
-    display:flex;
+    z-index:2147483647 !important;
 
-    flex-direction:row;
-
-    align-items:center;
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:center !important;
 
     gap:7px;
 
-    min-height:40px;
+    min-height:42px;
 
-    padding:0;
+    /* Запас справа */
+    padding:0 20px 0 12px;
+
+    box-sizing:border-box;
 
     background:transparent;
 
-    pointer-events:none;
+    pointer-events:auto;
 
-    max-width:calc(100vw - 75px);
+    overflow-x:auto;
+    overflow-y:hidden;
 
-    overflow:hidden;
+    white-space:nowrap;
+
+    -webkit-overflow-scrolling:touch;
+
+    touch-action:pan-x;
+
+    scrollbar-width:none;
+
+    isolation:isolate;
 }
 
+
+/* Ховаємо смугу прокрутки */
+#activeCategoryIcons::-webkit-scrollbar{
+    display:none;
+}
+
+
+/* =========================
+   ІКОНКИ
+========================= */
+
+.activeMapCategoryIcon{
+
+    width:42px !important;
+    height:42px !important;
+
+    min-width:42px !important;
+    max-width:42px !important;
+
+    flex:0 0 42px !important;
+
+    object-fit:contain;
+
+    background:transparent !important;
+
+    border:none !important;
+
+    box-shadow:none !important;
+
+    border-radius:0;
+
+    animation:
+        categoryBlink 1.1s infinite ease-in-out;
+
+    filter:
+        drop-shadow(0 2px 3px rgba(0,0,0,.35))
+        drop-shadow(0 0 5px rgba(0,191,255,.8));
+
+    position:relative;
+
+    z-index:2147483647 !important;
+}
+
+/* Chrome / Edge / Android */
+#activeCategoryIcons::-webkit-scrollbar{
+    display:none;
+}
+
+
+/* =========================
+   ОКРЕМА ІКОНКА
+========================= */
 
 .activeMapCategoryIcon{
 
@@ -597,9 +663,12 @@ body.night-mode .sheetHandle{
         drop-shadow(0 2px 3px rgba(0,0,0,.35))
         drop-shadow(0 0 5px rgba(0,191,255,.8));
 
+    /* КОЖНА ІКОНКА ФІКСОВАНОГО РОЗМІРУ */
     flex:0 0 42px;
-}
 
+    /* Щоб браузер не стискав іконки */
+    min-width:42px;
+}
 
 
 /* =========================
@@ -1751,7 +1820,7 @@ body.night-mode .sheetHandle{
 
 .layersButton {
     position: absolute;
-    top: 15px;
+    top: 28px;
     right: 15px;
 
     width: 44px;
@@ -4588,6 +4657,7 @@ color: #93c5fd;
 .subCategoryBtn {
     min-width: 0;
 }
+
 
 </style>
 
