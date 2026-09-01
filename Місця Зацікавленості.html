@@ -4915,7 +4915,7 @@ color: #93c5fd;
 </button>
 
 <button class="subCategoryBtn" onclick="selectCategory(this)">
-     Блошиний ринок
+     Розробляється
 </button>
 
     </div>
@@ -5042,10 +5042,11 @@ color: #93c5fd;
         <option value="market">Продуктовий магазин</option>
         <option value="truck_schop">Магазин ТІР</option>
         <option value="free_parking">Паркування безкоштовне</option>
-        <option value="Paid_parking">Паркування платне</option>
+        <option value="paid_parking">Паркування платне</option>
         <option value="road_parking">Паркування при дорозі</option>
         <option value="industrial">Промислова зона</option>
         <option value="industrial">Паркування біля фірми</option>
+        <option value="water">Набрати воду</option>
         <option value="other">Інше</option>
     </select>
 
@@ -5105,7 +5106,7 @@ color: #93c5fd;
 
             <div
             class="categoryOption"
-            data-value="Paid_parking"
+            data-value="paid_parking"
         >
             <img src="platnii_map.svg">
             <span>Паркінг платний</span>
@@ -5135,6 +5136,14 @@ color: #93c5fd;
         >
             <img src="Pfirma_map.svg">
             <span>Паркінг біля фірми</span>
+        </div>
+
+        <div
+            class="categoryOption"
+            data-value="water"
+        >
+            <img src="water_map.svg">
+            <span>Набрати воду</span>
         </div>
 
 
@@ -5400,7 +5409,7 @@ color: #93c5fd;
 
             <div
                 class="developer-category-option"
-                data-value="Paid_parking"
+                data-value="paid_parking"
             >
                 <img src="platnii_map.svg">
                 <span>Паркінг платний</span>
@@ -5421,6 +5430,14 @@ color: #93c5fd;
             >
                 <img src="Pfirma_map.svg">
                 <span>Паркінг біля фірми</span>
+            </div>
+
+            <div
+                class="developer-category-option"
+                data-value="water"
+            >
+                <img src="water_map.svg">
+                <span>Набрати воду</span>
             </div>
 
         </div>
@@ -5653,13 +5670,16 @@ color: #93c5fd;
 
         <select id="developerEditPointCategory">
 
-            <option value="wash">🚿 Мийка</option>
-            <option value="parking">🅿️ Паркінг</option>
-            <option value="market">🛒 Продуктовий магазин</option>
-            <option value="truck_schop">🛒 Магазин ТІР</option>
-            <option value="industrial">🏭 Промислова зона</option>
-            <option value="gas_station">⛽ Заправка</option>
-            <option value="service">🔧 Сервіс</option>
+      <option value="wash">🚿 Мийка</option>
+<option value="parking">🅿️ Паркінг</option>
+<option value="market">🛒 Продуктовий магазин</option>
+<option value="truck_schop">🛒 Магазин ТІР</option>
+<option value="industrial">🏭 Промислова зона</option>
+<option value="gas_station">⛽ Заправка</option>
+<option value="service">🔧 Сервіс</option>
+<option value="water">💧 Набрати воду</option>
+<option value="paid_parking">💳 Платний паркінг</option>
+<option value="free_parking">🅿️ Безплатний паркінг</option>
 
         </select>
 
@@ -5834,19 +5854,23 @@ function getCategoryFromIcon(icon){
 
     const name = String(icon || "").toLowerCase();
 
+
     /* =================================================
        Магазини ТІР
        Перевіряємо ПЕРШИМИ
     ================================================= */
-  if(
-    name.includes("trucks_supermarket_map")
-){
-    return "truck_schop";
-}
+
+    if(
+        name.includes("trucks_supermarket_map")
+    ){
+        return "truck_schop";
+    }
+
 
     /* =================================================
        Продуктові магазини
     ================================================= */
+
     if(
         name.includes("maarket") ||
         name.includes("market")
@@ -5854,18 +5878,34 @@ function getCategoryFromIcon(icon){
         return "market";
     }
 
+
+    /* =================================================
+       НАБРАТИ ВОДУ
+    ================================================= */
+
+    if(
+        name.includes("water_map") ||
+        name.includes("water")
+    ){
+        return "water";
+    }
+
+
     /* =================================================
        Паркування при дорозі
     ================================================= */
+
     if(
         name.includes("pocket")
     ){
         return "road_parking";
     }
 
+
     /* =================================================
        Промислова зона
     ================================================= */
+
     if(
         name.includes("promzona") ||
         name.includes("industrial")
@@ -5873,36 +5913,44 @@ function getCategoryFromIcon(icon){
         return "industrial";
     }
 
+
     /* =================================================
        Паркінг безкоштовний
     ================================================= */
+
     if(
         name.includes("parkinglogoo")
     ){
         return "free_parking";
     }
 
+
     /* =================================================
        Паркінг платний
     ================================================= */
+
     if(
         name.includes("platnii_map")
     ){
-        return "Paid_parking";
+        return "paid_parking";
     }
+
 
     /* =================================================
        Паркінг біля фірми
     ================================================= */
+
     if(
         name.includes("pfirma_map")
     ){
         return "parking_firma";
     }
 
+
     /* =================================================
        АЗС
     ================================================= */
+
     if(
         name.includes("gas") ||
         name.includes("azs") ||
@@ -5911,18 +5959,22 @@ function getCategoryFromIcon(icon){
         return "gas_station";
     }
 
+
     /* =================================================
        Звичайне паркування
     ================================================= */
+
     if(
         name.includes("parking")
     ){
         return "parking";
     }
 
+
     /* =================================================
        Блошиний ринок
     ================================================= */
+
     if(
         name.includes("flea") ||
         name.includes("market_flea")
@@ -5930,9 +5982,9 @@ function getCategoryFromIcon(icon){
         return "flea_market";
     }
 
+
     return "other";
 }
-
 // ======================================================
 //                     ТОЧКИ
 // ======================================================
@@ -6722,7 +6774,8 @@ map.on(
         "market",
         "industrial",
         "free_parking",
-        "Paid_parking",
+        "paid_parking",
+        "water",
         "road_parking",
         "wash",
         "gas_station",
@@ -7430,8 +7483,11 @@ function getApprovedIcon(category){
         free_parking:
             "parkinglogoo_map.svg",
 
-        Paid_parking:
+        paid_parking:
             "platnii_map.svg",
+
+        water:
+            "water_map.svg",
 
         parking_firma:
             "Pfirma_map.svg",
@@ -13158,8 +13214,11 @@ function getCategoryIcon(category, data = {}){
         free_parking:
             "parkinglogoo_map.svg",
 
-        Paid_parking:
+        paid_parking:
             "platnii_map.svg",
+
+        water:
+            "water_map.svg",
 
         parking_firma:
             "Pfirma_map.svg",
@@ -13322,7 +13381,7 @@ function isCategoryActive(category){
        Паркування платне
     ------------------------- */
 
-    if(category === "Paid_parking"){
+    if(category === "paid_parking"){
 
         return !!(
             parkingButtons[3] &&
@@ -13330,7 +13389,23 @@ function isCategoryActive(category){
         );
 
     }
+/* -------------------------
+   Набрати воду
+------------------------- */
 
+if(category === "water"){
+
+    const button =
+        document.querySelector(
+            '#servicesCategories .subCategoryBtn[onclick*="selectWater"]'
+        );
+
+    return !!(
+        button &&
+        button.classList.contains("active")
+    );
+
+}
 
     /* -------------------------
        Інші типи паркування
@@ -13482,6 +13557,9 @@ console.trace(
     return marker;
 
 }
+
+
+
 /* =====================================================
    ЗАВАНТАЖЕННЯ ОДНІЄЇ КАТЕГОРІЇ
 ===================================================== */
@@ -13991,7 +14069,9 @@ async function loadActiveCategories(){
 
             "free_parking",
 
-            "Paid_parking",
+            "paid_parking",
+
+            "water",
 
             "wash",
 
@@ -14308,15 +14388,15 @@ function saveActiveCategories(){
     },
 
     {
-        category:"Paid_parking",
+        category:"paid_parking",
         selector:
             '#parkingCategories .subCategoryBtn:nth-child(4)'
     },
 
-    {
-    category:"water",
+ {
+    category: "water",
     selector:
-        '#servicesCategories .subCategoryBtn[onclick*="selectWater"]'
+        '#servicesCategories .subCategoryBtn[onclick*="Water"]'
 }
 
 ];
@@ -14519,7 +14599,7 @@ if(
     ========================= */
 
     if(
-        saved.includes("Paid_parking")
+        saved.includes("paid_parking")
     ){
 
         const buttons =
@@ -15279,7 +15359,7 @@ async function togglePaidParking(button){
 
 
     await reloadCategory(
-        "Paid_parking"
+        "paid_parking"
     );
 
 
@@ -15311,7 +15391,32 @@ async function toggleFirmaParking(button){
 
 }
 
+/* =====================================================
+            НАБРАТИ ВОДУ
+===================================================== */
 
+async function selectWater(button){
+
+    button.classList.toggle("active");
+
+    saveActiveCategories();
+
+    console.log(
+        "💧 selectWater:",
+        button.classList.contains("active")
+    );
+
+    if(button.classList.contains("active")){
+
+        console.log(
+            "💧 Завантажуємо WATER..."
+        );
+
+        await loadCategoryPoints("water");
+
+    }
+
+}
 
 
 /* =====================================================
