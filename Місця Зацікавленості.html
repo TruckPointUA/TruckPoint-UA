@@ -284,7 +284,6 @@ body.night-mode .sheetHandle{
 
     left:0;
     right:0;
-
     bottom:0;
 
     width:100%;
@@ -293,9 +292,6 @@ body.night-mode .sheetHandle{
     min-height:30px;
 
     box-sizing:border-box;
-
-    /* Безпечний відступ над нижньою панеллю Android */
-    padding-bottom:env(safe-area-inset-bottom);
 
     background:#eef3f7;
     color:#263746;
@@ -316,7 +312,13 @@ body.night-mode .sheetHandle{
     touch-action:none;
 }
 
+@media (max-width:600px){
 
+    .bottomSheet{
+        bottom:env(safe-area-inset-bottom, 0px);
+    }
+
+}
 .sheetHandle{
     width:100px;
     height:10px;
@@ -4651,11 +4653,6 @@ color: #93c5fd;
     min-width: 0;
 }
 
-@media (max-width:600px){
-    .bottomSheet{
-        bottom:20px;
-    }
-}
 </style>
 
 </head>
@@ -12091,11 +12088,12 @@ let startY = 0;
 let startHeight = CLOSED_HEIGHT;
 
 
-/* =========================
-   ПОЧАТКОВИЙ СТАН
-========================= */
+/* =====================================================
+   ПОЧАТКОВИЙ СТАН ШТОРКИ
+   Браузер + Android WebView
+===================================================== */
 
-requestAnimationFrame(() => {
+function initializeBottomSheet(){
 
     if(!sheet) return;
 
@@ -12104,34 +12102,28 @@ requestAnimationFrame(() => {
     sheet.style.height =
         CLOSED_HEIGHT + "px";
 
-    sheet.style.bottom =
-        "0px";
+    /* Не задаємо bottom через JavaScript */
+    sheet.style.removeProperty("bottom");
 
-});
+}
+
 
 /* =========================
-   ПЕРЕВІРКА ШТОРКИ ПІСЛЯ ЗАВАНТАЖЕННЯ
-   Android / WebView
+   ЗАПУСК
 ========================= */
+
+requestAnimationFrame(() => {
+    initializeBottomSheet();
+});
+
 
 window.addEventListener("load", () => {
 
     requestAnimationFrame(() => {
-
-        if(!sheet) return;
-
-        sheet.classList.remove("open");
-
-        sheet.style.height =
-            CLOSED_HEIGHT + "px";
-
-        sheet.style.bottom =
-            "0px";
-
+        initializeBottomSheet();
     });
 
 });
-
 
 /* =========================
    ВІДКРИТИ ШТОРКУ
