@@ -284,6 +284,7 @@ body.night-mode .sheetHandle{
 
     left:0;
     right:0;
+
     bottom:0;
 
     width:100%;
@@ -292,6 +293,9 @@ body.night-mode .sheetHandle{
     min-height:30px;
 
     box-sizing:border-box;
+
+    /* Безпечний відступ над нижньою панеллю Android */
+    padding-bottom:env(safe-area-inset-bottom);
 
     background:#eef3f7;
     color:#263746;
@@ -311,7 +315,6 @@ body.night-mode .sheetHandle{
 
     touch-action:none;
 }
-
 
 
 .sheetHandle{
@@ -495,8 +498,6 @@ body.night-mode .sheetHandle{
     }
 
 }
-
-
 
 /* телефон */
 
@@ -4650,7 +4651,11 @@ color: #93c5fd;
     min-width: 0;
 }
 
-
+@media (max-width:600px){
+    .bottomSheet{
+        bottom:20px;
+    }
+}
 </style>
 
 </head>
