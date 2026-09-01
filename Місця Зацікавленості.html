@@ -4548,6 +4548,47 @@ color: #93c5fd;
     border: none !important;
 }
 
+/* =====================================================
+   КНОПКИ ПІДКАТЕГОРІЙ
+===================================================== */
+
+.subCategoryBtn {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+
+    gap: 8px;
+
+    font-size: 17px;
+    font-weight: 600;
+
+    white-space: nowrap;
+    flex-wrap: nowrap;
+
+    min-height: 58px;
+
+    padding: 6px 10px;
+
+    width: 100%;
+    box-sizing: border-box;
+
+    overflow: hidden;
+}
+
+.subCategoryBtn .categoryIcon {
+    width: 42px;
+    height: 42px;
+
+    flex: 0 0 42px;
+
+    object-fit: contain;
+}
+
+/* Текст не розтягує кнопку */
+.subCategoryBtn {
+    min-width: 0;
+}
+
 </style>
 
 </head>
