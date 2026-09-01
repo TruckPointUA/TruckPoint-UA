@@ -286,17 +286,24 @@ body.night-mode .sheetHandle{
     right:0;
     bottom:0;
 
-    height:24px;
+    width:100%;
 
-    background:#161b22;
-    color:white;
+    height:30px;
+    min-height:30px;
+
+    box-sizing:border-box;
+
+    background:#eef3f7;
+    color:#263746;
 
     border-radius:16px 16px 0 0;
 
     z-index:20000;
 
     box-shadow:
-        0 -4px 15px rgba(0,0,0,.35);
+        0 -4px 15px rgba(55,71,79,.25);
+
+    border-top:1px solid #d3dde3;
 
     overflow:hidden;
 
@@ -522,51 +529,29 @@ body.night-mode .sheetHandle{
    ВЕРХНІЙ ПРАВИЙ КУТ
 ========================= */
 
-#mapControls{
-    position:fixed;
-
-    top:62px;
-    right:12px;
-
-    z-index:10001;
-
-    display:flex;
-    flex-direction:column;
-    align-items:flex-end;
-
-    gap:8px;
-
-    pointer-events:none;
-}
-
-
-/* =========================
-   БЛИМАЮЧІ ІКОНКИ — НА ВСЮ ШИРИНУ
-========================= */
-
 #activeCategoryIcons{
 
-    position:fixed !important;
+    position:fixed;
 
-    top:12px !important;
-    left:0 !important;
-    right:0 !important;
+    top:12px;
+    left:0;
+    right:0;
 
-    width:100vw !important;
-    max-width:100vw !important;
+    width:100%;
+    max-width:100%;
 
-    z-index:2147483647 !important;
+    z-index:1000;
 
-    display:flex !important;
-    flex-direction:row !important;
-    align-items:center !important;
+    display:flex;
+    flex-direction:row;
+    align-items:center;
 
     gap:7px;
 
     min-height:42px;
 
-    /* Запас справа */
-    padding:0 20px 0 12px;
+    /* перша іконка від самого краю */
+    padding:0 20px 0 0;
 
     box-sizing:border-box;
 
@@ -585,11 +570,12 @@ body.night-mode .sheetHandle{
 
     scrollbar-width:none;
 
-    isolation:isolate;
+    isolation:auto;
 }
 
 
 /* Ховаємо смугу прокрутки */
+
 #activeCategoryIcons::-webkit-scrollbar{
     display:none;
 }
@@ -601,21 +587,19 @@ body.night-mode .sheetHandle{
 
 .activeMapCategoryIcon{
 
-    width:42px !important;
-    height:42px !important;
+    width:42px;
+    height:42px;
 
-    min-width:42px !important;
-    max-width:42px !important;
+    min-width:42px;
+    max-width:42px;
 
-    flex:0 0 42px !important;
+    flex:0 0 42px;
 
     object-fit:contain;
 
-    background:transparent !important;
-
-    border:none !important;
-
-    box-shadow:none !important;
+    background:transparent;
+    border:none;
+    box-shadow:none;
 
     border-radius:0;
 
@@ -628,9 +612,8 @@ body.night-mode .sheetHandle{
 
     position:relative;
 
-    z-index:2147483647 !important;
+    z-index:1000;
 }
-
 /* Chrome / Edge / Android */
 #activeCategoryIcons::-webkit-scrollbar{
     display:none;
@@ -940,21 +923,31 @@ body.night-mode .sheetHandle{
 
     #activeCategoryIcons{
 
-        top:9px;
-        left:9px;
+        top:9px !important;
+        left:9px !important;
+        right:0 !important;
+
+        width:calc(100vw - 9px) !important;
+        max-width:none !important;
 
         gap:5px;
 
-        max-width:calc(100vw - 65px);
+        padding-right:10px;
+
+        overflow-x:auto;
+        overflow-y:hidden;
     }
 
 
     .activeMapCategoryIcon{
 
-        width:38px;
-        height:38px;
+        width:38px !important;
+        height:38px !important;
 
-        flex-basis:38px;
+        min-width:38px !important;
+        max-width:38px !important;
+
+        flex:0 0 38px !important;
     }
 
 
@@ -973,7 +966,6 @@ body.night-mode .sheetHandle{
     }
 
 }
-
 /* =========================
    ГЕОЛОКАЦІЯ КОРИСТУВАЧА
 ========================= */
@@ -12098,8 +12090,42 @@ let startHeight = CLOSED_HEIGHT;
    ПОЧАТКОВИЙ СТАН
 ========================= */
 
-sheet.style.height = CLOSED_HEIGHT + "px";
-sheet.classList.remove("open");
+requestAnimationFrame(() => {
+
+    if(!sheet) return;
+
+    sheet.classList.remove("open");
+
+    sheet.style.height =
+        CLOSED_HEIGHT + "px";
+
+    sheet.style.bottom =
+        "0px";
+
+});
+
+/* =========================
+   ПЕРЕВІРКА ШТОРКИ ПІСЛЯ ЗАВАНТАЖЕННЯ
+   Android / WebView
+========================= */
+
+window.addEventListener("load", () => {
+
+    requestAnimationFrame(() => {
+
+        if(!sheet) return;
+
+        sheet.classList.remove("open");
+
+        sheet.style.height =
+            CLOSED_HEIGHT + "px";
+
+        sheet.style.bottom =
+            "0px";
+
+    });
+
+});
 
 
 /* =========================
@@ -14137,10 +14163,12 @@ async function loadActiveCategories(){
 
             "road_parking",
 
-            "free_parking",
-
-            "paid_parking",
-
+            "free_parking", 
+            
+            "paid_parking", 
+            
+            "parking_firma", 
+           
             "water",
 
             "wash",
@@ -14462,7 +14490,11 @@ function saveActiveCategories(){
         selector:
             '#parkingCategories .subCategoryBtn:nth-child(4)'
     },
-
+{
+    category:"parking_firma",
+    selector:
+        '#parkingCategories .subCategoryBtn[onclick*="toggleFirmaParking"]'
+},
  {
     category: "water",
     selector:
@@ -14683,6 +14715,29 @@ if(
 
     }
 
+    
+/* =========================
+   ПАРКУВАННЯ БІЛЯ ФІРМИ
+========================= */
+
+if(
+    saved.includes("parking_firma")
+){
+
+    const button =
+        document.querySelector(
+            '#parkingCategories .subCategoryBtn[onclick*="toggleFirmaParking"]'
+        );
+
+    if(button){
+
+        button.classList.add(
+            "active"
+        );
+
+    }
+
+}
 
     /* =========================
    НАБРАТИ ВОДУ
