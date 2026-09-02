@@ -3,7 +3,7 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
 <title>Місця Зацікавленості</title>
 
@@ -312,13 +312,14 @@ body.night-mode .sheetHandle{
     touch-action:none;
 }
 
-@media (max-width:600px){
-
-    .bottomSheet{
-        bottom:env(safe-area-inset-bottom, 0px);
-    }
-
+/* =====================================================
+   ANDROID — БЕЗПЕЧНА ЗОНА НИЖНЬОЇ СИСТЕМНОЇ ПАНЕЛІ
+   Значення --android-bottom-inset приходить з MainActivity
+===================================================== */
+.bottomSheet{
+    bottom:var(--android-bottom-inset, 0px);
 }
+
 .sheetHandle{
     width:100px;
     height:10px;
@@ -350,6 +351,7 @@ body.night-mode .sheetHandle{
 
 .sheetContent{
     height:calc(100% - 30px);
+    padding-bottom:calc(14px + var(--android-bottom-inset, 0px));
     overflow-y:auto;
     overflow-x:hidden;
     padding:14px;
@@ -358,7 +360,7 @@ body.night-mode .sheetHandle{
 }
 
 .bottomSheet.open{
-    height:100dvh;
+    height:calc(100dvh - var(--android-bottom-inset, 0px));
     border-radius:0;
 
     z-index:99999;
@@ -4545,7 +4547,7 @@ color: #93c5fd;
 
     position: absolute;
 
-    top: 550px;
+    top: 450px;
     right: 10px;
 
     width: 44px;
@@ -12144,6 +12146,22 @@ const activeCategoryIconsElement =
 
 const CLOSED_HEIGHT = 30;
 
+/* Максимальна висота шторки без перекриття системною панеллю Android */
+function getAndroidBottomInset(){
+    const value = parseFloat(
+        getComputedStyle(document.documentElement)
+            .getPropertyValue("--android-bottom-inset")
+    );
+    return Number.isFinite(value) ? value : 0;
+}
+
+function getSheetMaxHeight(){
+    return Math.max(
+        CLOSED_HEIGHT,
+        window.innerHeight - getAndroidBottomInset()
+    );
+}
+
 let dragging = false;
 let moved = false;
 
@@ -12208,7 +12226,7 @@ function openSheet(){
     sheet.classList.add("open");
 
     sheet.style.transition = "height .3s ease";
-    sheet.style.height = window.innerHeight + "px";
+    sheet.style.height = getSheetMaxHeight() + "px";
 
 
     /* Ховаємо кнопки карти */
@@ -12356,7 +12374,7 @@ handle.addEventListener("pointermove", function(e){
 
     newHeight =
         Math.min(
-            window.innerHeight,
+            getSheetMaxHeight(),
             newHeight
         );
 
@@ -12390,7 +12408,7 @@ function finishSheetDrag(e){
         sheet.getBoundingClientRect().height;
 
     const screenHeight =
-        window.innerHeight;
+        getSheetMaxHeight();
 
     /* Поріг відкриття */
 
@@ -12404,7 +12422,7 @@ function finishSheetDrag(e){
         "height .3s ease";
 
     sheet.style.height =
-        "100dvh";
+        getSheetMaxHeight() + "px";
 
 
     /* Ховаємо кнопки карти */
@@ -12600,7 +12618,7 @@ window.addEventListener("resize", function(){
     if(sheet.classList.contains("open")){
 
         sheet.style.height =
-            window.innerHeight + "px";
+            getSheetMaxHeight() + "px";
 
     }else{
 
