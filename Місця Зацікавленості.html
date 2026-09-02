@@ -8933,195 +8933,246 @@ openPointInfo(
 const myLocationButton =
     document.getElementById("myLocationButton");
 
-myLocationButton.addEventListener("click", function(){
+
+/* =========================
+   ЖИВА ГЕОЛОКАЦІЯ
+========================= */
+
+let geoWatchId = null;
+
+
+/* Створення / переміщення маркера */
+
+function updateUserLocation(lat, lng){
+
+    setUserLocation(lat, lng);
+
+
+    if(userLocationMarker){
+
+        /* Маркер вже є — просто переміщуємо */
+
+        userLocationMarker.setLatLng(
+            [lat, lng]
+        );
+
+    }else{
+
+        /* Створюємо маркер */
+
+        const userIcon = L.divIcon({
+
+            className:"",
+
+            html:`
+                <div class="userLocationMarker"></div>
+            `,
+
+            iconSize:[18,18],
+
+            iconAnchor:[9,9]
+
+        });
+
+
+        userLocationMarker = L.marker(
+
+            [lat,lng],
+
+            {
+                icon:userIcon,
+                zIndexOffset:10000
+            }
+
+        ).addTo(map);
+
+    }
+
+}
+
+
+/* =========================
+   ПОСТІЙНЕ СЛІДКУВАННЯ GPS
+========================= */
+
+function startLiveGeolocation(){
 
     if(!navigator.geolocation){
 
-        alert("Геолокація не підтримується вашим пристроєм.");
+        console.log(
+            "Геолокація не підтримується."
+        );
 
         return;
+
     }
 
-    navigator.geolocation.getCurrentPosition(
 
-        function(position){
+    /* Щоб не запускати watchPosition декілька разів */
 
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
+    if(geoWatchId !== null){
 
-            setUserLocation(lat, lng);
+        return;
 
-            /* Якщо маркер вже існує — переміщуємо його */
+    }
 
-            if(userLocationMarker){
 
-                userLocationMarker.setLatLng([lat,lng]);
+    geoWatchId =
+        navigator.geolocation.watchPosition(
 
-            }else{
+            function(position){
 
-                const userIcon = L.divIcon({
+                const lat =
+                    position.coords.latitude;
 
-                    className:"",
+                const lng =
+                    position.coords.longitude;
 
-                    html:`
-                        <div class="userLocationMarker"></div>
-                    `,
 
-                    iconSize:[18,18],
+                console.log(
+                    "📍 Нова позиція:",
+                    lat,
+                    lng
+                );
 
-                    iconAnchor:[9,9]
 
-                });
+                /* Переміщуємо синю точку */
 
-                userLocationMarker = L.marker(
+                updateUserLocation(
+                    lat,
+                    lng
+                );
 
-                    [lat,lng],
+            },
 
-                    {
-                        icon:userIcon,
-                        zIndexOffset:10000
-                    }
 
-                ).addTo(map);
+            function(error){
+
+                console.log(
+                    "Помилка живої геолокації:",
+                    error.message
+                );
+
+            },
+
+
+            {
+
+                enableHighAccuracy:true,
+
+                timeout:15000,
+
+                maximumAge:0
+
+            }
+
+        );
+
+}
+
+
+/* =========================
+   КНОПКА "МОЄ МІСЦЕ"
+========================= */
+
+if(myLocationButton){
+
+    myLocationButton.addEventListener(
+        "click",
+        function(){
+
+            if(!navigator.geolocation){
+
+                alert(
+                    "Геолокація не підтримується вашим пристроєм."
+                );
+
+                return;
 
             }
 
 
-            /* Переходимо на моє місце */
+            /* Запускаємо живе стеження */
 
-            map.setView(
+            startLiveGeolocation();
 
-                [lat,lng],
 
-                15,
+            /* Одразу отримуємо поточну позицію */
+
+            navigator.geolocation.getCurrentPosition(
+
+                function(position){
+
+                    const lat =
+                        position.coords.latitude;
+
+                    const lng =
+                        position.coords.longitude;
+
+
+                    updateUserLocation(
+                        lat,
+                        lng
+                    );
+
+
+                    /* Переходимо на моє місце */
+
+                    map.setView(
+
+                        [lat,lng],
+
+                        15,
+
+                        {
+                            animate:true
+                        }
+
+                    );
+
+                },
+
+
+                function(error){
+
+                    alert(
+                        "Не вдалося визначити ваше місце.\n\n" +
+                        "Перевірте, чи дозволена геолокація."
+                    );
+
+                    console.log(
+                        "Помилка геолокації:",
+                        error.message
+                    );
+
+                },
+
 
                 {
-                    animate:true
+
+                    enableHighAccuracy:true,
+
+                    timeout:10000,
+
+                    maximumAge:0
+
                 }
 
             );
-
-        },
-
-        function(error){
-
-            alert(
-                "Не вдалося визначити ваше місце.\n\n" +
-                "Перевірте, чи дозволена геолокація."
-            );
-
-            console.log(
-                "Помилка геолокації:",
-                error.message
-            );
-
-        },
-
-        {
-
-            enableHighAccuracy:true,
-
-            timeout:10000,
-
-            maximumAge:0
 
         }
-
     );
 
-});
-
-/* Отримання геолокації */
-
-if ("geolocation" in navigator) {
-
-    navigator.geolocation.getCurrentPosition(
-
-        function(position){
-
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
+}
 
 
+/* =========================
+   АВТОМАТИЧНИЙ ЗАПУСК GPS
+========================= */
 
-            setUserLocation(lat, lng);
+if("geolocation" in navigator){
 
-            /* Іконка користувача */
-
-            const userIcon = L.divIcon({
-
-                className:"",
-
-                html:`
-                    <div class="userLocationMarker"></div>
-                `,
-
-                iconSize:[18,18],
-
-                iconAnchor:[9,9]
-
-            });
-
-
-/* =====================================================
-   ОТРИМАННЯ ГЕОЛОКАЦІЇ
-===================================================== */
-
-            /* Створюємо точку */
-
-            userLocationMarker = L.marker(
-
-                [lat,lng],
-
-                {
-                    icon:userIcon,
-                    zIndexOffset:10000
-                }
-
-            ).addTo(map);
-
-
-     
-
-
-            /* Автоматично центруємо карту */
-
-            map.setView(
-
-                [lat,lng],
-
-                15,
-
-                {
-                    animate:true
-                }
-
-            );
-
-        },
-
-
-        function(error){
-
-            console.log(
-                "Не вдалося отримати геолокацію:",
-                error.message
-            );
-
-        },
-
-
-        {
-
-            enableHighAccuracy:true,
-
-            timeout:10000,
-
-            maximumAge:0
-
-        }
-
-    );
+    startLiveGeolocation();
 
 }
 
