@@ -6151,11 +6151,7 @@ async function importPointsToFirebase(){
 
 const map = L.map('map', {
 
-    zoomControl: false,
-
-    rotate: true,
-    touchRotate: true,
-    rotateControl: false
+    zoomControl: false
 
 }).setView(
 
@@ -6169,7 +6165,6 @@ const map = L.map('map', {
 L.control.zoom({
     position: 'topright'
 }).addTo(map);
-
 
 
 /* =================================================
