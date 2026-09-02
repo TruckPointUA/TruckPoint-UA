@@ -5109,7 +5109,7 @@ color: #93c5fd;
         <option value="paid_parking">Паркування платне</option>
         <option value="road_parking">Паркування при дорозі</option>
         <option value="industrial">Промислова зона</option>
-        <option value="industrial">Паркування біля фірми</option>
+        <option value="parking_firma">Паркування біля фірми</option>
         <option value="water">Набрати воду</option>
         <option value="other">Інше</option>
     </select>
@@ -5462,13 +5462,10 @@ color: #93c5fd;
                 <span>Магаини ТІР</span>
             </div>
 
-            <div
-                class="developer-category-option"
-                data-value="parking_free"
-            >
-                <img src="parkinglogoo_map.svg">
-                <span>Паркінг безкоштовний</span>
-            </div>
+           <div class="developer-category-option" data-value="free_parking">
+    <img src="parkinglogoo_map.svg">
+    <span>Паркінг безкоштовний</span>
+</div>
 
 
             <div
@@ -6578,7 +6575,13 @@ async function addDeveloperCoordinatePoint()
         alert( "⛔ Додавати точки за координатами може тільки розробник." );
          return; } 
          /* ================== 📋 ОТРИМУЄМО ДАНІ =================== */ 
-         const category = document.getElementById( "developerPointCategory" ).value; 
+         const category =
+    selectedDeveloperCategory;
+
+console.log(
+    "📂 КАТЕГОРІЯ ДЛЯ ДОДАВАННЯ:",
+    category
+);
          const name = document.getElementById( "developerPointName" ).value.trim(); 
          const description = document.getElementById( "developerPointDescription" ).value.trim(); 
          /* 👤 АВТОР */ 
@@ -6624,8 +6627,68 @@ async function addDeveloperCoordinatePoint()
                  developerCoordinatesStatus( "✅ Точку успішно додано у Firebase!", "success" );
                   console.log( "✅ Розробник додав точку:", pointId, pointData ); 
                   /* ====================== 🔄 ОНОВЛЕННЯ КАРТИ ========================= */ 
-                  if ( typeof createPointMarker === "function" ) { 
-                    createPointMarker( category, pointId, pointData, lat, lng ); } } catch (error)
+                  if (typeof createPointMarker === "function") {
+
+    console.log(
+        "🗺️ Створення маркера розробника:",
+        {
+            category,
+            pointId,
+            lat,
+            lng
+        }
+    );
+
+    const marker = createPointMarker(
+        category,
+        pointId,
+        pointData,
+        lat,
+        lng
+    );
+
+    /* ==============================
+       📍 ДОДАЄМО НА КАРТУ
+    ============================== */
+
+    marker.addTo(map);
+
+    const markerKey =
+    category + "_" + pointId;
+
+pointMarkers[markerKey] = {
+
+    marker: marker,
+
+    category: category,
+
+    lat: lat,
+
+    lng: lng
+
+};
+
+    /* ==============================
+       💾 ЗАПАМ'ЯТОВУЄМО МАРКЕР
+    ============================== */
+
+    pointMarkers[pointId] = {
+
+        marker: marker,
+
+        category: category,
+
+        lat: lat,
+
+        lng: lng
+
+    };
+
+    console.log(
+        "✅ Маркер розробника додано на карту:",
+        pointId
+    );
+} } catch (error)
                      { console.error( "❌ Помилка додавання точки:", error ); developerCoordinatesStatus( 
                         "❌ Не вдалося додати точку: " + error.message, "error" ); } }
 /* =====================================================
@@ -13530,55 +13593,63 @@ function createPointMarker(
     lat,
     lng
 ){
-console.trace(
-    "🧭 CREATE POINT MARKER:",
-    {
-        category,
-        pointId,
-        data
-    }
-);
-    /* =========================================
-       ВИБІР ІКОНКИ
-    ========================================= */
+
+    console.trace(
+        "🧭 CREATE POINT MARKER:",
+        {
+            category,
+            pointId,
+            data
+        }
+    );
 
     let pointIcon;
 
-    /* =========================================
-       НОВА ТОЧКА — НЕ ПІДТВЕРДЖЕНА
-    ========================================= */
 
-    const isNewPoint =
+    /* =================================================
+       ВИЗНАЧАЄМО, ЧИ ЦЕ ТОЧКА КОРИСТУВАЧА
+    ================================================= */
+
+    const isUserNewPoint =
         data &&
-        data.approved === false;
+        data.approved === false &&
+        data.createdBy !== DEVELOPER_UID;
 
 
-    if(isNewPoint){
+    /* =================================================
+       НОВА ТОЧКА КОРИСТУВАЧА
+       → СПЕЦІАЛЬНА ІКОНКА
+    ================================================= */
+
+    if(isUserNewPoint){
+
+        console.log(
+            "🆕 НОВА ТОЧКА КОРИСТУВАЧА:",
+            pointId
+        );
 
         pointIcon =
             L.icon({
-
-                iconUrl:
-                    "info_marker.svg",
-
-                iconSize:
-                    [46, 46],
-
-                iconAnchor:
-                    [23, 46],
-
-                popupAnchor:
-                    [0, -46]
-
+                iconUrl: "info_marker.svg",
+                iconSize: [46, 46],
+                iconAnchor: [23, 46],
+                popupAnchor: [0, -46]
             });
 
     }
 
-    /* =========================================
-       ПІДТВЕРДЖЕНА ТОЧКА
-    ========================================= */
+
+    /* =================================================
+       ТОЧКА РОЗРОБНИКА
+       → ІКОНКА ВИБРАНОЇ КАТЕГОРІЇ
+    ================================================= */
 
     else{
+
+        console.log(
+            "📍 ІКОНКА КАТЕГОРІЇ:",
+            category
+        );
 
         pointIcon =
             getCategoryIcon(
@@ -13589,9 +13660,9 @@ console.trace(
     }
 
 
-    /* =========================================
-       СТВОРЮЄМО MARKER
-    ========================================= */
+    /* =================================================
+       СТВОРЮЄМО LEAFLET MARKER
+    ================================================= */
 
     const marker =
         L.marker(
@@ -13602,45 +13673,31 @@ console.trace(
         );
 
 
-    /* =========================================
-       ЗАПАМ'ЯТОВУЄМО
-       ЧИ ЦЕ НОВА ТОЧКА
-    ========================================= */
+    /* =================================================
+       ПОЗНАЧАЄМО НОВУ ТОЧКУ КОРИСТУВАЧА
+    ================================================= */
 
     marker.isNewUserPoint =
-        isNewPoint;
+        isUserNewPoint;
 
 
-    /* =========================================
+    /* =================================================
        ВІДКРИТТЯ ІНФОРМАЦІЇ
-    ========================================= */
+    ================================================= */
 
     marker.on(
         "click",
         function(){
 
             openPointInfo(
-
                 pointId,
-
                 {
-
                     ...data,
-
-                    id:
-                        pointId,
-
-                    lat:
-                        lat,
-
-                    lng:
-                        lng,
-
-                    category:
-                        category
-
+                    id: pointId,
+                    lat: lat,
+                    lng: lng,
+                    category: category
                 }
-
             );
 
         }
@@ -13648,9 +13705,7 @@ console.trace(
 
 
     return marker;
-
 }
-
 
 
 /* =====================================================
@@ -14947,42 +15002,6 @@ if(categoryButtons[0]){
 }
 }
 
-
-/* =====================================================
-   НАБРАТИ ВОДУ
-===================================================== */
-
-async function selectWater(button){
-
-    button.classList.toggle("active");
-
-
-    /* =========================
-       ЗАВАНТАЖЕННЯ ТОЧОК ВОДИ
-    ========================= */
-
-    if(button.classList.contains("active")){
-
-        await reloadCategory("water");
-
-    }
-
-
-    /* =========================
-       ІКОНКА ЗЛІВА ЗВЕРХУ
-    ========================= */
-
-    updateActiveCategoryIcons();
-
-
-    /* =========================
-       ЗБЕРЕЖЕННЯ
-    ========================= */
-
-    saveActiveCategories();
-
-}
-
 /* =====================================================
    🛒 ЗАКУПИ
 ===================================================== */
@@ -15514,32 +15533,103 @@ async function toggleFirmaParking(button){
 }
 
 /* =====================================================
-            НАБРАТИ ВОДУ
+   💧 НАБРАТИ ВОДУ
 ===================================================== */
 
 async function selectWater(button){
 
-    button.classList.toggle("active");
+    /* =========================
+       ПЕРЕМИКАЄМО ACTIVE
+    ========================= */
 
-    saveActiveCategories();
+    const isActive =
+        button.classList.toggle("active");
+
 
     console.log(
         "💧 selectWater:",
-        button.classList.contains("active")
+        isActive
     );
 
-    if(button.classList.contains("active")){
+
+    /* =========================
+       ВКЛЮЧЕННЯ ВОДИ
+    ========================= */
+
+    if(isActive){
 
         console.log(
             "💧 Завантажуємо WATER..."
         );
 
-        await loadCategoryPoints("water");
+        await reloadCategory("water");
 
     }
 
-}
 
+    /* =========================
+       ВИМКНЕННЯ ВОДИ
+    ========================= */
+
+    else{
+
+        console.log(
+            "💧 Вимикаємо WATER..."
+        );
+
+
+        /* =========================
+           ВИДАЛЯЄМО МАРКЕРИ WATER
+        ========================= */
+
+        Object.keys(pointMarkers).forEach(
+            pointId => {
+
+                const point =
+                    pointMarkers[pointId];
+
+
+                if(
+                    point &&
+                    point.category === "water"
+                ){
+
+                    if(point.marker){
+
+                        map.removeLayer(
+                            point.marker
+                        );
+
+                    }
+
+
+                    delete pointMarkers[
+                        pointId
+                    ];
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =========================
+       ОНОВЛЮЄМО ІКОНКУ
+       ЗВЕРХУ ЗЛІВА
+    ========================= */
+
+    updateActiveCategoryIcons();
+
+
+    /* =========================
+       ЗБЕРІГАЄМО СТАН
+    ========================= */
+
+    saveActiveCategories();
+
+}
 
 /* =====================================================
    ВІДНОВИТИ ТОЧКИ ПІСЛЯ ЗАВАНТАЖЕННЯ СТОРІНКИ
@@ -15928,6 +16018,7 @@ document
                 const value =
                     this.dataset.value;
 
+                    console.log("🟡 НАТИСНУТА КАТЕГОРІЯ:", value);
 
                 /* Записуємо значення
                    у справжній select */
@@ -16068,6 +16159,11 @@ developerCategoryButton.addEventListener("click", function(e) {
 
 });
 
+/* =====================================================
+   ВИБРАНА КАТЕГОРІЯ РОЗРОБНИКА
+===================================================== */
+
+let selectedDeveloperCategory = "";
 
 /* ВИБІР КАТЕГОРІЇ */
 
@@ -16077,56 +16173,151 @@ document
 
         option.addEventListener("click", function() {
 
+            /* =========================================
+               ЗНАЧЕННЯ КАТЕГОРІЇ
+            ========================================= */
+
             const value =
-                this.dataset.value;
+                this.dataset.value || "";
+
+            console.log(
+                "🟡 НАТИСНУТА КАТЕГОРІЯ:",
+                value
+            );
+
+
+            /* =========================================
+               ТЕКСТ КАТЕГОРІЇ
+            ========================================= */
 
             const text =
                 this.querySelector("span")?.textContent ||
                 this.textContent.trim();
 
+
+            /* =========================================
+               ІКОНКА
+            ========================================= */
+
             const img =
                 this.querySelector("img");
 
-            /* Значення для JS */
-            developerPointCategory.value = value;
 
-            /* Очищаємо кнопку */
-            developerCategorySelected.innerHTML = "";
+            /* =========================================
+               ЗАПИСУЄМО КАТЕГОРІЮ
+            ========================================= */
 
-            /* Якщо вибрана SVG-іконка */
-            if (img) {
+            const developerPointCategory =
+                document.getElementById(
+                    "developerPointCategory"
+                );
 
-                const icon =
-                    document.createElement("img");
 
-                icon.src = img.src;
+            if(!developerPointCategory){
 
-                icon.style.width = "30px";
-                icon.style.height = "30px";
-                icon.style.objectFit = "contain";
-                icon.style.verticalAlign = "middle";
-                icon.style.marginRight = "8px";
+                console.error(
+                    "❌ Не знайдено #developerPointCategory"
+                );
 
-                developerCategorySelected.appendChild(icon);
-
+                return;
             }
 
-            const label =
-                document.createElement("span");
 
-            label.textContent = text;
+        selectedDeveloperCategory = value;
 
-            developerCategorySelected.appendChild(label);
+console.log(
+    "🟢 selectedDeveloperCategory =",
+    selectedDeveloperCategory
+);
 
-            /* Закрити список */
-            developerCategoryDropdown
-                .classList
-                .remove("show");
+
+            /* =========================================
+               КНОПКА ВИБОРУ КАТЕГОРІЇ
+            ========================================= */
+
+            const developerCategorySelected =
+                document.getElementById(
+                    "developerCategorySelected"
+                );
+
+
+            if(developerCategorySelected){
+
+                developerCategorySelected.innerHTML =
+                    "";
+
+
+                /* ІКОНКА */
+
+                if(img){
+
+                    const icon =
+                        document.createElement("img");
+
+                    icon.src =
+                        img.src;
+
+                    icon.style.width =
+                        "30px";
+
+                    icon.style.height =
+                        "30px";
+
+                    icon.style.objectFit =
+                        "contain";
+
+                    icon.style.verticalAlign =
+                        "middle";
+
+                    icon.style.marginRight =
+                        "8px";
+
+
+                    developerCategorySelected
+                        .appendChild(icon);
+                }
+
+
+                /* ТЕКСТ */
+
+                const label =
+                    document.createElement("span");
+
+                label.textContent =
+                    text;
+
+
+                developerCategorySelected
+                    .appendChild(label);
+            }
+
+
+            /* =========================================
+               ЗАКРИТИ СПИСОК
+            ========================================= */
+
+            const developerCategoryDropdown =
+                document.getElementById(
+                    "developerCategoryDropdown"
+                );
+
+
+            if(developerCategoryDropdown){
+
+                developerCategoryDropdown
+                    .classList
+                    .remove("show");
+            }
+
+
+            console.log(
+                "✅ КАТЕГОРІЮ ВИБРАНО:",
+                value
+            );
 
         });
 
     });
-
 
 /* =====================================================
    🛠️ ЗАКРИТТЯ ВІКНА "ДОДАТИ ТОЧКУ"
