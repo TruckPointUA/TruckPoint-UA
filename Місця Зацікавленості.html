@@ -5428,117 +5428,143 @@ color: #93c5fd;
         </button>
 
 
-        <div
-            id="developerCategoryDropdown"
-            class="developer-category-dropdown"
-        >
+  <div 
+    id="developerCategoryDropdown" 
+    class="developer-category-dropdown"
+>
 
-            <div
-                class="developer-category-option"
-                data-value=""
-            >
-                Оберіть категорію
-            </div>
-
-
-            <div
-                class="developer-category-option"
-                data-value="market"
-            >
-                <img src="maarket_map.svg">
-                <span>Продуктовий магазин</span>
-            </div>
-
-            <div
-                class="developer-category-option"
-                data-value="truck_schop"
-            >
-                <img src="Trucks_Supermarket_map.svg">
-                <span>Магаини ТІР</span>
-            </div>
-
-           <div class="developer-category-option" data-value="free_parking">
-    <img src="parkinglogoo_map.svg">
-    <span>Паркінг безкоштовний</span>
-</div>
-
-
-            <div
-                class="developer-category-option"
-                data-value="paid_parking"
-            >
-                <img src="platnii_map.svg">
-                <span>Паркінг платний</span>
-            </div>
-
-
-            <div
-                class="developer-category-option"
-                data-value="industrial"
-            >
-                <img src="promzona_map.svg">
-                <span>Промислова зона</span>
-            </div>
-
-            <div
-                class="developer-category-option"
-                data-value="parking_firma"
-            >
-                <img src="Pfirma_map.svg">
-                <span>Паркінг біля фірми</span>
-            </div>
-
-            <div
-                class="developer-category-option"
-                data-value="water"
-            >
-                <img src="water_map.svg">
-                <span>Набрати воду</span>
-            </div>
-
-        </div>
-
+    <div 
+        class="developer-category-option" 
+        data-value=""
+    >
+        Оберіть категорію
     </div>
 
 
-    <!-- =================================================
-         ПРИХОВАНЕ ЗНАЧЕННЯ КАТЕГОРІЇ ДЛЯ JAVASCRIPT
-    ================================================== -->
-
-    <select
-        id="developerPointCategory"
-        style="display:none;"
+    <div 
+        class="developer-category-option" 
+        data-value="market"
     >
+        <img src="maarket_map.svg">
+        <span>Продуктовий магазин</span>
+    </div>
 
-        <option value="">
-            Оберіть категорію
-        </option>
 
-        <option value="market">
-            Продуктовий магазин
-        </option>
+    <div 
+        class="developer-category-option" 
+        data-value="truck_schop"
+    >
+        <img src="Trucks_Supermarket_map.svg">
+        <span>Магазини ТІР</span>
+    </div>
 
-         <option value="truck_schop">
-            Магазини ТІР
-        </option>
 
-        <option value="parking_free">
-            Паркінг безкоштовний
-        </option>
+    <div 
+        class="developer-category-option" 
+        data-value="free_parking"
+    >
+        <img src="parkinglogoo_map.svg">
+        <span>Паркінг безкоштовний</span>
+    </div>
 
-        <option value="parking_paid">
-            Паркінг платний
-        </option>
 
-        <option value="industrial">
-            Промислова зона
-        </option>
+    <div 
+        class="developer-category-option" 
+        data-value="paid_parking"
+    >
+        <img src="platnii_map.svg">
+        <span>Паркінг платний</span>
+    </div>
 
-        <option value="parking_firma">
-            Паркінг біля фірми
-        </option>
 
-    </select>
+    <div 
+        class="developer-category-option" 
+        data-value="industrial"
+    >
+        <img src="promzona_map.svg">
+        <span>Промислова зона</span>
+    </div>
+
+
+    <div 
+        class="developer-category-option" 
+        data-value="parking_firma"
+    >
+        <img src="Pfirma_map.svg">
+        <span>Паркінг біля фірми</span>
+    </div>
+
+
+    <!-- МІСЦЕ ПРИ ДОРОЗІ -->
+    <div 
+    class="developer-category-option" 
+    data-value="road_parking"
+>
+    <img src="pocket_map.svg">
+    <span>Місце при дорозі</span>
+</div>
+
+
+    <!-- НАБРАТИ ВОДУ -->
+    <div 
+        class="developer-category-option" 
+        data-value="water"
+    >
+        <img src="water_map.svg">
+        <span>Набрати воду</span>
+    </div>
+
+</div>
+
+</div>
+
+
+<!-- =================================================
+     ПРИХОВАНЕ ЗНАЧЕННЯ КАТЕГОРІЇ ДЛЯ JAVASCRIPT
+================================================== -->
+
+<select 
+    id="developerPointCategory" 
+    style="display:none;"
+>
+
+    <option value="">
+        Оберіть категорію
+    </option>
+
+    <option value="market">
+        Продуктовий магазин
+    </option>
+
+    <option value="truck_schop">
+        Магазини ТІР
+    </option>
+
+    <option value="free_parking">
+        Паркінг безкоштовний
+    </option>
+
+    <option value="paid_parking">
+        Паркінг платний
+    </option>
+
+    <option value="industrial">
+        Промислова зона
+    </option>
+
+    <option value="parking_firma">
+        Паркінг біля фірми
+    </option>
+
+    <option value="road_place">
+        Місце при дорозі
+    </option>
+
+    <option value="water">
+        Набрати воду
+    </option>
+
+</select>
 
 
     <!-- =================================================
@@ -6048,13 +6074,43 @@ function getCategoryFromIcon(icon){
 const points = [
 
 {
-    name: "Продуктовий магазин",
-    lat: 53.219313,
-    lng: 12.214961,
-    author: "",
-    description: "Рядом autohof АЗС , недалеко Промышленная зона",
+    name: "МІСЦЕ ПРИ ДОРОЗІ",
+    lat: 50.251027 ,
+    lng: 28.785092,
+    author: "Andrii Mochurad",
+    description: "Можна зупинитись при дорозі.",
     reviews: [],
-    icon: "maarket_map.svg"
+    icon: "pocket_map.svg"
+},
+{
+    name: "МІСЦЕ ПРИ ДОРОЗІ",
+    lat: 49.587386 ,
+    lng: 25.454266,
+    author: "Andrii Mochurad",
+    description: "Можна зупинитись при дорозі.",
+    reviews: [],
+    icon: "pocket_map.svg"
+},
+{
+    name: "МІСЦЕ ПРИ ДОРОЗІ",
+    lat: 49.747964,
+    lng: 28.624681,
+    author: "Andrii Mochurad",
+    description: "Можна зупинитись при дорозі.",
+    reviews: [],
+    icon: "pocket_map.svg"
+},
+{
+    name: "МІСЦЕ ПРИ ДОРОЗІ",
+    lat: 53.351871,
+    lng: 14.816974,
+    name: "МІСЦЕ ПРИ ДОРОЗІ",
+    lat: 49.747964,
+    lng: 28.624681,
+    author: "Andrii Mochurad",
+    description: "Можна зупинитись при дорозі.",
+    reviews: [],
+    icon: "pocket_map.svg"
 }
 //Вставити координати точок
 ];
@@ -6143,16 +6199,100 @@ async function importPointsToFirebase(){
  //importPointsToFirebase();
 
 const map = L.map('map', {
-
     zoomControl: false
-
 }).setView(
-
-    [49.0,31.0],
-
+    [49.0, 31.0],
     6
-
 );
+
+L.control.zoom({
+    position: 'topright'
+}).addTo(map);
+
+
+/* =================================================
+   МОЄ МІСЦЕ — АВТОМАТИЧНО ПРИ ВІДКРИТТІ КАРТИ
+================================================= */
+
+let myLocationMarker = null;
+let myLocationCircle = null;
+
+function showMyLocation() {
+
+    if (!navigator.geolocation) {
+        console.log("Геолокація не підтримується");
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+
+        function(position) {
+
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+
+            console.log(
+                "Моє місце:",
+                lat,
+                lng
+            );
+
+            /* Створюємо або переміщуємо тільки точку */
+
+            if (!myLocationMarker) {
+
+                myLocationMarker = L.circleMarker(
+                    [lat, lng],
+                    {
+                        radius: 8,
+                        color: "#ffffff",
+                        weight: 3,
+                        fillColor: "#1976ff",
+                        fillOpacity: 1
+                    }
+                ).addTo(map);
+
+            } else {
+
+                myLocationMarker.setLatLng([lat, lng]);
+
+            }
+
+            /* Центруємо карту на користувачі */
+
+            map.setView(
+                [lat, lng],
+                15
+            );
+
+        },
+
+        function(error) {
+
+            console.log(
+                "Помилка геолокації:",
+                error.code,
+                error.message
+            );
+
+        },
+
+        {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0
+        }
+
+    );
+}
+
+/* Запустити геолокацію одразу після завантаження карти */
+
+setTimeout(function() {
+
+    showMyLocation();
+
+}, 500);
 
 
 L.control.zoom({
