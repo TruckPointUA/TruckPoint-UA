@@ -4648,6 +4648,8 @@ color: #93c5fd;
     min-width: 0;
 }
 
+
+
 </style>
 
 </head>
@@ -6081,36 +6083,6 @@ const points = [
     description: "Можна зупинитись при дорозі.",
     reviews: [],
     icon: "pocket_map.svg"
-},
-{
-    name: "МІСЦЕ ПРИ ДОРОЗІ",
-    lat: 49.587386 ,
-    lng: 25.454266,
-    author: "Andrii Mochurad",
-    description: "Можна зупинитись при дорозі.",
-    reviews: [],
-    icon: "pocket_map.svg"
-},
-{
-    name: "МІСЦЕ ПРИ ДОРОЗІ",
-    lat: 49.747964,
-    lng: 28.624681,
-    author: "Andrii Mochurad",
-    description: "Можна зупинитись при дорозі.",
-    reviews: [],
-    icon: "pocket_map.svg"
-},
-{
-    name: "МІСЦЕ ПРИ ДОРОЗІ",
-    lat: 53.351871,
-    lng: 14.816974,
-    name: "МІСЦЕ ПРИ ДОРОЗІ",
-    lat: 49.747964,
-    lng: 28.624681,
-    author: "Andrii Mochurad",
-    description: "Можна зупинитись при дорозі.",
-    reviews: [],
-    icon: "pocket_map.svg"
 }
 //Вставити координати точок
 ];
@@ -6215,7 +6187,6 @@ L.control.zoom({
 ================================================= */
 
 let myLocationMarker = null;
-let myLocationCircle = null;
 
 function showMyLocation() {
 
@@ -6293,11 +6264,6 @@ setTimeout(function() {
     showMyLocation();
 
 }, 500);
-
-
-L.control.zoom({
-    position: 'topright'
-}).addTo(map);
 
 
 /* =================================================
@@ -9081,49 +9047,34 @@ const myLocationButton =
 let geoWatchId = null;
 
 
-/* Створення / переміщення маркера */
+/* =========================
+   СТВОРЕННЯ / РУХ МОЄЇ ТОЧКИ
+========================= */
 
 function updateUserLocation(lat, lng){
 
-    setUserLocation(lat, lng);
+    if(myLocationMarker){
 
+        /* Маркер вже є — переміщуємо його */
 
-    if(userLocationMarker){
+        myLocationMarker.setLatLng([
+            lat,
+            lng
+        ]);
 
-        /* Маркер вже є — просто переміщуємо */
+    } else {
 
-        userLocationMarker.setLatLng(
-            [lat, lng]
-        );
+        /* Якщо маркера ще немає — створюємо */
 
-    }else{
-
-        /* Створюємо маркер */
-
-        const userIcon = L.divIcon({
-
-            className:"",
-
-            html:`
-                <div class="userLocationMarker"></div>
-            `,
-
-            iconSize:[18,18],
-
-            iconAnchor:[9,9]
-
-        });
-
-
-        userLocationMarker = L.marker(
-
-            [lat,lng],
-
+        myLocationMarker = L.circleMarker(
+            [lat, lng],
             {
-                icon:userIcon,
-                zIndexOffset:10000
+                radius: 8,
+                color: "#ffffff",
+                weight: 3,
+                fillColor: "#1976ff",
+                fillOpacity: 1
             }
-
         ).addTo(map);
 
     }
