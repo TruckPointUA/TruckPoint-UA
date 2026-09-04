@@ -5649,23 +5649,6 @@ color: #93c5fd;
 
 
     <!-- =================================================
-         НАЗВА ТОЧКИ
-    ================================================== -->
-
-    <label
-        for="developerPointName"
-    >
-        Назва точки
-    </label>
-
-    <input
-        type="text"
-        id="developerPointName"
-        placeholder="Наприклад: АТБ"
-    >
-
-
-    <!-- =================================================
          ОПИС
     ================================================== -->
 
@@ -6688,7 +6671,6 @@ console.log(
     "📂 КАТЕГОРІЯ ДЛЯ ДОДАВАННЯ:",
     category
 );
-         const name = document.getElementById( "developerPointName" ).value.trim(); 
          const description = document.getElementById( "developerPointDescription" ).value.trim(); 
          /* 👤 АВТОР */ 
          const authorInput = document.getElementById( "developerPointAuthor" ); 
@@ -6699,16 +6681,15 @@ console.log(
          return; 
         } 
         if (!author) { developerCoordinatesStatus( "❌ Введіть автора точки.", "error" ); 
-        return; } if (!name) { developerCoordinatesStatus( "❌ Введіть назву точки.", "error" );
-         return; } 
+        return; }  
          if (!coordinates) { developerCoordinatesStatus( "❌ Введіть правильні LAT і LNG.", "error" );
           return; } const { lat, lng } = coordinates; 
           /* ================ 🔑 ID ТОЧКИ ============================== */ 
           const pointId = db .ref( "points/" + category ) .push() .key; 
           /* ======================= 📦 ДАНІ ТОЧКИ ============================== */ 
-          const pointData = { name: name, description: description, /* 
-            👤 АВТОР */ 
-            author: author, lat: lat, lng: lng, 
+          const pointData = {
+    description: description,
+    author: author, lat: lat, lng: lng, 
             latitude: lat, longitude: lng, category: category, 
             approved: true, createdBy: DEVELOPER_UID,
             authorUid: DEVELOPER_UID, 
@@ -6720,8 +6701,7 @@ console.log(
             if ( developerCoordinateMarker ) 
             { map.removeLayer( developerCoordinateMarker ); 
                 developerCoordinateMarker = null; } 
-                /* ===================== 🧹 ОЧИЩЕННЯ ============================================ */ 
-                document.getElementById( "developerPointName" ).value = ""; 
+                /* ===================== 🧹 ОЧИЩЕННЯ ============================================ */  
                 document.getElementById( "developerPointDescription" ).value = ""; 
                 document.getElementById( "developerPointAuthor" ).value = ""; 
                 document.getElementById( "developerPointLat" ).value = ""; 
@@ -8703,6 +8683,32 @@ const name =
     categoryNames[category] ||
     "Нова точка";
 
+    const pointData = {
+
+    id: pointId,
+
+    name: name,
+
+    category: category,
+
+    lat: lat,
+
+    lng: lng,
+
+    author: author,
+
+    description: description,
+
+    reviews: [],
+
+    icon: "info_marker.svg",
+
+    approved: false,
+
+    createdAt:
+        firebase.database.ServerValue.TIMESTAMP
+
+};
 
             /* -----------------------------------------
                ПЕРЕВІРКА КАТЕГОРІЇ
@@ -9612,14 +9618,28 @@ if (!pointInfoBackState) {
         document.getElementById("pointInfoOverlay");
 
 
-    /* Назва */
+  /* Назва точки автоматично з категорії */
 
-    document.getElementById(
-        "pointInfoTitle"
-    ).textContent =
-        currentPointData.name ||
-        "Точка";
+const categoryNames = {
 
+    market: "Продуктовий магазин",
+    truck_schop: "Магазин ТІР",
+    free_parking: "Паркування безкоштовне",
+    paid_parking: "Паркування платне",
+    road_parking: "Паркування при дорозі",
+    industrial: "Промислова зона",
+    parking_firma: "Паркування біля фірми",
+    water: "Набрати воду",
+    other: "Інше"
+
+};
+
+document.getElementById(
+    "pointInfoTitle"
+).textContent =
+    categoryNames[currentPointData.category] ||
+    currentPointData.name ||
+    "Точка";
 
 /* Координати */
 
