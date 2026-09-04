@@ -277,12 +277,13 @@ body.night-mode .sheetHandle{
 
     left:0;
     right:0;
-    bottom:0;
+    bottom:var(--android-bottom-inset, 0px);
 
     width:100%;
 
-    height:30px;
-    min-height:30px;
+    /* ВИСОТА ЗАКРИТОЇ ШТОРКИ */
+    height:60px;
+    min-height:60px;
 
     box-sizing:border-box;
 
@@ -304,6 +305,25 @@ body.night-mode .sheetHandle{
 
     touch-action:none;
 }
+/* =====================================================
+   КНОПКИ КАТЕГОРІЙ
+   СХОВАНІ, КОЛИ ШТОРКА ЗАКРИТА
+===================================================== */
+
+.categoryScroll{
+    opacity:0;
+    visibility:hidden;
+
+    transition:
+        opacity .2s ease,
+        visibility .2s ease;
+}
+
+/* КОЛИ ШТОРКА ВІДКРИТА */
+.bottomSheet.open .categoryScroll{
+    opacity:1;
+    visibility:visible;
+}
 
 /* =====================================================
    ANDROID — БЕЗПЕЧНА ЗОНА НИЖНЬОЇ СИСТЕМНОЇ ПАНЕЛІ
@@ -312,6 +332,24 @@ body.night-mode .sheetHandle{
 .bottomSheet{
     bottom:var(--android-bottom-inset, 0px);
 }
+
+
+/* Кнопки категорій приховані у закритій шторці */
+.bottomSheet:not(.open) .categoryScroll {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* Кнопки з'являються при відкритій шторці */
+.bottomSheet.open .categoryScroll {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+
+
 
 .sheetHandle{
     width:100px;
@@ -1039,7 +1077,7 @@ body.night-mode .sheetHandle{
     position:fixed;
 
     right:12px;
-    bottom:85px;
+    bottom:150px;
 
     width:48px;
     height:48px;
@@ -1066,6 +1104,9 @@ body.night-mode .sheetHandle{
         box-shadow .15s ease;
 
     padding:0;
+}
+#myLocationButton {
+    bottom: 130px !important;
 }
 
 
@@ -3625,40 +3666,6 @@ color: #93c5fd;
     flex: 1;
 }
 
-/* ============ 📢 БІГУЧИЙ ТЕКСТ =================== */ 
-.map-running-text 
-{ 
-    position: fixed; 
-    left: 0; right: 0; 
-    bottom: 0; 
-    height: 94px; 
-    background: 
-    transparent; 
-    color: #fbfcfb; 
-    display: flex; 
-    align-items: center; 
-    overflow: hidden; 
-    z-index: 9999; 
-    pointer-events: none; 
-    font-family: Arial, sans-serif; 
-    font-size: 16px; 
-    font-weight: 600; 
-    text-shadow: 0 1px 3px rgba(0,0,0,0.9), 0 0 5px rgba(0,0,0,0.8);
-     } 
-     .map-running-text-inner 
-     { 
-        white-space: nowrap; 
-        padding-left: 100%; 
-        animation: mapRunningText 30s linear infinite; 
-        } 
-        @keyframes mapRunningText 
-        { 0% { transform: translateX(0); }
-         100% 
-         { transform: translateX(-100%); 
-         } 
-         }
-
-
 /* =========================================================
    🛠️ ВІКНО РОЗРОБНИКА
 ========================================================= */
@@ -4536,56 +4543,6 @@ color: #93c5fd;
 
 }
 
-.compassButton {
-
-    position: absolute;
-
-    top: 450px;
-    right: 10px;
-
-    width: 44px;
-    height: 44px;
-
-    border: none;
-    border-radius: 50%;
-
-    background: white;
-
-    box-shadow:
-        0 2px 8px rgba(0,0,0,0.25);
-
-    font-size: 24px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    z-index: 1000;
-
-    cursor: pointer;
-
-    transition:
-        transform 0.15s ease,
-        background 0.2s ease;
-}
-
-
-.compassButton:active {
-
-    transform: scale(0.9);
-
-}
-
-
-.compassButton.active {
-
-    background: #e8f1ff;
-
-    box-shadow:
-        0 0 0 3px rgba(0,123,255,0.2),
-        0 2px 8px rgba(0,0,0,0.25);
-
-}
 
 .leaflet-control-zoom {
     margin-top: 260px !important;
@@ -4649,6 +4606,115 @@ color: #93c5fd;
 }
 
 
+/* =====================================================
+   ДВІ ОДНАКОВІ КНОПКИ У ЗАКРИТІЙ ШТОРЦІ
+===================================================== */
+
+.closedSheetAddPointButton {
+
+    position: absolute !important;
+
+    top: 10px !important;
+
+    width: 135px !important;
+    height: 35px !important;
+
+    min-width: 96px !important;
+    max-width: 96px !important;
+
+    padding: 0 !important;
+
+    box-sizing: border-box !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border: none !important;
+    border-radius: 10px !important;
+
+    background: linear-gradient(
+        135deg,
+        #abaeb1,
+        #4c4c4d
+    ) !important;
+
+    color: #ffffff !important;
+
+    font-family: Arial, sans-serif !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+
+    white-space: nowrap !important;
+
+    box-shadow:
+        0 3px 8px rgba(0,0,0,.22) !important;
+
+    z-index: 20005 !important;
+}
+
+
+/* =====================================================
+   ЛІВА КНОПКА — ЛІЧИЛЬНИК
+===================================================== */
+
+.mapPointsCounterButton {
+
+    left: 10px !important;
+    right: auto !important;
+
+    cursor: default !important;
+    pointer-events: none !important;
+}
+
+
+/* =====================================================
+   ПРАВА КНОПКА — ДОДАТИ ТОЧКУ
+===================================================== */
+
+#closedSheetAddPointButton {
+
+    right: 10px !important;
+    left: auto !important;
+}
+
+
+/* =====================================================
+   НАТИСКАННЯ
+===================================================== */
+
+#closedSheetAddPointButton:active {
+
+    transform: scale(.96);
+
+}
+
+
+/* =====================================================
+   ХОВАЄМО ПРИ ВІДКРИТІЙ ШТОРЦІ
+===================================================== */
+
+.bottomSheet.open .closedSheetAddPointButton {
+
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+
+}
+
+
+/* =====================================================
+   ХОВАЄМО ПІД ЧАС ПЕРЕТЯГУВАННЯ
+===================================================== */
+
+.bottomSheet.dragging .closedSheetAddPointButton {
+
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+
+}
+
 
 </style>
 
@@ -4688,13 +4754,6 @@ color: #93c5fd;
 
 <div id="map"></div>
 
-<button
-    id="compassButton"
-    class="compassButton"
-    title="Компас"
->
-    🧭
-</button>
 <!-- =====================================================
      ВІКНО ІНФОРМАЦІЇ ПРО ТОЧКУ
 ===================================================== -->
@@ -4915,6 +4974,22 @@ color: #93c5fd;
 
     <div id="sheetHandle" class="sheetHandle"></div>
 
+    <!-- КНОПКА ДОДАВАННЯ ТОЧКИ У ЗАКРИТІЙ ШТОРЦІ -->
+   <button
+    type="button"
+    id="closedSheetAddPointButton"
+    class="closedSheetAddPointButton"
+>
+    Додати точку
+</button>
+<button
+    type="button"
+    id="mapPointsCounterButton"
+    class="closedSheetAddPointButton mapPointsCounterButton"
+>
+    Точок: <span id="mapPointsCounter">0</span>
+</button>
+
     <div class="categoryScroll" id="categoryScroll">
 
 <button class="categoryBtn" onclick="toggleShopping()">Закупи </button>
@@ -5068,21 +5143,6 @@ color: #93c5fd;
         <div class="addPointSubtitle">
             Заповніть інформацію про місце
         </div>
-
-
-        <!-- НАЗВА -->
-
-        <label class="addPointLabel">
-            Назва точки
-        </label>
-
-        <input
-            type="text"
-            id="newPointName"
-            class="addPointInput"
-            placeholder="Наприклад: АТБ"
-            maxlength="100"
-        >
 
 
         <!-- КАТЕГОРІЯ -->
@@ -5710,14 +5770,6 @@ color: #93c5fd;
 ></div>
 ```
 
-
-<!-- ========== 📢 БІГУЧИЙ ТЕКСТ ВНИЗУ ЕКРАНА ========= --> 
- <div class="map-running-text"> 
-    <div class="map-running-text-inner"> 
-        ⚠️ Увага! При довгому натисканні на карті в потрібному місці можна додати нову точку. Вкажіть її категорію, назву та опис, щоб інші користувачі також могли бачити й використовувати цю інформацію.
-    </div> 
-</div>
-
 <!-- =========================================================
      🛠️ ВІКНО ПОВНОГО РЕДАГУВАННЯ ТОЧКИ РОЗРОБНИКОМ
 ========================================================= -->
@@ -6266,48 +6318,6 @@ setTimeout(function() {
 }, 500);
 
 
-/* =================================================
-   🧭 КНОПКА КОМПАСА
-   Тільки вирівнює карту по горизонталі
-   Без відстеження телефона
-================================================= */
-
-const compassButton =
-    document.getElementById("compassButton");
-
-if (compassButton) {
-
-    compassButton.addEventListener("click", async () => {
-
-        /* =========================================
-           📱 iPhone / iPad
-           Дозвіл компаса більше НЕ ПОТРІБЕН
-        ========================================= */
-
-        /* =========================================
-           🗺️ ВИРІВНЮЄМО КАРТУ
-        ========================================= */
-
-        if (typeof map.setBearing === "function") {
-
-            map.setBearing(0);
-
-        }
-
-        /*
-         * Робимо кнопку активною
-         */
-
-        compassButton.classList.add("active");
-
-        console.log(
-            "🧭 Карта вирівняна горизонтально"
-        );
-
-    });
-
-}
-
 
 
 
@@ -6787,7 +6797,9 @@ pointMarkers[markerKey] = {
 } } catch (error)
                      { console.error( "❌ Помилка додавання точки:", error ); developerCoordinatesStatus( 
                         "❌ Не вдалося додати точку: " + error.message, "error" ); } }
-/* =====================================================
+
+
+                        /* =====================================================
 🔘 КНОПКИ
 ===================================================== */
 
@@ -7851,171 +7863,13 @@ let longPressStartLatLng = null;
 let longPressActive = false;
 
 
-/* =====================================================
-   TOUCHSTART
-===================================================== */
-
-map.on("touchstart", function(e) {
-
-    /* Не працюємо при pinch zoom */
-
-    if (
-        e.originalEvent &&
-        e.originalEvent.touches &&
-        e.originalEvent.touches.length > 1
-    ) {
-        cancelLongPress();
-        return;
-    }
-
-    if (!e.latlng) return;
-
-    cancelLongPress();
-
-    longPressStartLatLng = e.latlng;
-
-    longPressActive = true;
-
-
-    /* =================================================
-       ЧЕРЕЗ 1.5 СЕКУНДИ
-    ================================================= */
-
-    longPressTimer = setTimeout(function() {
-
-        if (!longPressActive) return;
-
-        if (!longPressStartLatLng) return;
-
-
-        const latlng = longPressStartLatLng;
-
-
-        longPressActive = false;
-
-        longPressTimer = null;
-
-        longPressStartLatLng = null;
-
-
-        /* =================================================
-           ВІДКРИВАЄМО ВІКНО ДОДАВАННЯ
-        ================================================= */
-
-        if (
-            typeof openAddPointWindow === "function"
-        ) {
-
-            openAddPointWindow(latlng);
-
-        } else {
-
-            console.error(
-                "❌ openAddPointWindow() не знайдена"
-            );
-
-        }
-
-    }, LONG_PRESS_TIME);
-
-});
-
 
 /* =====================================================
-   TOUCHMOVE
+   ПОВІДОМЛЕННЯ КОРИСТУВАЧУ
 ===================================================== */
 
-map.on("touchmove", function(e) {
+let coordinateInstruction = null;
 
-    if (!longPressActive) return;
-
-    if (!longPressStartLatLng) return;
-
-
-    /* Pinch zoom */
-
-    if (
-        e.originalEvent &&
-        e.originalEvent.touches &&
-        e.originalEvent.touches.length > 1
-    ) {
-
-        cancelLongPress();
-
-        return;
-    }
-
-
-    /* Відстань від початкової точки */
-
-    const distance =
-        map.distance(
-            longPressStartLatLng,
-            e.latlng
-        );
-
-
-    /* Якщо карта рухається — скасувати */
-
-    if (distance > LONG_PRESS_MOVE_LIMIT) {
-
-        cancelLongPress();
-
-    }
-
-});
-
-
-/* =====================================================
-   TOUCHEND
-===================================================== */
-
-map.on("touchend", function() {
-
-    /*
-       Якщо палець відпустили ДО завершення
-       довгого натискання — скасувати
-    */
-
-    if (longPressActive) {
-
-        cancelLongPress();
-
-    }
-
-});
-
-
-/* =====================================================
-   TOUCHCANCEL
-===================================================== */
-
-map.on("touchcancel", function() {
-
-    cancelLongPress();
-
-});
-
-
-/* =====================================================
-   СКАСУВАННЯ
-===================================================== */
-
-function cancelLongPress() {
-
-    if (longPressTimer) {
-
-        clearTimeout(longPressTimer);
-
-        longPressTimer = null;
-
-    }
-
-    longPressActive = false;
-
-    longPressStartLatLng = null;
-
-}
 
 /* =================================================
    ВІДСТЕЖЕННЯ ПАЛЬЦІВ
@@ -8038,8 +7892,7 @@ let activePointers = new Set();
     const saveButton =
         document.getElementById("saveNewPointButton");
 
-    const nameInput =
-        document.getElementById("newPointName");
+ const nameInput = null;
 
     const categoryInput =
         document.getElementById("newPointCategory");
@@ -8058,6 +7911,193 @@ let activePointers = new Set();
 
     const successMessage =
         document.getElementById("pointAddedMessage");
+
+
+/* =====================================================
+   КНОПКА "ДОДАТИ ТОЧКУ"
+   ТІЛЬКИ ПОКАЗУЄ ПОВІДОМЛЕННЯ
+===================================================== */
+
+const closedSheetAddPointButton =
+    document.getElementById("closedSheetAddPointButton");
+
+if (closedSheetAddPointButton) {
+
+    closedSheetAddPointButton.addEventListener(
+        "click",
+        function(e) {
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            let message =
+                document.getElementById("coordinateInstruction");
+
+            /* Створюємо повідомлення */
+            if (!message) {
+
+                message =
+                    document.createElement("div");
+
+                message.id =
+                    "coordinateInstruction";
+
+                message.style.position =
+                    "fixed";
+
+                message.style.left =
+                    "50%";
+
+                message.style.top =
+                    "25px";
+
+                message.style.transform =
+                    "translateX(-50%)";
+
+                message.style.width =
+                    "calc(100% - 30px)";
+
+                message.style.maxWidth =
+                    "520px";
+
+                message.style.boxSizing =
+                    "border-box";
+
+                message.style.padding =
+                    "16px 22px";
+
+                message.style.borderRadius =
+                    "16px";
+
+                message.style.background =
+                    "linear-gradient(135deg, #1976d2, #0d47a1)";
+
+                message.style.color =
+                    "#ffffff";
+
+                message.style.fontFamily =
+                    "Arial, sans-serif";
+
+                message.style.fontSize =
+                    "18px";
+
+                message.style.fontWeight =
+                    "700";
+
+                message.style.lineHeight =
+                    "1.35";
+
+                message.style.textAlign =
+                    "center";
+
+                message.style.boxShadow =
+                    "0 5px 18px rgba(0,0,0,.30)";
+
+                message.style.border =
+                    "1px solid rgba(255,255,255,.20)";
+
+                message.style.zIndex =
+                    "999999";
+
+                document.body.appendChild(message);
+
+            }
+
+            message.textContent =
+                "📍 Зажміть місце на карті для визначення координат точки яку хочете додати";
+
+            message.style.display =
+                "block";
+
+            /* Повідомлення тримається 8 секунд */
+            clearTimeout(message._timer);
+
+            message._timer =
+                setTimeout(function() {
+
+                    message.style.display =
+                        "none";
+
+                }, 8000);
+
+        }
+    );
+
+}
+
+const bottomSheet =
+    document.getElementById("bottomSheet");
+
+const sheetHandle =
+    document.getElementById("sheetHandle");
+
+
+
+
+/* =====================================================
+   ХОВАЄМО КНОПКУ ПРИ ПОЧАТКУ ПЕРЕТЯГУВАННЯ ШТОРКИ
+===================================================== */
+
+if (sheetHandle && bottomSheet) {
+
+    sheetHandle.addEventListener(
+        "pointerdown",
+        function() {
+
+            bottomSheet.classList.add("dragging");
+
+        },
+        { passive: true }
+    );
+
+    sheetHandle.addEventListener(
+        "touchstart",
+        function() {
+
+            bottomSheet.classList.add("dragging");
+
+        },
+        { passive: true }
+    );
+
+
+    /* =================================================
+       ПОВЕРТАЄМО КНОПКУ ПІСЛЯ ПЕРЕТЯГУВАННЯ
+    ================================================= */
+
+    window.addEventListener(
+        "pointerup",
+        function() {
+
+            bottomSheet.classList.remove("dragging");
+
+        },
+        { passive: true }
+    );
+
+
+    window.addEventListener(
+        "pointercancel",
+        function() {
+
+            bottomSheet.classList.remove("dragging");
+
+        },
+        { passive: true }
+    );
+
+
+    window.addEventListener(
+        "touchend",
+        function() {
+
+            bottomSheet.classList.remove("dragging");
+
+        },
+        { passive: true }
+    );
+
+}
 
 
     /* =================================================
@@ -8242,7 +8282,6 @@ async function openAddPointWindow(latlng){
        ОЧИЩЕННЯ ФОРМИ
     ================================================= */
 
-    nameInput.value = "";
 
     categoryInput.value = "";
 
@@ -8260,13 +8299,8 @@ async function openAddPointWindow(latlng){
 
 
     setTimeout(
-        function(){
-
-            nameInput.focus();
-
-        },
-        100
-    );
+    100
+);
 
 }
 
@@ -8608,117 +8642,6 @@ map.getContainer().addEventListener(
 );
 
     /* =================================================
-       РУХ — СКАСУВАТИ ДОВГЕ НАТИСКАННЯ
-    ================================================= */
-
-    map.getContainer().addEventListener(
-        "pointermove",
-        function(event){
-
-            if(
-                !longPressTimer
-            ){
-
-                return;
-            }
-
-
-            const moveX =
-                Math.abs(
-                    event.clientX -
-                    longPressStartX
-                );
-
-
-            const moveY =
-                Math.abs(
-                    event.clientY -
-                    longPressStartY
-                );
-
-
-            /*
-               Якщо палець/мишка сильно посунулися —
-               це вже не long press.
-            */
-
-            if(
-                moveX > 20 ||
-                moveY > 20
-            ){
-
-                clearTimeout(
-                    longPressTimer
-                );
-
-                longPressTimer = null;
-
-                longPressLatLng = null;
-
-            }
-
-        },
-        {
-            passive: true
-        }
-    );
-
-
-    /* =================================================
-       ВІДПУСКАННЯ
-    ================================================= */
-
-    map.getContainer().addEventListener(
-        "pointerup",
-        function(){
-
-            if(
-                longPressTimer
-            ){
-
-                clearTimeout(
-                    longPressTimer
-                );
-
-                longPressTimer = null;
-
-            }
-
-        },
-        {
-            passive: true
-        }
-    );
-
-
-    /* =================================================
-       ВИХІД З КАРТИ / POINTER CANCEL
-    ================================================= */
-
-    map.getContainer().addEventListener(
-        "pointercancel",
-        function(){
-
-            if(
-                longPressTimer
-            ){
-
-                clearTimeout(
-                    longPressTimer
-                );
-
-                longPressTimer = null;
-
-            }
-
-        },
-        {
-            passive: true
-        }
-    );
-
-
-    /* =================================================
        ЗБЕРЕГТИ НОВУ ТОЧКУ
     ================================================= */
 
@@ -8738,39 +8661,47 @@ map.getContainer().addEventListener(
             }
 
 
-            const name =
-                nameInput.value.trim();
+
+           const category =
+    categoryInput.value;
+
+const description =
+    descriptionInput.value.trim();
+
+const author =
+    authorInput.value.trim() ||
+    "Користувач";
 
 
-            const category =
-                categoryInput.value;
+/* -----------------------------------------
+   НАЗВА АВТОМАТИЧНО З КАТЕГОРІЇ
+----------------------------------------- */
 
+const categoryNames = {
 
-            const description =
-                descriptionInput.value.trim();
+    market: "Продуктовий магазин",
 
+    truck_schop: "Магазин ТІР",
 
-            const author =
-                authorInput.value.trim() ||
-                "Користувач";
+    free_parking: "Паркування безкоштовне",
 
+    paid_parking: "Паркування платне",
 
-            /* -----------------------------------------
-               ПЕРЕВІРКА НАЗВИ
-            ----------------------------------------- */
+    road_parking: "Паркування при дорозі",
 
-            if(
-                !name
-            ){
+    industrial: "Промислова зона",
 
-                alert(
-                    "Введіть назву точки."
-                );
+    parking_firma: "Паркування біля фірми",
 
-                nameInput.focus();
+    water: "Набрати воду",
 
-                return;
-            }
+    other: "Інше"
+
+};
+
+const name =
+    categoryNames[category] ||
+    "Нова точка";
 
 
             /* -----------------------------------------
@@ -8971,6 +8902,259 @@ openPointInfo(
 
                 closeAddPointWindow();
 
+                /* =================================================
+   ДОВГЕ НАТИСКАННЯ НА КАРТУ
+   ПІСЛЯ ЗАЖИМАННЯ ВІДКРИВАЄМО ФОРМУ
+================================================= */
+
+let activePointers = new Set();
+
+map.getContainer().addEventListener(
+    "pointerdown",
+    function(event) {
+
+        activePointers.add(event.pointerId);
+
+        /* Другий палець = pinch zoom */
+        if (activePointers.size > 1) {
+
+            cancelLongPress();
+
+            return;
+        }
+
+        /* Якщо форма вже відкрита — нічого не робимо */
+        if (
+            overlay.classList.contains("show")
+        ) {
+
+            return;
+        }
+
+        /* Тільки ліва кнопка миші / дотик */
+        if (
+            event.button !== undefined &&
+            event.button !== 0
+        ) {
+
+            return;
+        }
+
+        longPressStartX =
+            event.clientX;
+
+        longPressStartY =
+            event.clientY;
+
+
+        const rect =
+            map.getContainer().getBoundingClientRect();
+
+
+        const point =
+            L.point(
+                event.clientX - rect.left,
+                event.clientY - rect.top
+            );
+
+
+        const latlng =
+            map.containerPointToLatLng(point);
+
+
+        longPressLatLng =
+            latlng;
+
+
+        longPressTimer =
+            setTimeout(
+                function() {
+
+                    /* Якщо з'явився другий палець */
+                    if (
+                        activePointers.size > 1
+                    ) {
+
+                        cancelLongPress();
+
+                        return;
+                    }
+
+
+                    longPressTimer = null;
+
+
+                    /* Вібрація */
+                    if (
+                        navigator.vibrate
+                    ) {
+
+                        // navigator.vibrate(40);
+
+                    }
+
+
+                    /* =================================
+                       ВІДКРИВАЄМО ФОРМУ
+                       САМЕ В МІСЦІ ЗАЖИМАННЯ
+                    ================================= */
+
+                    openAddPointWindow(
+                        latlng
+                    );
+
+                },
+                LONG_PRESS_TIME
+            );
+
+    },
+    {
+        passive: true
+    }
+);
+
+
+/* =================================================
+   РУХ ПАЛЬЦЯ
+================================================= */
+
+map.getContainer().addEventListener(
+    "pointermove",
+    function(event) {
+
+        if (!longPressTimer) {
+            return;
+        }
+
+
+        const moveX =
+            Math.abs(
+                event.clientX -
+                longPressStartX
+            );
+
+
+        const moveY =
+            Math.abs(
+                event.clientY -
+                longPressStartY
+            );
+
+
+        if (
+            moveX > LONG_PRESS_MOVE_LIMIT ||
+            moveY > LONG_PRESS_MOVE_LIMIT
+        ) {
+
+            cancelLongPress();
+
+        }
+
+    },
+    {
+        passive: true
+    }
+);
+
+
+/* =================================================
+   ВІДПУСКАННЯ ПАЛЬЦЯ
+================================================= */
+
+map.getContainer().addEventListener(
+    "pointerup",
+    function(event) {
+
+        activePointers.delete(
+            event.pointerId
+        );
+
+
+        /*
+           Якщо таймер ще працює,
+           користувач відпустив раніше 1.5 сек.
+        */
+
+        if (longPressTimer) {
+
+            clearTimeout(
+                longPressTimer
+            );
+
+            longPressTimer = null;
+
+            longPressLatLng = null;
+
+        }
+
+    },
+    {
+        passive: true
+    }
+);
+
+
+/* =================================================
+   POINTER CANCEL
+================================================= */
+
+map.getContainer().addEventListener(
+    "pointercancel",
+    function(event) {
+
+        activePointers.delete(
+            event.pointerId
+        );
+
+        cancelLongPress();
+
+    },
+    {
+        passive: true
+    }
+);
+
+
+/* =================================================
+   ВИХІД З КАРТИ
+================================================= */
+
+map.getContainer().addEventListener(
+    "pointerleave",
+    function(event) {
+
+        activePointers.delete(
+            event.pointerId
+        );
+
+        cancelLongPress();
+
+    },
+    {
+        passive: true
+    }
+);
+
+
+/* =================================================
+   СКАСУВАННЯ LONG PRESS
+================================================= */
+
+function cancelLongPress() {
+
+    if (longPressTimer) {
+
+        clearTimeout(
+            longPressTimer
+        );
+
+        longPressTimer = null;
+
+    }
+
+    longPressLatLng = null;
+
+}
 
                 /* -------------------------------------
                    ПОДЯКА
@@ -10882,40 +11066,47 @@ function removePointMarkerFromMap(pointId){
     }
 
 
-    /* =====================================================
-       2️⃣ ВИДАЛЯЄМО ЧЕРЕЗ pointMarkers
-    ===================================================== */
+ /* =====================================================
+   2️⃣ ВИДАЛЯЄМО ЧЕРЕЗ pointMarkers
+===================================================== */
+
+if(
+    typeof pointMarkers !== "undefined" &&
+    pointMarkers &&
+    pointMarkers[pointId]
+){
+
+    const item =
+        pointMarkers[pointId];
+
 
     if(
-        typeof pointMarkers !== "undefined" &&
-        pointMarkers &&
-        pointMarkers[pointId]
+        item.marker &&
+        map.hasLayer(item.marker)
     ){
 
-        const item =
-            pointMarkers[pointId];
+        map.removeLayer(
+            item.marker
+        );
 
-
-        if(
-            item.marker &&
-            map.hasLayer(item.marker)
-        ){
-
-            map.removeLayer(
-                item.marker
-            );
-
-            console.log(
-                "✅ Маркер видалено через pointMarkers:",
-                pointId
-            );
-
-        }
-
-
-        delete pointMarkers[pointId];
+        console.log(
+            "✅ Маркер видалено через pointMarkers:",
+            pointId
+        );
 
     }
+
+
+    delete pointMarkers[pointId];
+
+
+    /* =========================================
+       ОНОВЛЮЄМО ЛІЧИЛЬНИК ПІСЛЯ ВИДАЛЕННЯ
+    ========================================= */
+
+    updateMapPointsCounter();
+
+}
 
 
     /* =====================================================
@@ -11039,19 +11230,6 @@ function removePointMarkerFromMap(pointId){
         }
 
     });
-
-
-    /* =====================================================
-       4️⃣ ЩЕ РАЗ ВИДАЛЯЄМО З МАСИВУ
-    ===================================================== */
-
-    if(
-        typeof pointMarkers !== "undefined"
-    ){
-
-        delete pointMarkers[pointId];
-
-    }
 
 
     /* =====================================================
@@ -12274,7 +12452,7 @@ const activeCategoryIconsElement =
    НАЛАШТУВАННЯ
 ========================= */
 
-const CLOSED_HEIGHT = 30;
+const CLOSED_HEIGHT = 60;
 
 /* Максимальна висота шторки без перекриття системною панеллю Android */
 function getAndroidBottomInset(){
@@ -13855,6 +14033,39 @@ function createPointMarker(
     return marker;
 }
 
+/* =====================================================
+   ЛІЧИЛЬНИК ТОЧОК, ЯКІ ЗАРАЗ ЗАВАНТАЖЕНІ НА КАРТУ
+===================================================== */
+
+function updateMapPointsCounter() {
+
+    const counter =
+        document.getElementById("mapPointsCounter");
+
+    if (!counter) {
+        return;
+    }
+
+    let count = 0;
+
+    Object.keys(pointMarkers).forEach(function(pointId) {
+
+        const item = pointMarkers[pointId];
+
+        if (!item || !item.marker) {
+            return;
+        }
+
+        if (map.hasLayer(item.marker)) {
+            count++;
+        }
+
+    });
+
+    counter.textContent = count;
+}
+
+
 
 /* =====================================================
    ЗАВАНТАЖЕННЯ ОДНІЄЇ КАТЕГОРІЇ
@@ -14107,9 +14318,16 @@ async function loadCategoryPoints(category){
         });
 
 
-        console.log(
-            `✅ ${category}: додано ${added}`
-        );
+       console.log(
+    `✅ ${category}: додано ${added}`
+);
+
+
+/* =========================================
+   ОНОВЛЮЄМО ЛІЧИЛЬНИК
+========================================= */
+
+updateMapPointsCounter();
 
     }
 
@@ -16757,15 +16975,6 @@ async function saveDeveloperPointEdit() {
        ПРОВІРКА
     ===================================================== */
 
-    if (!name) {
-
-        alert(
-            "⚠️ Введіть назву точки."
-        );
-
-        return;
-    }
-
 
     if (
         !Number.isFinite(lat) ||
@@ -17161,6 +17370,77 @@ catch(error) {
     }
 
 }
+
+/* =====================================================
+   ЛІЧИЛЬНИК ТОЧОК НА КАРТІ
+===================================================== */
+
+const mapPointsCounter =
+    document.getElementById("mapPointsCounter");
+
+
+function updateMapPointsCounter() {
+
+    if (!mapPointsCounter) {
+        return;
+    }
+
+    let count = 0;
+
+    /*
+       Рахуємо всі маркери, які зараз
+       знаходяться на карті
+    */
+
+    map.eachLayer(function(layer) {
+
+        if (
+            layer instanceof L.Marker ||
+            layer instanceof L.CircleMarker
+        ) {
+
+            /*
+               Не рахуємо маркер місцезнаходження користувача
+            */
+
+            if (
+                typeof userLocationMarker !== "undefined" &&
+                layer === userLocationMarker
+            ) {
+                return;
+            }
+
+            count++;
+        }
+
+    });
+
+    mapPointsCounter.textContent = count;
+}
+
+/* =====================================================
+   АВТООНОВЛЕННЯ ЛІЧИЛЬНИКА
+===================================================== */
+
+map.on("layeradd", function() {
+
+    updateMapPointsCounter();
+
+});
+
+
+map.on("layerremove", function() {
+
+    updateMapPointsCounter();
+
+});
+
+
+map.on("load", function() {
+
+    updateMapPointsCounter();
+
+});
 </script>
 
 </body>
