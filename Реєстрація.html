@@ -366,15 +366,15 @@ console.log("Запис після створення:", check.val());
 console.log("Запис users успішний");
 
 
-
 localStorage.setItem("userName", name);
 
 localStorage.setItem("userSurname", surname);
 
-
+// Це новий користувач — після реєстрації
+// більше не потрібно показувати форму входу
+localStorage.removeItem("showLoginAfterLogout");
 
 alert("Ласкаво просимо до TruckPoint UA!");
-
 
 window.location.replace("Головна.html");
 
