@@ -1180,52 +1180,22 @@ box.innerHTML = `
 
 function logout(){
 
+    localStorage.setItem(
+        "showLoginAfterLogout",
+        "true"
+    );
 
-    if(!USER_ID) return;
+    auth.signOut().then(()=>{
 
+        window.location.replace("index.html");
 
+    }).catch((error)=>{
 
-    db.ref("usersLocation/"+USER_ID)
-    .update({
-
-        online:false,
-
-        lastUpdate:Date.now()
-
-    })
-    .finally(()=>{
-
-
-        if(watchId!==null){
-
-            navigator.geolocation.clearWatch(watchId);
-
-        }
-
-
-
-        if(onlineTimer){
-
-            clearInterval(onlineTimer);
-
-        }
-
-
-
-        auth.signOut();
-
-
+        console.error("Помилка виходу:", error);
 
     });
 
-
 }
-
-
-
-
-
-
 
 // ==========================
 // ЗАПИТ GPS ОДИН РАЗ
