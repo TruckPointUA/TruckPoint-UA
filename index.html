@@ -172,45 +172,106 @@ const db = firebase.database();
 
 
 auth.onAuthStateChanged((user) => {
+
+    // Користувач уже авторизований
     if (user) {
+
+        localStorage.removeItem("showLoginAfterLogout");
+
         window.location.replace("Головна.html");
+
+        return;
     }
+
+    // Користувача немає
+    const showLogin =
+        localStorage.getItem("showLoginAfterLogout") === "true";
+
+    // Якщо це перший запуск і користувач ще не реєструвався
+    if (!showLogin) {
+
+        window.location.replace("Реєстрація.html");
+
+        return;
+    }
+
+    // Якщо користувач вийшов —
+    // залишаємо index.html з формою Email + Пароль
 });
 
 
 function login() {
 
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+    const email =
+        document.getElementById("email").value.trim();
 
-    auth.signInWithEmailAndPassword(email, password)
+    const password =
+        document.getElementById("password").value;
+
+
+    if (!email || !password) {
+
+        alert("Введіть Email та пароль.");
+
+        return;
+    }
+
+
+    auth.signInWithEmailAndPassword(
+        email,
+        password
+    )
 
     .then(async (userCredential) => {
 
-        const uid = userCredential.user.uid;
+        const uid =
+            userCredential.user.uid;
 
-        const snap = await db.ref("users/" + uid).once("value");
 
-   if (snap.exists()) {
+        const snap =
+            await db.ref("users/" + uid).once("value");
 
-    const user = snap.val();
 
-    localStorage.setItem("userName", user.name || "");
-    localStorage.setItem("userSurname", user.surname || "");
+        if (snap.exists()) {
 
-}
+            const user = snap.val();
 
-        window.location.href = "Головна.html";
+            localStorage.setItem(
+                "userName",
+                user.name || ""
+            );
+
+            localStorage.setItem(
+                "userSurname",
+                user.surname || ""
+            );
+        }
+
+
+        // Після входу більше не показуємо режим
+        // "після виходу"
+        localStorage.removeItem(
+            "showLoginAfterLogout"
+        );
+
+
+        window.location.replace(
+            "Головна.html"
+        );
 
     })
 
     .catch((error) => {
+
         console.log(error);
-        alert(error.code + "\n" + error.message);
+
+        alert(
+            "Невірний Email або пароль."
+        );
+
     });
 
 }
-
 </script>
 
 
