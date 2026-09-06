@@ -4635,8 +4635,8 @@ color: #93c5fd;
 
     background: linear-gradient(
         135deg,
-        #abaeb1,
-        #4c4c4d
+        #78909c,
+        #263746
     ) !important;
 
     color: #ffffff !important;
@@ -4998,11 +4998,13 @@ color: #93c5fd;
     Паркування
 </button>
 
-        <button class="categoryBtn" onclick="toggleServices(this)">
-    Сервіси
-</button>
+<button class="categoryBtn" onclick="toggleServices(this)">
+     Побут водія 
+    </button>
+
 
     </div>
+
 
   <div class="sheetContent">
 
@@ -9327,27 +9329,67 @@ if("geolocation" in navigator){
 }
 
 
+/* =====================================================
+   🗺️ КАРТА
+===================================================== */
+
+
 /* =========================
-   ШАР КАРТИ
+   🛣️ ЗВИЧАЙНА КАРТА
 ========================= */
 
 const roadLayer = L.tileLayer(
     'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
     {
-        maxZoom:20,
-        attribution:'© Google Maps'
+        maxZoom: 20,
+        attribution: '© Google Maps'
     }
 );
 
+
+/* =========================
+   🛰️ СУПУТНИК
+========================= */
 
 const satelliteLayer = L.tileLayer(
     'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     {
-        maxZoom:19,
-        attribution:'© Esri'
+        maxZoom: 19,
+        attribution: '© Esri'
     }
 );
 
+
+/* =====================================================
+   🏙️ НАЗВИ МІСТ ТА НАСЕЛЕНИХ ПУНКТІВ
+===================================================== */
+
+const satelliteLabelsLayer = L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+    {
+        minZoom: 1,
+        maxZoom: 19,
+        opacity: 1,
+        transparent: true,
+        attribution: '© Esri'
+    }
+);
+
+
+/* =====================================================
+   🛣️ НАЗВИ ВУЛИЦЬ І ДОРОГ
+===================================================== */
+
+const satelliteRoadLabelsLayer = L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}',
+    {
+        minZoom: 8,
+        maxZoom: 19,
+        opacity: 1,
+        transparent: true,
+        attribution: '© Esri'
+    }
+);
 
 /* Спочатку звичайна карта */
 
@@ -9371,7 +9413,18 @@ const satelliteLayerBtn =
     document.getElementById("satelliteLayerBtn");
 
 
-/* Відкрити / закрити меню */
+
+
+/* =========================
+   СПОЧАТКУ ЗВИЧАЙНА КАРТА
+========================= */
+
+roadLayer.addTo(map);
+
+
+/* =========================
+   ВІДКРИТИ / ЗАКРИТИ МЕНЮ
+========================= */
 
 layerButton.addEventListener("click", function(e){
 
@@ -9382,20 +9435,26 @@ layerButton.addEventListener("click", function(e){
 });
 
 
-/* Карта */
+/* =========================
+   🗺️ ЗВИЧАЙНА КАРТА
+========================= */
 
 roadLayerBtn.addEventListener("click", function(){
 
     if(map.hasLayer(satelliteLayer)){
-
         map.removeLayer(satelliteLayer);
+    }
 
+    if(map.hasLayer(satelliteLabelsLayer)){
+        map.removeLayer(satelliteLabelsLayer);
+    }
+
+    if(map.hasLayer(satelliteRoadLabelsLayer)){
+        map.removeLayer(satelliteRoadLabelsLayer);
     }
 
     if(!map.hasLayer(roadLayer)){
-
         roadLayer.addTo(map);
-
     }
 
     roadLayerBtn.classList.add("active");
@@ -9407,20 +9466,26 @@ roadLayerBtn.addEventListener("click", function(){
 });
 
 
-/* Супутник */
+/* =========================
+   🛰️ СУПУТНИК
+========================= */
 
 satelliteLayerBtn.addEventListener("click", function(){
 
     if(map.hasLayer(roadLayer)){
-
         map.removeLayer(roadLayer);
-
     }
 
     if(!map.hasLayer(satelliteLayer)){
-
         satelliteLayer.addTo(map);
+    }
 
+    if(!map.hasLayer(satelliteLabelsLayer)){
+        satelliteLabelsLayer.addTo(map);
+    }
+
+    if(!map.hasLayer(satelliteRoadLabelsLayer)){
+        satelliteRoadLabelsLayer.addTo(map);
     }
 
     satelliteLayerBtn.classList.add("active");
@@ -9432,7 +9497,9 @@ satelliteLayerBtn.addEventListener("click", function(){
 });
 
 
-/* Закрити меню при натисканні на карту */
+/* =========================
+   ЗАКРИТИ МЕНЮ ПО КАРТІ
+========================= */
 
 map.on("click", function(){
 
@@ -15176,7 +15243,7 @@ function openDefaultCategory(){
 
 
     /* =========================
-       ЗАКРИВАЄМО СЕРВІСИ
+       ЗАКРИВАЄМО Побут водія
     ========================= */
 
     if(servicesCategories){
@@ -15332,7 +15399,7 @@ function toggleShopping(){
 
 
     /* =========================
-       🔴 ЗАКРИВАЄМО СЕРВІСИ
+       🔴 ЗАКРИВАЄМО Побут водія
     ========================= */
 
     if(services){
@@ -15473,7 +15540,7 @@ function toggleParking(){
 
 
     /* =========================
-       ЗАКРИВАЄМО СЕРВІСИ
+       ЗАКРИВАЄМО Побут водія
     ========================= */
 
     if(services){
@@ -15566,7 +15633,7 @@ async function selectParking(button){
 }
 
 /* =====================================================
-   🛠️ СЕРВІСИ
+   🛠️ Побут водія
 ===================================================== */
 
 async function toggleServices(){
@@ -15602,7 +15669,7 @@ async function toggleServices(){
 
 
     /* =========================
-       ЯКЩО СЕРВІСИ ВЖЕ ВІДКРИТІ
+       ЯКЩО Побут водія ВЖЕ ВІДКРИТІ
        — ЗАКРИВАЄМО
     ========================= */
 
@@ -15654,7 +15721,7 @@ async function toggleServices(){
 
 
     /* =========================
-       ВІДКРИВАЄМО СЕРВІСИ
+       ВІДКРИВАЄМО Побут водія
     ========================= */
 
     services.classList.add("show");
@@ -15693,7 +15760,7 @@ async function toggleServices(){
 
 
     console.log(
-        "🛠️ Відкрито категорію «Сервіси»"
+        "🛠️ Відкрито категорію «Побут водія»"
     );
 
 }
