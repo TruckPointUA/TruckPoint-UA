@@ -4716,6 +4716,163 @@ color: #93c5fd;
 }
 
 
+/* =====================================================
+   🔍 КНОПКА ПОШУКУ ЗА КООРДИНАТАМИ
+===================================================== */
+
+.coordinatesSearchButton {
+
+    position: fixed;
+
+    left: 10px;
+
+    /* нижче панелі активних іконок */
+    top: 60px;
+
+    width: 42px;
+    height: 42px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: linear-gradient(
+        145deg,
+        #fdfeff,
+        #ffffff
+    );
+
+    box-shadow:
+        0 4px 12px rgba(0,0,0,0.35);
+
+    font-size: 25px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 10000;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.coordinatesSearchButton:active {
+
+    transform: scale(0.9);
+
+}
+
+
+/* =====================================================
+   🗺 ВІКНО КООРДИНАТ
+===================================================== */
+
+.coordinatesModal {
+
+    position: fixed;
+
+    left: 50%;
+    top: 50%;
+
+    transform: translate(-50%, -50%);
+
+    width: min(330px, calc(100vw - 40px));
+
+    background: white;
+
+    border-radius: 18px;
+
+    padding: 20px;
+
+    box-shadow:
+        0 10px 40px rgba(0,0,0,0.4);
+
+    z-index: 20000;
+
+    display: none;
+}
+
+.coordinatesModal.show {
+
+    display: block;
+
+}
+
+
+/* Заголовок */
+
+.coordinatesModalTitle {
+
+    font-size: 19px;
+    font-weight: 700;
+
+    margin-bottom: 15px;
+
+}
+
+
+/* Поля */
+
+.coordinatesInput {
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding: 12px;
+
+    margin-bottom: 10px;
+
+    border: 1px solid #ccc;
+
+    border-radius: 10px;
+
+    font-size: 16px;
+
+}
+
+
+/* Кнопки */
+
+.coordinatesModalButtons {
+
+    display: flex;
+
+    gap: 10px;
+
+    margin-top: 10px;
+
+}
+
+.coordinatesModalButtons button {
+
+    flex: 1;
+
+    padding: 12px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    font-size: 16px;
+
+    cursor: pointer;
+
+}
+
+.coordinatesGoButton {
+
+    background: #2196f3;
+    color: white;
+
+}
+
+.coordinatesCloseButton {
+
+    background: #e5e5e5;
+}
+
 </style>
 
 </head>
@@ -4740,6 +4897,16 @@ color: #93c5fd;
         <path d="M3 16l9 5 9-5"></path>
     </svg>
 </button>
+
+<!-- 🔍 ПОШУК ЗА КООРДИНАТАМИ -->
+<button id="coordinatesSearchButton"
+        class="coordinatesSearchButton"
+        title="Перейти за координатами">
+    🔍
+</button>
+
+
+
 <div id="layerMenu">
 
     <button id="roadLayerBtn" class="layerOption active">
@@ -6091,6 +6258,48 @@ color: #93c5fd;
 
 </div>
 
+<!-- =====================================================
+     🗺 ВІКНО ПЕРЕХОДУ ЗА КООРДИНАТАМИ
+===================================================== -->
+
+<div id="coordinatesModal"
+     class="coordinatesModal">
+
+    <div class="coordinatesModalTitle">
+        🗺 Перейти за координатами
+    </div>
+
+    <input
+        id="latitudeInput"
+        class="coordinatesInput"
+        type="text"
+        inputmode="decimal"
+        placeholder="Широта, наприклад 49.8397">
+
+    <input
+        id="longitudeInput"
+        class="coordinatesInput"
+        type="text"
+        inputmode="decimal"
+        placeholder="Довгота, наприклад 24.0297">
+
+    <div class="coordinatesModalButtons">
+
+        <button
+            id="coordinatesGoButton"
+            class="coordinatesGoButton">
+            Перейти
+        </button>
+
+        <button
+            id="coordinatesCloseButton"
+            class="coordinatesCloseButton">
+            Закрити
+        </button>
+
+    </div>
+
+</div>
 
 <script>
 
@@ -6508,6 +6717,183 @@ setTimeout(function() {
 }, 500);
 
 
+
+/* =====================================================
+   🔍 ПОШУК ЗА КООРДИНАТАМИ
+===================================================== */
+
+const coordinatesSearchButton =
+    document.getElementById(
+        "coordinatesSearchButton"
+    );
+
+const coordinatesModal =
+    document.getElementById(
+        "coordinatesModal"
+    );
+
+const coordinatesGoButton =
+    document.getElementById(
+        "coordinatesGoButton"
+    );
+
+const coordinatesCloseButton =
+    document.getElementById(
+        "coordinatesCloseButton"
+    );
+
+const latitudeInput =
+    document.getElementById(
+        "latitudeInput"
+    );
+
+const longitudeInput =
+    document.getElementById(
+        "longitudeInput"
+    );
+
+
+/* -----------------------------------------------------
+   ВІДКРИТТЯ ВІКНА
+----------------------------------------------------- */
+
+coordinatesSearchButton.addEventListener(
+    "click",
+    () => {
+
+        coordinatesModal.classList.add("show");
+
+        latitudeInput.focus();
+
+    }
+);
+
+
+/* -----------------------------------------------------
+   ЗАКРИТТЯ
+----------------------------------------------------- */
+
+coordinatesCloseButton.addEventListener(
+    "click",
+    () => {
+
+        coordinatesModal.classList.remove("show");
+
+    }
+);
+
+
+/* -----------------------------------------------------
+   ПЕРЕХІД
+----------------------------------------------------- */
+
+coordinatesGoButton.addEventListener(
+    "click",
+    () => {
+
+        let lat =
+            parseFloat(
+                latitudeInput.value
+                    .trim()
+                    .replace(",", ".")
+            );
+
+        let lng =
+            parseFloat(
+                longitudeInput.value
+                    .trim()
+                    .replace(",", ".")
+            );
+
+
+        /* Перевірка */
+
+        if (
+            !Number.isFinite(lat) ||
+            !Number.isFinite(lng)
+        ) {
+
+            alert(
+                "Введіть правильні координати."
+            );
+
+            return;
+
+        }
+
+
+        /* Перевірка меж */
+
+        if (
+            lat < -90 ||
+            lat > 90 ||
+            lng < -180 ||
+            lng > 180
+        ) {
+
+            alert(
+                "Координати знаходяться поза допустимими межами."
+            );
+
+            return;
+
+        }
+
+
+        console.log(
+            "🗺 Перехід за координатами:",
+            lat,
+            lng
+        );
+
+
+        /* ------------------------------------------------
+           ПЕРЕМІЩЕННЯ КАРТИ
+        ------------------------------------------------ */
+
+        map.setView(
+            [lat, lng],
+            15,
+            {
+                animate: true
+            }
+        );
+
+
+        /* ------------------------------------------------
+           ТИМЧАСОВИЙ МАРКЕР
+        ------------------------------------------------ */
+
+        if (
+            window.coordinateSearchMarker
+        ) {
+
+            map.removeLayer(
+                window.coordinateSearchMarker
+            );
+
+        }
+
+
+        window.coordinateSearchMarker =
+            L.marker(
+                [lat, lng]
+            )
+            .addTo(map)
+            .bindPopup(
+                `📍 ${lat.toFixed(6)}, ${lng.toFixed(6)}`
+            )
+            .openPopup();
+
+
+        /* Закриваємо вікно */
+
+        coordinatesModal.classList.remove(
+            "show"
+        );
+
+    }
+);
 
 
 
@@ -15152,11 +15538,11 @@ function saveActiveCategories(){
                 '#parkingCategories .subCategoryBtn[onclick*="toggleFirmaParking"]'
         },
 
-        {
-            category: "water",
-            selector:
-                '#servicesCategories .subCategoryBtn[onclick*="selectWater"]'
-        },
+       {
+    category: "water",
+    selector:
+        '#driverLifeCategories .subCategoryBtn[onclick*="selectWater"]'
+},
 
         {
             category: "tire_service",
@@ -15478,15 +15864,26 @@ if(
 if(saved.includes("water")){
 
     const button = document.querySelector(
-        '#servicesCategories .subCategoryBtn[onclick*="selectWater"]'
+        '#driverLifeCategories .subCategoryBtn[onclick*="selectWater"]'
     );
 
     if(button){
+
         button.classList.add("active");
+
+        console.log(
+            "💧 WATER BUTTON ACTIVATED"
+        );
+
+    } else {
+
+        console.warn(
+            "⚠️ Кнопку Набрати воду не знайдено"
+        );
+
     }
 
 }
-
 
 /* =========================
    🛞 TIRE SERVICE
@@ -15516,19 +15913,6 @@ await loadActiveCategories();
 
 console.log("✅ Активні категорії відновлено");
 
-
-/* =========================
-   ІКОНКИ АКТИВНИХ КАТЕГОРІЙ
-========================= */
-
-updateActiveCategoryIcons();
-
-
-    /* =========================
-       ЗАВАНТАЖУЄМО ТОЧКИ
-    ========================= */
-
-    await loadActiveCategories();
 
 
 }
@@ -16189,7 +16573,7 @@ window.toggleDriverLife = toggleDriverLife;
    🔧 Сервіси
 ===================================================== */
 
-async function toggleServices(){
+function toggleServices(){
 
     const services =
         document.getElementById(
@@ -16595,39 +16979,58 @@ async function selectWater(button){
 
     }
 
-    else{
+    else {
 
-        console.log(
-            "💧 Вимикаємо WATER..."
-        );
+    console.log("💧 Вимикаємо WATER...");
 
-        Object.keys(pointMarkers).forEach(
-            pointId => {
+    Object.keys(pointMarkers).forEach(pointId => {
 
-                const point =
-                    pointMarkers[pointId];
+        const point = pointMarkers[pointId];
 
-                if(
-                    point &&
-                    point.category === "water"
-                ){
+        if (
+            point &&
+            (
+                point.category === "water" ||
+                point.type === "water"
+            )
+        ) {
 
-                    if(point.marker){
+            if (point.marker) {
 
-                        map.removeLayer(
-                            point.marker
-                        );
-
-                    }
-
-                    delete pointMarkers[pointId];
-
+                if (map.hasLayer(point.marker)) {
+                    map.removeLayer(point.marker);
                 }
 
             }
-        );
 
+            delete pointMarkers[pointId];
+        }
+
+    });
+
+
+    /* =====================================
+       💧 ЯКЩО Є ОКРЕМИЙ WATER LAYER
+    ===================================== */
+
+    if (typeof waterLayer !== "undefined" && waterLayer) {
+
+        if (map.hasLayer(waterLayer)) {
+            map.removeLayer(waterLayer);
+        }
+
+        waterLayer.clearLayers();
     }
+
+
+    /* =====================================
+       🔄 ОНОВЛЮЄМО ІКОНКИ
+    ===================================== */
+
+    updateActiveCategoryIcons();
+
+    console.log("💧 WATER ПОВНІСТЮ ВИМКНЕНО");
+}
 
 
     /* =========================
