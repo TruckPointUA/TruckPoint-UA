@@ -4990,129 +4990,255 @@ color: #93c5fd;
     Точок: <span id="mapPointsCounter">0</span>
 </button>
 
-    <div class="categoryScroll" id="categoryScroll">
+<div class="categoryScroll" id="categoryScroll">
 
-<button class="categoryBtn" onclick="toggleShopping()">Закупи </button>
-
-        <button class="categoryBtn" onclick="toggleParking()">
-    Паркування
-</button>
-
-<button class="categoryBtn" onclick="toggleServices(this)">
-     Побут водія 
-    </button>
-
-
-    </div>
-
-
-  <div class="sheetContent">
-
-    <div id="servicesCategories" class="subCategories">
-
-<button
-    class="subCategoryBtn"
-    onclick="selectWater(this)"
->
-    <img
-        src="water_map.svg"
-        class="categoryIcon"
+    <button
+        class="categoryBtn"
+        onclick="toggleShopping()"
     >
-    Набрати воду
-</button>
-
-    <button class="subCategoryBtn">
-        
-        Розробляється
+        Закупи
     </button>
 
-    <button class="subCategoryBtn">
-        
-        Розробляється
+    <button
+        class="categoryBtn"
+        onclick="toggleParking()"
+    >
+        Паркування
+    </button>
+
+    <button
+        class="categoryBtn"
+        onclick="toggleDriverLife()"
+    >
+        Побут водія
+    </button>
+
+    <button
+        class="categoryBtn"
+        onclick="toggleServices(this)"
+    >
+        Сервіси
     </button>
 
 </div>
 
-    <div id="shoppingCategories" 
-    class="subCategories">
 
-<button 
-    class="subCategoryBtn" 
-    onclick="toggleGroceryStores(this)" 
->
-    <img src="maarket_map.svg" class="categoryIcon">
-    Продуктові магазини
-</button>
+<div class="sheetContent">
 
-<button
- class="subCategoryBtn" 
- onclick="toggleShoppingTIR(this)">
- 
-    <img src="Trucks_Supermarket_map.svg" class="categoryIcon">
-    Магазини ТІР
-</button>
 
-<button class="subCategoryBtn" onclick="selectCategory(this)">
-     Розробляється
-</button>
+    <!-- =================================================
+         🛠️ ПОБУТ ВОДІЯ
+    ================================================== -->
 
-    </div>
-    <div id="parkingCategories" class="subCategories">
+    <div
+        id="driverLifeCategories"
+        class="subCategories"
+    >
 
-<button 
-    class="subCategoryBtn" 
-    onclick="selectParking(this)" 
->
-    <img src="promzona_map.svg" class="categoryIcon">
-    Промислова зона
-</button>
+        <!-- 💧 НАБРАТИ ВОДУ -->
 
-<button 
-    class="subCategoryBtn" 
-    onclick="toggleRoadParking(this)" 
->
-    <img src="pocket_map.svg" class="categoryIcon">
-     Паркування при дорозі
-</button>
- 
+        <button
+            class="subCategoryBtn"
+            onclick="selectWater(this)"
+        >
 
-            <button
-                class="subCategoryBtn"
-                onclick="toggleFreeParking(this)"
+            <img
+                src="water_map.svg"
+                class="categoryIcon"
             >
-                <img
-                    src="parkinglogoo_map.svg"
-                    class="categoryIcon"
-                >
-                Паркування безкоштовне
-            </button>
 
-    <button
-        class="subCategoryBtn"
-        onclick="togglePaidParking(this)" 
+            Набрати воду
+
+        </button>
+
+
+        <button class="subCategoryBtn">
+            Розробляється
+        </button>
+
+
+        <button class="subCategoryBtn">
+            Розробляється
+        </button>
+
+    </div>
+
+
+
+    <!-- =================================================
+         🛒 ЗАКУПИ
+    ================================================== -->
+
+    <div
+        id="shoppingCategories"
+        class="subCategories"
     >
-    <img
-                    src="platnii_map.svg"
-                    class="categoryIcon"
-                >
-         Паркування платне
-    </button>
 
-    <button
-        class="subCategoryBtn"
-        onclick="toggleFirmaParking(this)"
+        <button
+            class="subCategoryBtn"
+            onclick="toggleGroceryStores(this)"
+        >
+
+            <img
+                src="maarket_map.svg"
+                class="categoryIcon"
+            >
+
+            Продуктові магазини
+
+        </button>
+
+
+        <button
+            class="subCategoryBtn"
+            onclick="toggleShoppingTIR(this)"
+        >
+
+            <img
+                src="Trucks_Supermarket_map.svg"
+                class="categoryIcon"
+            >
+
+            Магазини ТІР
+
+        </button>
+
+
+        <button
+            class="subCategoryBtn"
+            onclick="selectCategory(this)"
+        >
+            Розробляється
+        </button>
+
+    </div>
+
+
+
+    <!-- =================================================
+         🅿️ ПАРКУВАННЯ
+    ================================================== -->
+
+    <div
+        id="parkingCategories"
+        class="subCategories"
     >
-    <img
-                    src="Pfirma_map.svg"
-                    class="categoryIcon"
-                >
-          Паркування біля фірми
-    </button>
 
-    
+        <button
+            class="subCategoryBtn"
+            onclick="selectParking(this)"
+        >
 
-</div>
-</div>
+            <img
+                src="promzona_map.svg"
+                class="categoryIcon"
+            >
+
+            Промислова зона
+
+        </button>
+
+
+        <button
+            class="subCategoryBtn"
+            onclick="toggleRoadParking(this)"
+        >
+
+            <img
+                src="pocket_map.svg"
+                class="categoryIcon"
+            >
+
+            Паркування при дорозі
+
+        </button>
+
+
+        <button
+            class="subCategoryBtn"
+            onclick="toggleFreeParking(this)"
+        >
+
+            <img
+                src="parkinglogoo_map.svg"
+                class="categoryIcon"
+            >
+
+            Паркування безкоштовне
+
+        </button>
+
+
+        <button
+            class="subCategoryBtn"
+            onclick="togglePaidParking(this)"
+        >
+
+            <img
+                src="platnii_map.svg"
+                class="categoryIcon"
+            >
+
+            Паркування платне
+
+        </button>
+
+
+        <button
+            class="subCategoryBtn"
+            onclick="toggleFirmaParking(this)"
+        >
+
+            <img
+                src="Pfirma_map.svg"
+                class="categoryIcon"
+            >
+
+            Паркування біля фірми
+
+        </button>
+
+    </div>
+
+
+
+    <!-- =================================================
+         🔧 СЕРВІСИ
+    ================================================== -->
+
+    <div
+        id="servicesCategories"
+        class="subCategories"
+    >
+
+        <!-- 🛞 ШИНОМОНТАЖ -->
+
+        <button
+            class="subCategoryBtn"
+            onclick="selectTireService(this)"
+        >
+
+            <img
+                src="sinomontazh_map.svg"
+                class="categoryIcon"
+            >
+
+            Шиномонтаж ТІР
+
+        </button>
+
+
+        <button class="subCategoryBtn">
+            Розробляється
+        </button>
+
+
+        <button class="subCategoryBtn">
+            Розробляється
+        </button>
+
+    </div>
+
 
 </div>
 <button
@@ -5155,23 +5281,54 @@ color: #93c5fd;
 
        <div class="point-category-select">
 
-    <!-- Прихований select — його значення використовує твій JS -->
-    <select
-        id="newPointCategory"
-        class="addPointInput"
-        style="display:none;"
-    >
-        <option value="">Оберіть категорію</option>
-        <option value="market">Продуктовий магазин</option>
-        <option value="truck_schop">Магазин ТІР</option>
-        <option value="free_parking">Паркування безкоштовне</option>
-        <option value="paid_parking">Паркування платне</option>
-        <option value="road_parking">Паркування при дорозі</option>
-        <option value="industrial">Промислова зона</option>
-        <option value="parking_firma">Паркування біля фірми</option>
-        <option value="water">Набрати воду</option>
-        <option value="other">Інше</option>
-    </select>
+<!-- Прихований select — його значення використовує твій JS -->
+<select 
+    id="newPointCategory" 
+    class="addPointInput" 
+    style="display:none;" 
+>
+    <option value="">Оберіть категорію</option>
+
+    <option value="market">
+        Продуктовий магазин
+    </option>
+
+    <option value="truck_schop">
+        Магазин ТІР
+    </option>
+
+    <option value="free_parking">
+        Паркування безкоштовне
+    </option>
+
+    <option value="paid_parking">
+        Паркування платне
+    </option>
+
+    <option value="road_parking">
+        Паркування при дорозі
+    </option>
+
+    <option value="industrial">
+        Промислова зона
+    </option>
+
+    <option value="parking_firma">
+        Паркування біля фірми
+    </option>
+
+    <option value="water">
+        Набрати воду
+    </option>
+
+    <option value="tire_service">
+        Шиномонтаж
+    </option>
+
+    <option value="other">
+        Інше
+    </option>
+</select>
 
 
     <!-- Видимий список -->
@@ -5203,80 +5360,100 @@ color: #93c5fd;
         </div>
 
 
-        <div
-            class="categoryOption"
-            data-value="market"
-        >
-            <img src="maarket_map.svg">
-            <span>Продуктовий магазин</span>
-        </div>
-   
-        <div
-            class="categoryOption"
-            data-value="truck_schop"
-        >
-            <img src="Trucks_Supermarket_map.svg">
-            <span>Магазини ТІР</span>
-        </div>
-
-        <div
-            class="categoryOption"
-            data-value="free_parking"
-        >
-            <img src="parkinglogoo_map.svg">
-            <span>Паркінг безкоштовний</span>
-        </div>
-
-            <div
-            class="categoryOption"
-            data-value="paid_parking"
-        >
-            <img src="platnii_map.svg">
-            <span>Паркінг платний</span>
-        </div>
+        <div 
+    class="categoryOption" 
+    data-value="market" 
+> 
+    <img src="maarket_map.svg"> 
+    <span>Продуктовий магазин</span> 
+</div> 
 
 
-        <div
-            class="categoryOption"
-            data-value="road_parking"
-        >
-            <img src="pocket_map.svg">
-            <span>Паркування при дорозі</span>
-        </div>
+<div 
+    class="categoryOption" 
+    data-value="truck_schop" 
+> 
+    <img src="Trucks_Supermarket_map.svg"> 
+    <span>Магазини ТІР</span> 
+</div> 
 
 
-        <div
-            class="categoryOption"
-            data-value="industrial"
-        >
-            <img src="promzona_map.svg">
-            <span>Промислова зона</span>
-        </div>
-
-        <div
-            class="categoryOption"
-            data-value="parking_firma"
-        >
-            <img src="Pfirma_map.svg">
-            <span>Паркінг біля фірми</span>
-        </div>
-
-        <div
-            class="categoryOption"
-            data-value="water"
-        >
-            <img src="water_map.svg">
-            <span>Набрати воду</span>
-        </div>
+<div 
+    class="categoryOption" 
+    data-value="free_parking" 
+> 
+    <img src="parkinglogoo_map.svg"> 
+    <span>Паркінг безкоштовний</span> 
+</div> 
 
 
-        <div
-            class="categoryOption"
-            data-value="other"
-        >
-            <img src="info_marker.svg">
-            <span>Інше</span>
-        </div>
+<div 
+    class="categoryOption" 
+    data-value="paid_parking" 
+> 
+    <img src="platnii_map.svg"> 
+    <span>Паркінг платний</span> 
+</div> 
+
+
+<div 
+    class="categoryOption" 
+    data-value="road_parking" 
+> 
+    <img src="pocket_map.svg"> 
+    <span>Паркування при дорозі</span> 
+</div> 
+
+
+<div 
+    class="categoryOption" 
+    data-value="industrial" 
+> 
+    <img src="promzona_map.svg"> 
+    <span>Промислова зона</span> 
+</div> 
+
+
+<div 
+    class="categoryOption" 
+    data-value="parking_firma" 
+> 
+    <img src="Pfirma_map.svg"> 
+    <span>Паркінг біля фірми</span> 
+</div> 
+
+
+<!-- 💧 НАБРАТИ ВОДУ -->
+
+<div 
+    class="categoryOption" 
+    data-value="water" 
+> 
+    <img src="water_map.svg"> 
+    <span>Набрати воду</span> 
+</div> 
+
+
+<!-- 🛞 ШИНОМОНТАЖ -->
+
+<div 
+    class="categoryOption" 
+    data-value="tire_service" 
+> 
+    <img src="sinomontazh_map.svg"> 
+    <span>Шиномонтаж</span> 
+</div> 
+
+
+<!-- ℹ️ ІНШЕ -->
+
+<div 
+    class="categoryOption" 
+    data-value="other" 
+> 
+    <img src="info_marker.svg"> 
+    <span>Інше</span> 
+</div>
 
     </div>
 
@@ -5505,79 +5682,88 @@ color: #93c5fd;
     </div>
 
 
-    <div 
-        class="developer-category-option" 
-        data-value="market"
-    >
-        <img src="maarket_map.svg">
-        <span>Продуктовий магазин</span>
-    </div>
+<div  
+    class="developer-category-option"  
+    data-value="market" 
+> 
+    <img src="maarket_map.svg"> 
+    <span>Продуктовий магазин</span> 
+</div> 
 
 
-    <div 
-        class="developer-category-option" 
-        data-value="truck_schop"
-    >
-        <img src="Trucks_Supermarket_map.svg">
-        <span>Магазини ТІР</span>
-    </div>
+<div  
+    class="developer-category-option"  
+    data-value="truck_schop" 
+> 
+    <img src="Trucks_Supermarket_map.svg"> 
+    <span>Магазини ТІР</span> 
+</div> 
 
 
-    <div 
-        class="developer-category-option" 
-        data-value="free_parking"
-    >
-        <img src="parkinglogoo_map.svg">
-        <span>Паркінг безкоштовний</span>
-    </div>
+<div  
+    class="developer-category-option"  
+    data-value="free_parking" 
+> 
+    <img src="parkinglogoo_map.svg"> 
+    <span>Паркінг безкоштовний</span> 
+</div> 
 
 
-    <div 
-        class="developer-category-option" 
-        data-value="paid_parking"
-    >
-        <img src="platnii_map.svg">
-        <span>Паркінг платний</span>
-    </div>
+<div  
+    class="developer-category-option"  
+    data-value="paid_parking" 
+> 
+    <img src="platnii_map.svg"> 
+    <span>Паркінг платний</span> 
+</div> 
 
 
-    <div 
-        class="developer-category-option" 
-        data-value="industrial"
-    >
-        <img src="promzona_map.svg">
-        <span>Промислова зона</span>
-    </div>
+<div  
+    class="developer-category-option"  
+    data-value="industrial" 
+> 
+    <img src="promzona_map.svg"> 
+    <span>Паркінг промислова зона</span> 
+</div> 
 
 
-    <div 
-        class="developer-category-option" 
-        data-value="parking_firma"
-    >
-        <img src="Pfirma_map.svg">
-        <span>Паркінг біля фірми</span>
-    </div>
+<div  
+    class="developer-category-option"  
+    data-value="parking_firma" 
+> 
+    <img src="Pfirma_map.svg"> 
+    <span>Паркінг біля фірми</span> 
+</div> 
 
 
-    <!-- МІСЦЕ ПРИ ДОРОЗІ -->
-    <div 
-    class="developer-category-option" 
-    data-value="road_parking"
->
-    <img src="pocket_map.svg">
-    <span>Місце при дорозі</span>
+<!-- МІСЦЕ ПРИ ДОРОЗІ --> 
+<div  
+    class="developer-category-option"  
+    data-value="road_parking" 
+> 
+    <img src="pocket_map.svg"> 
+    <span>Місце при дорозі</span> 
+</div> 
+
+
+<!-- 💧 НАБРАТИ ВОДУ --> 
+<div  
+    class="developer-category-option"  
+    data-value="water" 
+> 
+    <img src="water_map.svg"> 
+    <span>Набрати воду</span> 
+</div> 
+
+
+<!-- 🛞 ШИНОМОНТАЖ --> 
+<div  
+    class="developer-category-option"  
+    data-value="tire_service" 
+> 
+    <img src="sinomontazh_map.svg"> 
+    <span>Шиномонтаж</span> 
 </div>
-
-
-    <!-- НАБРАТИ ВОДУ -->
-    <div 
-        class="developer-category-option" 
-        data-value="water"
-    >
-        <img src="water_map.svg">
-        <span>Набрати воду</span>
-    </div>
-
 </div>
 
 </div>
@@ -5587,8 +5773,8 @@ color: #93c5fd;
      ПРИХОВАНЕ ЗНАЧЕННЯ КАТЕГОРІЇ ДЛЯ JAVASCRIPT
 ================================================== -->
 
-<select 
-    id="developerPointCategory" 
+<select
+    id="developerPointCategory"
     style="display:none;"
 >
 
@@ -5626,6 +5812,10 @@ color: #93c5fd;
 
     <option value="water">
         Набрати воду
+    </option>
+
+    <option value="tire_service">
+        Шиномонтаж
     </option>
 
 </select>
@@ -5789,20 +5979,21 @@ color: #93c5fd;
 
         <label>Категорія</label>
 
-        <select id="developerEditPointCategory">
-
-      <option value="wash">🚿 Мийка</option>
-<option value="parking">🅿️ Паркінг</option>
-<option value="market">🛒 Продуктовий магазин</option>
-<option value="truck_schop">🛒 Магазин ТІР</option>
-<option value="industrial">🏭 Промислова зона</option>
-<option value="gas_station">⛽ Заправка</option>
-<option value="service">🔧 Сервіс</option>
-<option value="water">💧 Набрати воду</option>
-<option value="paid_parking">💳 Платний паркінг</option>
-<option value="free_parking">🅿️ Безплатний паркінг</option>
-
-        </select>
+<select id="developerEditPointCategory"> 
+ 
+    <option value="wash">🚿 Мийка</option> 
+    <option value="parking">🅿️ Паркінг</option> 
+    <option value="market">🛒 Продуктовий магазин</option> 
+    <option value="truck_schop">🛒 Магазин ТІР</option> 
+    <option value="industrial">🏭 Промислова зона</option> 
+    <option value="gas_station">⛽ Заправка</option> 
+    <option value="service">🔧 Сервіс</option> 
+    <option value="tire_service">🛞 Шиномонтаж</option>
+    <option value="water">💧 Набрати воду</option> 
+    <option value="paid_parking">💳 Платний паркінг</option> 
+    <option value="free_parking">🅿️ Безплатний паркінг</option> 
+ 
+</select>
 
 
         <label>Назва точки</label>
@@ -6001,6 +6192,18 @@ function getCategoryFromIcon(icon){
 
 
     /* =================================================
+       ШИНОМОНТАЖ
+    ================================================= */
+
+    if(
+        name.includes("sinomontazh_map.svg") ||
+        name.includes("sinomontazh")
+    ){
+        return "tire_service";
+    }
+
+
+    /* =================================================
        НАБРАТИ ВОДУ
     ================================================= */
 
@@ -6106,6 +6309,8 @@ function getCategoryFromIcon(icon){
 
     return "other";
 }
+
+
 // ======================================================
 //                     ТОЧКИ
 // ======================================================
@@ -6982,25 +7187,26 @@ map.on(
         );
 
 
-    /* =================================================
-       КАТЕГОРІЇ
-    ================================================= */
-
-    const categories = [
-
-        "market",
-        "industrial",
-        "free_parking",
-        "paid_parking",
-        "water",
-        "road_parking",
-        "wash",
-        "gas_station",
-        "truck_schop",
-        "flea_market",
-        "other"
-
-    ];
+/* ================================================= 
+   КАТЕГОРІЇ 
+================================================= */ 
+ 
+const categories = [ 
+ 
+    "market", 
+    "industrial", 
+    "free_parking", 
+    "paid_parking", 
+    "water", 
+    "road_parking", 
+    "wash", 
+    "gas_station", 
+    "truck_schop", 
+    "flea_market", 
+    "tire_service",
+    "other" 
+ 
+];
 
 
     /* =================================================
@@ -7715,6 +7921,9 @@ function getApprovedIcon(category){
         wash:
             "wash_map.svg",
 
+        tire_service:
+             "sinomontazh_map.svg",
+
         gas_station:
             "gas_map.svg",
 
@@ -7729,6 +7938,8 @@ function getApprovedIcon(category){
 
         water: 
             "water_map.svg",
+
+
 
     };
 
@@ -9328,14 +9539,13 @@ if("geolocation" in navigator){
 
 }
 
-
 /* =====================================================
    🗺️ КАРТА
 ===================================================== */
 
 
 /* =========================
-   🛣️ ЗВИЧАЙНА КАРТА
+   🛣️ ЗВИЧАЙНА GOOGLE КАРТА
 ========================= */
 
 const roadLayer = L.tileLayer(
@@ -9348,48 +9558,42 @@ const roadLayer = L.tileLayer(
 
 
 /* =========================
-   🛰️ СУПУТНИК
+   🛰️ GOOGLE СУПУТНИК
 ========================= */
 
 const satelliteLayer = L.tileLayer(
-    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
     {
-        maxZoom: 19,
-        attribution: '© Esri'
+        maxZoom: 20,
+        attribution: '© Google Maps'
     }
 );
 
 
 /* =====================================================
-   🏙️ НАЗВИ МІСТ ТА НАСЕЛЕНИХ ПУНКТІВ
+   🏙️ GOOGLE ПІДПИСИ
+   Міста + населені пункти + дороги
 ===================================================== */
 
 const satelliteLabelsLayer = L.tileLayer(
-    'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+    'https://mt1.google.com/vt/lyrs=h&x={x}&y={y}&z={z}',
     {
         minZoom: 1,
-        maxZoom: 19,
+        maxZoom: 20,
         opacity: 1,
-        transparent: true,
-        attribution: '© Esri'
+        pane: 'overlayPane',
+        attribution: '© Google Maps'
     }
 );
 
 
 /* =====================================================
-   🛣️ НАЗВИ ВУЛИЦЬ І ДОРОГ
+   🛣️ СУМІСНИЙ ШАР ДОРОЖНІХ ПІДПИСІВ
+   Потрібен, щоб старий код hasLayer()
+   не отримував null
 ===================================================== */
 
-const satelliteRoadLabelsLayer = L.tileLayer(
-    'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}',
-    {
-        minZoom: 8,
-        maxZoom: 19,
-        opacity: 1,
-        transparent: true,
-        attribution: '© Esri'
-    }
-);
+const satelliteRoadLabelsLayer = L.layerGroup();
 
 /* Спочатку звичайна карта */
 
@@ -12676,7 +12880,7 @@ function finishSheetDrag(e){
 
     /* Поріг відкриття */
 
- if(currentHeight >= screenHeight * 0.5){
+ if(currentHeight >= startHeight + 80){
 
     /* Відкриваємо */
 
@@ -12911,14 +13115,20 @@ function selectCategory(button){
    ІКОНКИ АКТИВНИХ КАТЕГОРІЙ
 ========================= */
 
-function updateActiveCategoryIcons(){
+function updateActiveCategoryIcons(activeWaterButton = null){
 
-    const container =
-        document.getElementById("activeCategoryIcons");
+     const container =
+        document.getElementById(
+            "activeCategoryIcons"
+        );
 
     if(!container) return;
 
+    /* 🔥 СПОЧАТКУ ОЧИЩАЄМО */
     container.innerHTML = "";
+
+    const savedCategories =
+        getSavedActiveCategories();
 
 
     /* =========================
@@ -13113,33 +13323,64 @@ if (
 
     }
 /* =========================
-   НАБРАТИ ВОДУ
+   💧 НАБРАТИ ВОДУ
 ========================= */
 
-const waterButton =
-    document.querySelector(
-        '#servicesCategories .subCategoryBtn[onclick*="selectWater"]'
-    );
 
-if(
-    waterButton &&
-    waterButton.classList.contains("active")
-){
+const waterActive =
+    savedCategories.includes("water");
 
-    const img =
-        document.createElement("img");
+console.log(
+    "💧 WATER ACTIVE:",
+    waterActive
+);
 
-    img.src =
-        "water_map.svg";
+if(waterActive){
+
+    const img = document.createElement("img");
+
+    img.src = "water_map.svg";
 
     img.className =
         "activeMapCategoryIcon waterActiveIcon";
 
-    img.title =
-        "Набрати воду";
+    img.title = "Набрати воду";
 
     container.appendChild(img);
 
+    console.log(
+        "💧 WATER ICON ADDED"
+    );
+}
+
+/* =========================
+   🛞 ШИНОМОНТАЖ
+========================= */
+
+const tireServiceActive =
+    savedCategories.includes("tire_service");
+
+console.log(
+    "🛞 TIRE SERVICE ACTIVE:",
+    tireServiceActive
+);
+
+if(tireServiceActive){
+
+    const img = document.createElement("img");
+
+    img.src = "sinomontazh_map.svg";
+
+    img.className =
+        "activeMapCategoryIcon tireServiceActiveIcon";
+
+    img.title = "Шиномонтаж";
+
+    container.appendChild(img);
+
+    console.log(
+        "🛞 TIRE SERVICE ICON ADDED"
+    );
 }
 
 }
@@ -13630,6 +13871,27 @@ function getCategoryIcon(category, data = {}){
 
 }
 
+/* =========================
+   ШИНОМОНТАЖ
+========================= */
+
+if(
+    iconFile.includes("sinomontag")
+){
+
+    return L.icon({
+
+        iconUrl:"sinomontazh_map.svg",
+
+        iconSize:[40,40],
+
+        iconAnchor:[20,40],
+
+        popupAnchor:[0,-40]
+
+    });
+
+}
 
     /* -------------------------
        Іконка за категорією
@@ -13657,6 +13919,9 @@ function getCategoryIcon(category, data = {}){
 
         water:
             "water_map.svg",
+
+        tire_service:
+             "sinomontazh_map.svg",
 
         parking_firma:
             "Pfirma_map.svg",
@@ -13833,18 +14098,22 @@ function isCategoryActive(category){
 
 if(category === "water"){
 
-    const button =
-        document.querySelector(
-            '#servicesCategories .subCategoryBtn[onclick*="selectWater"]'
-        );
-
-    return !!(
-        button &&
-        button.classList.contains("active")
-    );
+    return localStorage.getItem(
+        "waterActive"
+    ) === "true";
 
 }
+/* -------------------------
+   Шиномонтаж
+------------------------- */
 
+if(category === "tire_service"){
+
+    return localStorage.getItem(
+        "tireServiceActive"
+    ) === "true";
+
+}
     /* -------------------------
        Інші типи паркування
     ------------------------- */
@@ -14527,39 +14796,39 @@ async function loadActiveCategories(){
 
         const categories = [
 
-            "market",
+    "market",
 
-            "truck_schop",
+    "truck_schop",
 
-            "flea_market",
+    "flea_market",
 
-            "industrial",
+    "industrial",
 
-            "road_parking",
+    "road_parking",
 
-            "free_parking", 
-            
-            "paid_parking", 
-            
-            "parking_firma", 
-           
-            "water",
+    "free_parking",
 
-            "wash",
+    "paid_parking",
 
-            "gas_station",
+    "parking_firma",
 
-            "restaurant",
+    "water",
 
-            "hotel",
+    "wash",
 
-            "service",
+    "gas_station",
 
-            "tire",
+    "restaurant",
 
-            "truck_service"
+    "hotel",
 
-        ];
+    "service",
+
+    "tire_service",
+
+    "truck_service"
+
+];
 
 
         for(
@@ -14812,101 +15081,189 @@ function getSavedActiveCategories(){
 }
 
 
+
 /* =====================================================
-   ЗБЕРЕГТИ АКТИВНІ КАТЕГОРІЇ
+   💾 ЗБЕРЕГТИ АКТИВНІ КАТЕГОРІЇ
 ===================================================== */
 
 function saveActiveCategories(){
 
-    const activeCategories = [];
+    /*
+       🔹 Беремо вже збережені категорії
+       🔹 Це дозволяє не втрачати приховані категорії
+    */
+
+    const saved = JSON.parse(
+        localStorage.getItem(
+            ACTIVE_CATEGORIES_STORAGE
+        ) || "[]"
+    );
+
+    const activeSet = new Set(saved);
 
 
     const categories = [
 
-    {
-        category:"market",
-        selector:
-            '#shoppingCategories button[onclick*="toggleGroceryStores"]'
-    },
+        {
+            category: "market",
+            selector:
+                '#shoppingCategories button[onclick*="toggleGroceryStores"]'
+        },
 
-    {
-        category:"truck_schop",
-        selector:
-            '#shoppingCategories .subCategoryBtn[onclick*="toggleShoppingTIR"]'
-    },
+        {
+            category: "truck_schop",
+            selector:
+                '#shoppingCategories .subCategoryBtn[onclick*="toggleShoppingTIR"]'
+        },
 
-    {
-        category:"flea_market",
-        selector:
-            '#shoppingCategories .subCategoryBtn[onclick*="toggleFleaMarket"]'
-    },
+        {
+            category: "flea_market",
+            selector:
+                '#shoppingCategories .subCategoryBtn[onclick*="toggleFleaMarket"]'
+        },
 
-    {
-        category:"industrial",
-        selector:
-            '#parkingCategories .subCategoryBtn:nth-child(1)'
-    },
+        {
+            category: "industrial",
+            selector:
+                '#parkingCategories .subCategoryBtn:nth-child(1)'
+        },
 
-    {
-        category:"road_parking",
-        selector:
-            '#parkingCategories .subCategoryBtn:nth-child(2)'
-    },
+        {
+            category: "road_parking",
+            selector:
+                '#parkingCategories .subCategoryBtn:nth-child(2)'
+        },
 
-    {
-        category:"free_parking",
-        selector:
-            '#parkingCategories .subCategoryBtn:nth-child(3)'
-    },
+        {
+            category: "free_parking",
+            selector:
+                '#parkingCategories .subCategoryBtn:nth-child(3)'
+        },
 
-    {
-        category:"paid_parking",
-        selector:
-            '#parkingCategories .subCategoryBtn:nth-child(4)'
-    },
-{
-    category:"parking_firma",
-    selector:
-        '#parkingCategories .subCategoryBtn[onclick*="toggleFirmaParking"]'
-},
- {
-    category: "water",
-    selector:
-        '#servicesCategories .subCategoryBtn[onclick*="Water"]'
-}
+        {
+            category: "paid_parking",
+            selector:
+                '#parkingCategories .subCategoryBtn:nth-child(4)'
+        },
 
-];
+        {
+            category: "parking_firma",
+            selector:
+                '#parkingCategories .subCategoryBtn[onclick*="toggleFirmaParking"]'
+        },
 
+        {
+            category: "water",
+            selector:
+                '#servicesCategories .subCategoryBtn[onclick*="selectWater"]'
+        },
+
+        {
+            category: "tire_service",
+            selector:
+                '#servicesCategories .subCategoryBtn[onclick*="selectTireService"]'
+        }
+
+    ];
+
+
+    /*
+       🔹 Оновлюємо стан тільки тих кнопок,
+       🔹 які реально існують у DOM
+    */
 
     categories.forEach(item => {
 
         const button =
-            document.querySelector(
-                item.selector
-            );
+            document.querySelector(item.selector);
 
-        if(
-            button &&
-            button.classList.contains("active")
-        ){
 
-            activeCategories.push(
-                item.category
-            );
+        if(!button){
+
+            /*
+               Кнопки немає.
+               НІЧОГО НЕ РОБИМО.
+
+               Старий стан зберігаємо.
+            */
+
+            return;
+        }
+
+
+        if(button.classList.contains("active")){
+
+            activeSet.add(item.category);
+
+        }
+        else{
+
+            activeSet.delete(item.category);
 
         }
 
     });
 
 
+    /*
+       =================================================
+       💧 WATER
+       =================================================
+
+       Вода має окремий стан waterActive.
+    */
+
+    const waterState =
+        localStorage.getItem("waterActive");
+
+
+    if(waterState === "true"){
+
+        activeSet.add("water");
+
+    }
+    else if(waterState === "false"){
+
+        activeSet.delete("water");
+
+    }
+
+
+    /*
+       =================================================
+       🛞 TIRE SERVICE
+       =================================================
+
+       Шиномонтаж має окремий стан.
+    */
+
+    const tireState =
+        localStorage.getItem("tireServiceActive");
+
+
+    if(tireState === "true"){
+
+        activeSet.add("tire_service");
+
+    }
+    else if(tireState === "false"){
+
+        activeSet.delete("tire_service");
+
+    }
+
+
+    /*
+       🔥 ФОРМУЄМО ФІНАЛЬНИЙ СПИСОК
+    */
+
+    const activeCategories =
+        [...activeSet];
+
+
     localStorage.setItem(
-
         ACTIVE_CATEGORIES_STORAGE,
-
-        JSON.stringify(
-            activeCategories
-        )
-
+        JSON.stringify(activeCategories)
     );
 
 
@@ -14943,7 +15300,8 @@ async function restoreActiveCategories(){
         "♻️ Відновлення категорій:",
         saved
     );
-
+ 
+    
 
     /* =========================
        ПРОДУКТОВІ МАГАЗИНИ
@@ -15113,28 +15471,57 @@ if(
 
 }
 
-    /* =========================
-   НАБРАТИ ВОДУ
+/* =========================
+   💧 WATER
 ========================= */
 
-if(
-    saved.includes("water")
-){
+if(saved.includes("water")){
 
-    const button =
-        document.querySelector(
-            '#servicesCategories .subCategoryBtn[onclick*="selectWater"]'
-        );
+    const button = document.querySelector(
+        '#servicesCategories .subCategoryBtn[onclick*="selectWater"]'
+    );
 
     if(button){
-
         button.classList.add("active");
-
     }
 
 }
 
-    updateActiveCategoryIcons();
+
+/* =========================
+   🛞 TIRE SERVICE
+========================= */
+
+if(saved.includes("tire_service")){
+
+    const button = document.querySelector(
+        '#servicesCategories .subCategoryBtn[onclick*="selectTireService"]'
+    );
+
+    if(button){
+        button.classList.add("active");
+    }
+
+}
+
+
+/* =========================
+   🔥 ОНОВЛЮЄМО ІКОНКИ
+   ПІСЛЯ ВСІХ КАТЕГОРІЙ
+========================= */
+
+updateActiveCategoryIcons();
+
+await loadActiveCategories();
+
+console.log("✅ Активні категорії відновлено");
+
+
+/* =========================
+   ІКОНКИ АКТИВНИХ КАТЕГОРІЙ
+========================= */
+
+updateActiveCategoryIcons();
 
 
     /* =========================
@@ -15143,10 +15530,6 @@ if(
 
     await loadActiveCategories();
 
-
-    console.log(
-        "✅ Активні категорії відновлено"
-    );
 
 }
 
@@ -15340,19 +15723,27 @@ function toggleShopping(){
             "parkingCategories"
         );
 
+    const driverLife =
+        document.getElementById(
+            "driverLifeCategories"
+        );
+
     const services =
         document.getElementById(
             "servicesCategories"
         );
+
 
     const buttons =
         document.querySelectorAll(
             ".categoryScroll .categoryBtn"
         );
 
+
     const shoppingButton = buttons[0];
     const parkingButton = buttons[1];
-    const servicesButton = buttons[2];
+    const driverLifeButton = buttons[2];
+    const servicesButton = buttons[3];
 
 
     if(!shopping){
@@ -15360,10 +15751,9 @@ function toggleShopping(){
     }
 
 
-    /* =========================
-       ЯКЩО ЗАКУПИ ВЖЕ ВІДКРИТІ
-       — ЗАКРИВАЄМО
-    ========================= */
+    /* =================================================
+       ЯКЩО ЗАКУПИ ВЖЕ ВІДКРИТІ — ЗАКРИВАЄМО
+    ================================================= */
 
     if(
         shopping.classList.contains("show")
@@ -15371,93 +15761,99 @@ function toggleShopping(){
 
         shopping.classList.remove("show");
         shopping.classList.remove("active");
+
         shopping.style.display = "none";
 
-        if(shoppingButton){
 
+        if(shoppingButton){
             shoppingButton.classList.remove(
                 "active"
             );
-
         }
 
         return;
     }
 
 
-    /* =========================
+    /* =================================================
        ЗАКРИВАЄМО ПАРКУВАННЯ
-    ========================= */
+    ================================================= */
 
     if(parking){
 
         parking.classList.remove("show");
         parking.classList.remove("active");
-        parking.style.display = "none";
 
+        parking.style.display = "none";
     }
 
 
-    /* =========================
-       🔴 ЗАКРИВАЄМО Побут водія
-    ========================= */
+    /* =================================================
+       ЗАКРИВАЄМО ПОБУТ ВОДІЯ
+    ================================================= */
+
+    if(driverLife){
+
+        driverLife.classList.remove("show");
+        driverLife.classList.remove("active");
+
+        driverLife.style.display = "none";
+    }
+
+
+    /* =================================================
+       ЗАКРИВАЄМО СЕРВІСИ
+    ================================================= */
 
     if(services){
 
         services.classList.remove("show");
         services.classList.remove("active");
-        services.style.display = "none";
 
+        services.style.display = "none";
     }
 
 
-    /* =========================
+    /* =================================================
        ВІДКРИВАЄМО ЗАКУПИ
-    ========================= */
+    ================================================= */
 
     shopping.classList.add("show");
     shopping.classList.add("active");
+
     shopping.style.display = "flex";
 
 
-    /* =========================
+    /* =================================================
        КНОПКИ
-    ========================= */
+    ================================================= */
 
     if(shoppingButton){
-
-        shoppingButton.classList.add(
-            "active"
-        );
-
+        shoppingButton.classList.add("active");
     }
 
     if(parkingButton){
+        parkingButton.classList.remove("active");
+    }
 
-        parkingButton.classList.remove(
-            "active"
-        );
-
+    if(driverLifeButton){
+        driverLifeButton.classList.remove("active");
     }
 
     if(servicesButton){
-
-        servicesButton.classList.remove(
-            "active"
-        );
-
+        servicesButton.classList.remove("active");
     }
 
 
     console.log(
         "🛒 Відкрито категорію «Закупи»"
     );
-
 }
 
 
+
 /* =====================================================
-   ПАРКУВАННЯ
+   🅿️ ПАРКУВАННЯ
 ===================================================== */
 
 function toggleParking(){
@@ -15472,6 +15868,11 @@ function toggleParking(){
             "shoppingCategories"
         );
 
+    const driverLife =
+        document.getElementById(
+            "driverLifeCategories"
+        );
+
     const services =
         document.getElementById(
             "servicesCategories"
@@ -15483,14 +15884,11 @@ function toggleParking(){
             ".categoryScroll .categoryBtn"
         );
 
-    const shoppingButton =
-        buttons[0];
 
-    const parkingButton =
-        buttons[1];
-
-    const servicesButton =
-        buttons[2];
+    const shoppingButton = buttons[0];
+    const parkingButton = buttons[1];
+    const driverLifeButton = buttons[2];
+    const servicesButton = buttons[3];
 
 
     if(!parking){
@@ -15498,10 +15896,9 @@ function toggleParking(){
     }
 
 
-    /* =========================
-       ЯКЩО ПАРКУВАННЯ ВЖЕ ВІДКРИТЕ
-       — ЗАКРИВАЄМО
-    ========================= */
+    /* =================================================
+       ЯКЩО ПАРКУВАННЯ ВЖЕ ВІДКРИТЕ — ЗАКРИВАЄМО
+    ================================================= */
 
     if(
         parking.classList.contains("show")
@@ -15514,20 +15911,18 @@ function toggleParking(){
 
 
         if(parkingButton){
-
             parkingButton.classList.remove(
                 "active"
             );
-
         }
 
         return;
     }
 
 
-    /* =========================
+    /* =================================================
        ЗАКРИВАЄМО ЗАКУПИ
-    ========================= */
+    ================================================= */
 
     if(shopping){
 
@@ -15535,13 +15930,25 @@ function toggleParking(){
         shopping.classList.remove("active");
 
         shopping.style.display = "none";
-
     }
 
 
-    /* =========================
-       ЗАКРИВАЄМО Побут водія
-    ========================= */
+    /* =================================================
+       ЗАКРИВАЄМО ПОБУТ ВОДІЯ
+    ================================================= */
+
+    if(driverLife){
+
+        driverLife.classList.remove("show");
+        driverLife.classList.remove("active");
+
+        driverLife.style.display = "none";
+    }
+
+
+    /* =================================================
+       ЗАКРИВАЄМО СЕРВІСИ
+    ================================================= */
 
     if(services){
 
@@ -15549,13 +15956,12 @@ function toggleParking(){
         services.classList.remove("active");
 
         services.style.display = "none";
-
     }
 
 
-    /* =========================
+    /* =================================================
        ВІДКРИВАЄМО ПАРКУВАННЯ
-    ========================= */
+    ================================================= */
 
     parking.classList.add("show");
     parking.classList.add("active");
@@ -15563,41 +15969,31 @@ function toggleParking(){
     parking.style.display = "flex";
 
 
-    /* =========================
+    /* =================================================
        КНОПКИ
-    ========================= */
+    ================================================= */
 
     if(parkingButton){
-
-        parkingButton.classList.add(
-            "active"
-        );
-
+        parkingButton.classList.add("active");
     }
 
     if(shoppingButton){
+        shoppingButton.classList.remove("active");
+    }
 
-        shoppingButton.classList.remove(
-            "active"
-        );
-
+    if(driverLifeButton){
+        driverLifeButton.classList.remove("active");
     }
 
     if(servicesButton){
-
-        servicesButton.classList.remove(
-            "active"
-        );
-
+        servicesButton.classList.remove("active");
     }
 
 
     console.log(
         "🅿️ Відкрито категорію «Паркування»"
     );
-
 }
-
 /* =====================================================
    ПРОМИСЛОВА ЗОНА
 ===================================================== */
@@ -15636,6 +16032,163 @@ async function selectParking(button){
    🛠️ Побут водія
 ===================================================== */
 
+async function toggleDriverLife(){
+
+    const driverLife =
+        document.getElementById(
+            "driverLifeCategories"
+        );
+
+    const shopping =
+        document.getElementById(
+            "shoppingCategories"
+        );
+
+    const parking =
+        document.getElementById(
+            "parkingCategories"
+        );
+
+    const services =
+        document.getElementById(
+            "servicesCategories"
+        );
+
+    const buttons =
+        document.querySelectorAll(
+            ".categoryScroll .categoryBtn"
+        );
+
+    const shoppingButton = buttons[0];
+    const parkingButton = buttons[1];
+    const driverLifeButton = buttons[2];
+    const servicesButton = buttons[3];
+
+
+    if(!driverLife){
+        console.warn(
+            "⚠️ Не знайдено driverLifeCategories"
+        );
+        return;
+    }
+
+
+    /* =================================================
+       ЯКЩО ПОБУТ ВОДІЯ ВЖЕ ВІДКРИТИЙ
+       — ЗАКРИВАЄМО
+    ================================================= */
+
+    if(
+        driverLife.classList.contains("show")
+    ){
+
+        driverLife.classList.remove("show");
+        driverLife.classList.remove("active");
+
+        driverLife.style.display = "none";
+
+        if(driverLifeButton){
+            driverLifeButton.classList.remove(
+                "active"
+            );
+        }
+
+        return;
+    }
+
+
+    /* =================================================
+       ЗАКРИВАЄМО ЗАКУПИ
+    ================================================= */
+
+    if(shopping){
+
+        shopping.classList.remove("show");
+        shopping.classList.remove("active");
+
+        shopping.style.display = "none";
+    }
+
+
+    /* =================================================
+       ЗАКРИВАЄМО ПАРКУВАННЯ
+    ================================================= */
+
+    if(parking){
+
+        parking.classList.remove("show");
+        parking.classList.remove("active");
+
+        parking.style.display = "none";
+    }
+
+
+    /* =================================================
+       ЗАКРИВАЄМО СЕРВІСИ
+    ================================================= */
+
+    if(services){
+
+        services.classList.remove("show");
+        services.classList.remove("active");
+
+        services.style.display = "none";
+    }
+
+
+    /* =================================================
+       ВІДКРИВАЄМО ПОБУТ ВОДІЯ
+    ================================================= */
+
+    driverLife.classList.add("show");
+    driverLife.classList.add("active");
+
+    driverLife.style.display = "flex";
+
+
+    /* =================================================
+       ЗНІМАЄМО ACTIVE З ІНШИХ КНОПОК
+    ================================================= */
+
+    if(shoppingButton){
+        shoppingButton.classList.remove("active");
+    }
+
+    if(parkingButton){
+        parkingButton.classList.remove("active");
+    }
+
+    if(servicesButton){
+        servicesButton.classList.remove("active");
+    }
+
+
+    /* =================================================
+       АКТИВУЄМО ПОБУТ ВОДІЯ
+    ================================================= */
+
+    if(driverLifeButton){
+
+        driverLifeButton.classList.add(
+            "active"
+        );
+
+    }
+
+
+    console.log(
+        "🛠️ Відкрито категорію «Побут водія»"
+    );
+}
+
+
+window.toggleDriverLife = toggleDriverLife;
+
+
+/* =====================================================
+   🔧 Сервіси
+===================================================== */
+
 async function toggleServices(){
 
     const services =
@@ -15653,6 +16206,11 @@ async function toggleServices(){
             "parkingCategories"
         );
 
+    const driverLife =
+        document.getElementById(
+            "driverLifeCategories"
+        );
+
     const buttons =
         document.querySelectorAll(
             ".categoryScroll .categoryBtn"
@@ -15660,7 +16218,8 @@ async function toggleServices(){
 
     const shoppingButton = buttons[0];
     const parkingButton = buttons[1];
-    const servicesButton = buttons[2];
+    const driverLifeButton = buttons[2];
+    const servicesButton = buttons[3];
 
 
     if(!services){
@@ -15669,7 +16228,7 @@ async function toggleServices(){
 
 
     /* =========================
-       ЯКЩО Побут водія ВЖЕ ВІДКРИТІ
+       ЯКЩО СЕРВІСИ ВЖЕ ВІДКРИТІ
        — ЗАКРИВАЄМО
     ========================= */
 
@@ -15721,7 +16280,20 @@ async function toggleServices(){
 
 
     /* =========================
-       ВІДКРИВАЄМО Побут водія
+       ЗАКРИВАЄМО ПОБУТ ВОДІЯ
+    ========================= */
+
+    if(driverLife){
+
+        driverLife.classList.remove("show");
+        driverLife.classList.remove("active");
+
+        driverLife.style.display = "none";
+    }
+
+
+    /* =========================
+       ВІДКРИВАЄМО СЕРВІСИ
     ========================= */
 
     services.classList.add("show");
@@ -15750,6 +16322,14 @@ async function toggleServices(){
 
     }
 
+    if(driverLifeButton){
+
+        driverLifeButton.classList.remove(
+            "active"
+        );
+
+    }
+
     if(servicesButton){
 
         servicesButton.classList.add(
@@ -15760,12 +16340,145 @@ async function toggleServices(){
 
 
     console.log(
-        "🛠️ Відкрито категорію «Побут водія»"
+        "🔧 Відкрито категорію «Сервіси»"
     );
 
 }
+
 window.toggleServices = toggleServices;
 
+
+/* =====================================================
+   🛞 ШИНОМОНТАЖ
+===================================================== */
+
+function selectTireService(button){
+
+    const isActive =
+        button.classList.toggle("active");
+
+        localStorage.setItem(
+    "tireServiceActive",
+    isActive ? "true" : "false"
+);
+
+
+    console.log(
+        "🛞 selectTireService:",
+        isActive
+    );
+
+
+    /* =========================
+       ЗАВАНТАЖУЄМО / ВИМИКАЄМО
+    ========================= */
+
+    if(isActive){
+
+        console.log(
+            "🛞 Завантажуємо TIRE SERVICE..."
+        );
+
+        loadCategoryPoints("tire_service");
+
+    }
+
+    else{
+
+        console.log(
+            "🛞 Вимикаємо TIRE SERVICE..."
+        );
+
+
+        /* =========================
+           ВИДАЛЯЄМО МАРКЕРИ
+        ========================= */
+
+        Object.keys(pointMarkers).forEach(
+            pointId => {
+
+                const point =
+                    pointMarkers[pointId];
+
+                if(
+                    point &&
+                    point.category === "tire_service"
+                ){
+
+                    if(point.marker){
+
+                        map.removeLayer(
+                            point.marker
+                        );
+
+                    }
+
+                    delete pointMarkers[
+                        pointId
+                    ];
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =========================
+       💾 ЗБЕРІГАЄМО СТАН
+    ========================= */
+
+    const saved =
+        JSON.parse(
+            localStorage.getItem(
+                ACTIVE_CATEGORIES_STORAGE
+            ) || "[]"
+        );
+
+    const set =
+        new Set(saved);
+
+
+    if(isActive){
+
+        set.add("tire_service");
+
+    }
+    else{
+
+        set.delete("tire_service");
+
+    }
+
+
+    localStorage.setItem(
+        ACTIVE_CATEGORIES_STORAGE,
+        JSON.stringify([...set])
+    );
+
+
+    console.log(
+        "💾 Збережено:",
+        [...set]
+    );
+
+
+    /* =========================
+       ІКОНКИ АКТИВНИХ КАТЕГОРІЙ
+    ========================= */
+
+    updateActiveCategoryIcons();
+
+}
+
+
+/* =====================================================
+   🌐 GLOBAL
+===================================================== */
+
+window.selectTireService =
+    selectTireService;
 
 /* =====================================================
    ПАРКУВАННЯ ПРИ ДОРОЗІ
@@ -15854,18 +16567,16 @@ async function toggleFirmaParking(button){
 
 }
 
-/* =====================================================
-   💧 НАБРАТИ ВОДУ
-===================================================== */
-
 async function selectWater(button){
-
-    /* =========================
-       ПЕРЕМИКАЄМО ACTIVE
-    ========================= */
 
     const isActive =
         button.classList.toggle("active");
+
+
+    localStorage.setItem(
+        "waterActive",
+        isActive ? "true" : "false"
+    );
 
 
     console.log(
@@ -15873,10 +16584,6 @@ async function selectWater(button){
         isActive
     );
 
-
-    /* =========================
-       ВКЛЮЧЕННЯ ВОДИ
-    ========================= */
 
     if(isActive){
 
@@ -15888,28 +16595,17 @@ async function selectWater(button){
 
     }
 
-
-    /* =========================
-       ВИМКНЕННЯ ВОДИ
-    ========================= */
-
     else{
 
         console.log(
             "💧 Вимикаємо WATER..."
         );
 
-
-        /* =========================
-           ВИДАЛЯЄМО МАРКЕРИ WATER
-        ========================= */
-
         Object.keys(pointMarkers).forEach(
             pointId => {
 
                 const point =
                     pointMarkers[pointId];
-
 
                 if(
                     point &&
@@ -15924,10 +16620,7 @@ async function selectWater(button){
 
                     }
 
-
-                    delete pointMarkers[
-                        pointId
-                    ];
+                    delete pointMarkers[pointId];
 
                 }
 
@@ -15938,18 +16631,17 @@ async function selectWater(button){
 
 
     /* =========================
-       ОНОВЛЮЄМО ІКОНКУ
-       ЗВЕРХУ ЗЛІВА
-    ========================= */
-
-    updateActiveCategoryIcons();
-
-
-    /* =========================
-       ЗБЕРІГАЄМО СТАН
+       💾 ЗБЕРІГАЄМО СТАН
     ========================= */
 
     saveActiveCategories();
+
+
+    /* =========================
+       🔄 ОНОВЛЮЄМО ІКОНКИ
+    ========================= */
+
+    updateActiveCategoryIcons();
 
 }
 
