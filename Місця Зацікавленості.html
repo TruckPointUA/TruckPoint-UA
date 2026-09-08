@@ -10255,55 +10255,55 @@ if (!routeButton) {
        🗺️ ВІДКРИТИ GOOGLE MAPS
     ================================================= */
 
-   routeButton.onclick =
-    function(){
+ routeButton.onclick = function () {
 
-        if (
-            !currentPointData ||
-            typeof currentPointData !== "object"
-        ){
+    if (
+        !currentPointData ||
+        typeof currentPointData !== "object"
+    ) {
 
-            console.error(
-                "❌ Поточна точка відсутня"
-            );
-
-            return;
-        }
-
-
-        const lat =
-            Number(currentPointData.lat);
-
-        const lng =
-            Number(currentPointData.lng);
-
-
-        console.log(
-            "🗺️ GOOGLE MAPS — координати:",
-            lat,
-            lng
+        console.error(
+            "❌ Поточна точка відсутня"
         );
 
-
-        if (
-            !Number.isFinite(lat) ||
-            !Number.isFinite(lng)
-        ){
-
-            console.error(
-                "❌ Некоректні координати:",
-                currentPointData
-            );
-
-            return;
-        }
+        return;
+    }
 
 
-        openGoogleRoute(
-            lat,
-            lng
+    const lat =
+        Number(currentPointData.lat);
+
+    const lng =
+        Number(currentPointData.lng);
+
+
+    console.log(
+        "🗺️ GOOGLE MAPS — поточна точка:",
+        currentPointId,
+        lat,
+        lng
+    );
+
+
+    if (
+        !Number.isFinite(lat) ||
+        !Number.isFinite(lng)
+    ) {
+
+        console.error(
+            "❌ Некоректні координати:",
+            currentPointData
         );
-    };
+
+        return;
+    }
+
+
+    openGoogleRoute(
+        lat,
+        lng
+    );
+};
 
 
     /* =================================================
@@ -10596,6 +10596,10 @@ function openGoogleRoute(lat, lng) {
     lng = Number(lng);
 
 
+    /* =================================================
+       🔎 ПЕРЕВІРКА КООРДИНАТ
+    ================================================= */
+
     if (
         !Number.isFinite(lat) ||
         !Number.isFinite(lng)
@@ -10617,7 +10621,26 @@ function openGoogleRoute(lat, lng) {
 
 
     /* =================================================
-       🤖 ANDROID APK
+       🗺️ GOOGLE MAPS URL
+    ================================================= */
+
+    const routeUrl =
+        "https://www.google.com/maps/dir/?api=1" +
+        "&destination=" +
+        encodeURIComponent(
+            lat + "," + lng
+        ) +
+        "&travelmode=driving";
+
+
+    console.log(
+        "🗺️ GOOGLE MAPS URL:",
+        routeUrl
+    );
+
+
+    /* =================================================
+       🤖 ANDROID
     ================================================= */
 
     if (
@@ -10626,7 +10649,9 @@ function openGoogleRoute(lat, lng) {
     ) {
 
         console.log(
-            "📱 Відкриваємо маршрут через Android"
+            "🤖 Android.openRoute:",
+            lat,
+            lng
         );
 
         Android.openRoute(
@@ -10642,20 +10667,10 @@ function openGoogleRoute(lat, lng) {
        🌐 БРАУЗЕР / IOS
     ================================================= */
 
-    const routeUrl =
-        "https://www.google.com/maps/dir/?api=1" +
-        "&destination=" +
-        lat +
-        "," +
-        lng +
-        "&travelmode=driving";
-
-
     window.open(
         routeUrl,
         "_blank"
     );
-
 }
 
 
