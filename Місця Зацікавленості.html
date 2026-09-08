@@ -8014,62 +8014,25 @@ const categories = [
 
     function viewPoint(point){
 
-        panel.classList.remove(
-            "show"
-        );
+    panel.classList.remove("show");
 
 
-        const lat =
-            Number(point.lat);
 
-        const lng =
-            Number(point.lng);
+    const lat =
+        Number(point.lat);
 
-
-        map.setView(
-            [lat,lng],
-            Math.max(
-                map.getZoom(),
-                15
-            )
-        );
+    const lng =
+        Number(point.lng);
 
 
-        /* =============================================
-           Спроба знайти існуючий marker
-        ============================================= */
-
-        setTimeout(
-            function(){
-
-                if(
-                    typeof openPointInfo ===
-                    "function"
-                ){
-
-                    try{
-
-                        openPointInfo(
-                            point
-                        );
-
-                    }
-                    catch(error){
-
-                        console.warn(
-                            "⚠️ Не вдалося відкрити інформацію:",
-                            error
-                        );
-
-                    }
-
-                }
-
-            },
-            300
-        );
-
-    }
+    map.setView(
+        [lat, lng],
+        Math.max(
+            map.getZoom(),
+            15
+        )
+    );
+}
 
 
     /* =================================================
@@ -10111,15 +10074,29 @@ let currentPointData = null;
    ВІДКРИТТЯ ТОЧКИ
 ========================= */
 
-
-
 function openPointInfo(pointId, pointData){
 
-    currentPointId = pointId;
+    console.log(
+        "🟢 OPEN POINT:",
+        pointId,
+        pointData
+    );
 
-    currentPointData = pointData || {};
 
-    
+    currentPointId =
+        pointId;
+
+
+    currentPointData =
+        pointData || {};
+
+
+    console.log(
+        "📍 CURRENT POINT DATA:",
+        currentPointData.lat,
+        currentPointData.lng
+    );
+
 
 /* =================================================
    СТАН КНОПКИ "НАЗАД"
@@ -10183,6 +10160,7 @@ let routeButton =
     document.getElementById("pointRouteButton");
 
 
+
 if (!routeButton) {
 
     routeButton =
@@ -10216,75 +10194,116 @@ if (!routeButton) {
 
 
     /* =================================================
-       🎨 СТИЛЬ — БЕЗ ФОНУ
+       🎨 СТИЛЬ
     ================================================= */
 
-routeButton.style.cssText = `
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    routeButton.style.cssText = `
+        display:flex;
+        align-items:center;
+        justify-content:center;
 
-    width:44px;
-    height:44px;
+        width:44px;
+        height:44px;
 
-    margin-top:4px;
-    margin-left:-10px;
+        margin-top:4px;
+        margin-left:-10px;
 
-    padding:0;
+        padding:0;
 
-    border:none;
-    background:transparent;
+        border:none;
+        background:transparent;
 
-    cursor:pointer;
+        cursor:pointer;
 
-    box-shadow:none;
+        box-shadow:none;
 
-    transition:
-        transform .15s ease,
-        opacity .15s ease;
-`;
+        transition:
+            transform .15s ease,
+            opacity .15s ease;
+    `;
+
 
     /* =================================================
        👆 НАТИСКАННЯ
     ================================================= */
 
-    routeButton.onmousedown = function(){
+    routeButton.onmousedown =
+        function(){
 
-        routeButton.style.transform =
-            "scale(.90)";
-
-    };
-
-
-    routeButton.onmouseup = function(){
-
-        routeButton.style.transform =
-            "scale(1)";
-
-    };
+            routeButton.style.transform =
+                "scale(.90)";
+        };
 
 
-    routeButton.onmouseleave = function(){
+    routeButton.onmouseup =
+        function(){
 
-        routeButton.style.transform =
-            "scale(1)";
+            routeButton.style.transform =
+                "scale(1)";
+        };
 
-    };
+
+    routeButton.onmouseleave =
+        function(){
+
+            routeButton.style.transform =
+                "scale(1)";
+        };
 
 
     /* =================================================
        🗺️ ВІДКРИТИ GOOGLE MAPS
     ================================================= */
 
-    routeButton.onclick =
-        function(){
+   routeButton.onclick =
+    function(){
 
-            openGoogleRoute(
-                lat,
-                lng
+        if (
+            !currentPointData ||
+            typeof currentPointData !== "object"
+        ){
+
+            console.error(
+                "❌ Поточна точка відсутня"
             );
 
-        };
+            return;
+        }
+
+
+        const lat =
+            Number(currentPointData.lat);
+
+        const lng =
+            Number(currentPointData.lng);
+
+
+        console.log(
+            "🗺️ GOOGLE MAPS — координати:",
+            lat,
+            lng
+        );
+
+
+        if (
+            !Number.isFinite(lat) ||
+            !Number.isFinite(lng)
+        ){
+
+            console.error(
+                "❌ Некоректні координати:",
+                currentPointData
+            );
+
+            return;
+        }
+
+
+        openGoogleRoute(
+            lat,
+            lng
+        );
+    };
 
 
     /* =================================================
@@ -10303,10 +10322,71 @@ routeButton.style.cssText = `
             "afterend",
             routeButton
         );
+    }
+}
 
+
+/* =================================================
+   📍 ВСТАНОВИТИ КООРДИНАТИ ПОТОЧНОЇ ТОЧКИ
+================================================= */
+
+function setRoutePointCoordinates(point){
+
+    if (!point){
+
+        console.error(
+            "❌ setRoutePointCoordinates: point відсутній"
+        );
+
+        return;
     }
 
+
+    const lat =
+        Number(point.lat);
+
+    const lng =
+        Number(point.lng);
+
+
+    console.log(
+        "📍 ВСТАНОВЛЮЄМО GOOGLE MAPS:",
+        lat,
+        lng,
+        point
+    );
+
+
+    if (
+        !Number.isFinite(lat) ||
+        !Number.isFinite(lng)
+    ){
+
+        console.error(
+            "❌ У точки немає правильних lat/lng:",
+            point
+        );
+
+        return;
+    }
+
+
+    routePointLat =
+        lat;
+
+    routePointLng =
+        lng;
+
+
+    console.log(
+        "✅ GOOGLE MAPS координати збережено:",
+        routePointLat,
+        routePointLng
+    );
 }
+
+
+
     /* Автор */
 
     document.getElementById(
@@ -11336,11 +11416,6 @@ ${googleMapsUrl}`;
         message
     );
 
-
-
-/* =====================================================
-   📱 SHARE
-===================================================== */
 
 /* =====================================================
    🤖 ANDROID APP
