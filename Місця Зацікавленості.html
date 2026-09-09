@@ -458,14 +458,23 @@ body.night-mode .sheetHandle{
     bottom:-18px;
 }
 
-.sheetContent{
-    height:calc(100% - 30px);
-    padding-bottom:calc(14px + var(--android-bottom-inset, 0px));
-    overflow-y:auto;
-    overflow-x:hidden;
-    padding:14px;
+.sheetContent {
+    height: calc(100% - 30px);
 
-    -webkit-overflow-scrolling:touch;
+    padding-bottom:
+        calc(14px + var(--android-bottom-inset, 0px));
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    padding: 14px;
+
+    -webkit-overflow-scrolling: touch;
+
+    /* Вертикальний рух залишаємо для шторки */
+    touch-action: pan-y;
+
+    cursor: default;
 }
 
 .bottomSheet.open{
@@ -16852,27 +16861,39 @@ function toggleServices(){
     }
 
 /* =========================================================
-   👆 СВАЙП КАТЕГОРІЙ
-   СВАЙП = НАТИСКАННЯ НА КАТЕГОРІЮ
+   👆 СВАЙП ПІДКАТЕГОРІЙ
+   📱 ПАЛЕЦЬ + 🖱️ МИШКА
+
+   Свайп відбувається по .sheetContent
+
+   ВЛІВО:
+   Закупи → Паркування → Побут водія → Сервіси
+
+   ВПРАВО:
+   Сервіси → Побут водія → Паркування → Закупи
 ========================================================= */
 
 (function () {
 
+    const sheetContent =
+        document.querySelector(".sheetContent");
+
     const categoryScroll =
         document.getElementById("categoryScroll");
+
+    if (!sheetContent) {
+        console.warn("❌ .sheetContent не знайдено");
+        return;
+    }
 
     if (!categoryScroll) {
         console.warn("❌ #categoryScroll не знайдено");
         return;
     }
 
-    let startX = 0;
-    let startY = 0;
-
-    const SWIPE_DISTANCE = 50;
 
     /* =====================================================
-       ПОРЯДОК ГОЛОВНИХ КАТЕГОРІЙ
+       ГОЛОВНІ КАТЕГОРІЇ
     ===================================================== */
 
     const categoryButtons =
@@ -16883,12 +16904,21 @@ function toggleServices(){
         return;
     }
 
+
+    /*
+       Порядок:
+
+       0 = Закупи
+       1 = Паркування
+       2 = Побут водія
+       3 = Сервіси
+    */
+
     let currentCategory = 0;
 
 
     /* =====================================================
-       ВИЗНАЧАЄМО АКТИВНУ КАТЕГОРІЮ
-       якщо користувач натиснув кнопку
+       ВИЗНАЧАЄМО КАТЕГОРІЮ ПРИ НАТИСКАННІ
     ===================================================== */
 
     categoryButtons.forEach(function (button, index) {
@@ -16898,8 +16928,8 @@ function toggleServices(){
             currentCategory = index;
 
             console.log(
-                "📂 Відкрита категорія:",
-                index
+                "📂 Поточна категорія:",
+                button.textContent.trim()
             );
 
         });
@@ -16908,65 +16938,137 @@ function toggleServices(){
 
 
     /* =====================================================
-       TOUCH START
+       НАЛАШТУВАННЯ СВАЙПУ
     ===================================================== */
 
-    categoryScroll.addEventListener(
-        "touchstart",
-        function (e) {
+    let startX = 0;
+    let startY = 0;
 
-            if (!e.touches.length) return;
+    let isPointerDown = false;
+    let isHorizontalSwipe = false;
 
-            startX =
-                e.touches[0].clientX;
-
-            startY =
-                e.touches[0].clientY;
-
-        },
-        { passive: true }
-    );
+    const SWIPE_DISTANCE = 50;
 
 
     /* =====================================================
-       TOUCH END
+       🖱️ / 📱 POINTER DOWN
     ===================================================== */
 
-    categoryScroll.addEventListener(
-        "touchend",
+    sheetContent.addEventListener(
+        "pointerdown",
         function (e) {
 
-            if (!e.changedTouches.length) return;
-
-            const endX =
-                e.changedTouches[0].clientX;
-
-            const endY =
-                e.changedTouches[0].clientY;
-
-
-            const deltaX =
-                endX - startX;
-
-            const deltaY =
-                endY - startY;
-
-
-            /* =================================================
-               ТІЛЬКИ ГОРИЗОНТАЛЬНИЙ СВАЙП
-            ================================================= */
+            /*
+               Права кнопка миші — ігноруємо
+            */
 
             if (
-                Math.abs(deltaX) <=
-                Math.abs(deltaY)
+                e.pointerType === "mouse" &&
+                e.button !== 0
             ) {
                 return;
             }
 
 
-            /* =================================================
-               МІНІМАЛЬНИЙ СВАЙП
-            ================================================= */
+            startX = e.clientX;
+            startY = e.clientY;
+
+            isPointerDown = true;
+            isHorizontalSwipe = false;
+
+        }
+    );
+
+
+    /* =====================================================
+       🖱️ / 📱 POINTER MOVE
+    ===================================================== */
+
+    sheetContent.addEventListener(
+        "pointermove",
+        function (e) {
+
+            if (!isPointerDown) return;
+
+            const deltaX =
+                e.clientX - startX;
+
+            const deltaY =
+                e.clientY - startY;
+
+
+            /*
+               Визначаємо горизонтальний рух
+            */
+
+            if (
+                Math.abs(deltaX) > 10 &&
+                Math.abs(deltaX) > Math.abs(deltaY)
+            ) {
+
+                isHorizontalSwipe = true;
+
+                /*
+                   Не даємо sheetContent
+                   прокручуватися вертикально
+                   під час горизонтального свайпу
+                */
+
+                e.preventDefault();
+
+            }
+
+        },
+        {
+            passive: false
+        }
+    );
+
+
+    /* =====================================================
+       🖱️ / 📱 POINTER UP
+    ===================================================== */
+
+    sheetContent.addEventListener(
+        "pointerup",
+        function (e) {
+
+            if (!isPointerDown) return;
+
+            isPointerDown = false;
+
+
+            const deltaX =
+                e.clientX - startX;
+
+            const deltaY =
+                e.clientY - startY;
+
+
+            /*
+               Якщо це не горизонтальний свайп
+            */
+
+            if (!isHorizontalSwipe) {
+                return;
+            }
+
+
+            /*
+               Вертикальний рух
+            */
+
+            if (
+                Math.abs(deltaY) >=
+                Math.abs(deltaX)
+            ) {
+                return;
+            }
+
+
+            /*
+               Занадто короткий рух
+            */
 
             if (
                 Math.abs(deltaX) <
@@ -16978,7 +17080,6 @@ function toggleServices(){
 
             /* =================================================
                👉 СВАЙП ВЛІВО
-               НАСТУПНА КАТЕГОРІЯ
             ================================================= */
 
             if (deltaX < 0) {
@@ -16990,7 +17091,6 @@ function toggleServices(){
 
             /* =================================================
                👈 СВАЙП ВПРАВО
-               ПОПЕРЕДНЯ КАТЕГОРІЯ
             ================================================= */
 
             else {
@@ -17001,7 +17101,7 @@ function toggleServices(){
 
 
             /* =================================================
-               НЕ ВИХОДИМО ЗА МЕЖІ
+               ОБМЕЖЕННЯ
             ================================================= */
 
             if (
@@ -17036,26 +17136,48 @@ function toggleServices(){
 
 
             console.log(
-                "👉 Свайп відкриває категорію:",
+                "👆 Свайп відкриває:",
                 button.textContent.trim()
             );
 
 
             /* =================================================
-               НАТИСКАЄМО КАТЕГОРІЮ
-               ТАК САМО, ЯК НАТИСКАННЯ ПАЛЬЦЕМ
+               ВІДКРИВАЄМО КАТЕГОРІЮ
+
+               Це те саме, що натиснути
+               на кнопку пальцем
             ================================================= */
 
             button.click();
 
 
-        },
-        { passive: true }
+            /*
+               Повертаємо початок області
+            */
+
+            sheetContent.scrollTop = 0;
+
+        }
+    );
+
+
+    /* =====================================================
+       🖱️ POINTER CANCEL
+    ===================================================== */
+
+    sheetContent.addEventListener(
+        "pointercancel",
+        function () {
+
+            isPointerDown = false;
+            isHorizontalSwipe = false;
+
+        }
     );
 
 
     console.log(
-        "✅ Свайп категорій = відкривання категорій"
+        "✅ Свайп .sheetContent увімкнено"
     );
 
 })();
