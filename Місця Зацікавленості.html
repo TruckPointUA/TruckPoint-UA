@@ -334,19 +334,97 @@ body.night-mode .sheetHandle{
 }
 
 
-/* Кнопки категорій приховані у закритій шторці */
+
+
+/* Прибираємо смугу прокрутки Android / Chrome */
+.categoryScroll::-webkit-scrollbar {
+
+    display: none;
+
+}
+
+
+/* Кожна категорія не стискається */
+.categoryScroll > * {
+
+    flex: 0 0 auto;
+
+}
+
+/* =========================================================
+   📂 КАТЕГОРІЇ У ШТОРЦІ
+========================================================= */
+
 .bottomSheet:not(.open) .categoryScroll {
+
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
+
 }
 
-/* Кнопки з'являються при відкритій шторці */
 .bottomSheet.open .categoryScroll {
+
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
+
 }
+
+
+/* =========================================================
+   👆 ГОРТАННЯ КАТЕГОРІЙ ВЛІВО / ВПРАВО
+========================================================= */
+
+.categoryScroll {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+
+    overflow-x: hidden;
+    overflow-y: hidden;
+
+    width: 100%;
+
+    white-space: nowrap;
+
+    scrollbar-width: none;
+
+    -webkit-overflow-scrolling: touch;
+
+    /* дозволяємо визначати горизонтальний свайп */
+    touch-action: pan-y;
+}
+
+.categoryScroll::-webkit-scrollbar {
+    display: none;
+}
+
+/* =========================================================
+   КНОПКИ КАТЕГОРІЙ
+========================================================= */
+
+.categoryScroll > * {
+
+    flex: 0 0 auto;
+
+    scroll-snap-align: start;
+}
+
+
+/* Chrome / Android */
+.categoryScroll::-webkit-scrollbar {
+    display: none;
+}
+
+
+/* Кожна категорія не стискається */
+.categoryScroll > * {
+
+    flex: 0 0 auto;
+
+}
+
 
 
 
@@ -16772,6 +16850,215 @@ function toggleServices(){
     if(!services){
         return;
     }
+
+/* =========================================================
+   👆 СВАЙП КАТЕГОРІЙ
+   СВАЙП = НАТИСКАННЯ НА КАТЕГОРІЮ
+========================================================= */
+
+(function () {
+
+    const categoryScroll =
+        document.getElementById("categoryScroll");
+
+    if (!categoryScroll) {
+        console.warn("❌ #categoryScroll не знайдено");
+        return;
+    }
+
+    let startX = 0;
+    let startY = 0;
+
+    const SWIPE_DISTANCE = 50;
+
+    /* =====================================================
+       ПОРЯДОК ГОЛОВНИХ КАТЕГОРІЙ
+    ===================================================== */
+
+    const categoryButtons =
+        categoryScroll.querySelectorAll(".categoryBtn");
+
+    if (!categoryButtons.length) {
+        console.warn("❌ .categoryBtn не знайдено");
+        return;
+    }
+
+    let currentCategory = 0;
+
+
+    /* =====================================================
+       ВИЗНАЧАЄМО АКТИВНУ КАТЕГОРІЮ
+       якщо користувач натиснув кнопку
+    ===================================================== */
+
+    categoryButtons.forEach(function (button, index) {
+
+        button.addEventListener("click", function () {
+
+            currentCategory = index;
+
+            console.log(
+                "📂 Відкрита категорія:",
+                index
+            );
+
+        });
+
+    });
+
+
+    /* =====================================================
+       TOUCH START
+    ===================================================== */
+
+    categoryScroll.addEventListener(
+        "touchstart",
+        function (e) {
+
+            if (!e.touches.length) return;
+
+            startX =
+                e.touches[0].clientX;
+
+            startY =
+                e.touches[0].clientY;
+
+        },
+        { passive: true }
+    );
+
+
+    /* =====================================================
+       TOUCH END
+    ===================================================== */
+
+    categoryScroll.addEventListener(
+        "touchend",
+        function (e) {
+
+            if (!e.changedTouches.length) return;
+
+            const endX =
+                e.changedTouches[0].clientX;
+
+            const endY =
+                e.changedTouches[0].clientY;
+
+
+            const deltaX =
+                endX - startX;
+
+            const deltaY =
+                endY - startY;
+
+
+            /* =================================================
+               ТІЛЬКИ ГОРИЗОНТАЛЬНИЙ СВАЙП
+            ================================================= */
+
+            if (
+                Math.abs(deltaX) <=
+                Math.abs(deltaY)
+            ) {
+                return;
+            }
+
+
+            /* =================================================
+               МІНІМАЛЬНИЙ СВАЙП
+            ================================================= */
+
+            if (
+                Math.abs(deltaX) <
+                SWIPE_DISTANCE
+            ) {
+                return;
+            }
+
+
+            /* =================================================
+               👉 СВАЙП ВЛІВО
+               НАСТУПНА КАТЕГОРІЯ
+            ================================================= */
+
+            if (deltaX < 0) {
+
+                currentCategory++;
+
+            }
+
+
+            /* =================================================
+               👈 СВАЙП ВПРАВО
+               ПОПЕРЕДНЯ КАТЕГОРІЯ
+            ================================================= */
+
+            else {
+
+                currentCategory--;
+
+            }
+
+
+            /* =================================================
+               НЕ ВИХОДИМО ЗА МЕЖІ
+            ================================================= */
+
+            if (
+                currentCategory < 0
+            ) {
+
+                currentCategory =
+                    categoryButtons.length - 1;
+
+            }
+
+
+            if (
+                currentCategory >=
+                categoryButtons.length
+            ) {
+
+                currentCategory = 0;
+
+            }
+
+
+            /* =================================================
+               ЗНАХОДИМО КНОПКУ
+            ================================================= */
+
+            const button =
+                categoryButtons[currentCategory];
+
+
+            if (!button) return;
+
+
+            console.log(
+                "👉 Свайп відкриває категорію:",
+                button.textContent.trim()
+            );
+
+
+            /* =================================================
+               НАТИСКАЄМО КАТЕГОРІЮ
+               ТАК САМО, ЯК НАТИСКАННЯ ПАЛЬЦЕМ
+            ================================================= */
+
+            button.click();
+
+
+        },
+        { passive: true }
+    );
+
+
+    console.log(
+        "✅ Свайп категорій = відкривання категорій"
+    );
+
+})();
 
 
     /* =========================
