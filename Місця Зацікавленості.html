@@ -3074,7 +3074,7 @@ display: none;
 
 position: fixed;
 
-top: 80px;
+top: 40px;
 right: 20px;
 
 width: 330px;
@@ -4703,65 +4703,126 @@ color: #93c5fd;
 }
 
 
-/* =====================================================
-   ХОВАЄМО ПІД ЧАС ПЕРЕТЯГУВАННЯ
-===================================================== */
 
-.bottomSheet.dragging .closedSheetAddPointButton {
-
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-
-}
-
-
-/* =====================================================
+/* =========================================
    🔍 КНОПКА ПОШУКУ ЗА КООРДИНАТАМИ
-===================================================== */
+========================================= */
 
 .coordinatesSearchButton {
 
-    position: fixed;
-
-    left: 10px;
-
-    /* нижче панелі активних іконок */
-    top: 60px;
-
-    width: 42px;
-    height: 42px;
+    width: 46px;
+    height: 46px;
 
     border: none;
     border-radius: 50%;
 
-    background: linear-gradient(
-        145deg,
-        #fdfeff,
-        #ffffff
-    );
+    background: #fff;
 
-    box-shadow:
-        0 4px 12px rgba(0,0,0,0.35);
-
-    font-size: 25px;
+    color: #3c4043;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    z-index: 10000;
-
     cursor: pointer;
 
-    transition: 0.2s;
+    position: relative;
+
+top: -16px;
+left: 10px;
+
+    box-shadow:
+        0 1px 4px rgba(0,0,0,.30),
+        0 2px 8px rgba(0,0,0,.18);
+
+    transition:
+        transform .15s ease,
+        box-shadow .15s ease;
+
+    padding: 0;
+    margin: 0;
+
+    position: relative;
+
+    z-index: 9999;
+
+    appearance: none;
+    -webkit-appearance: none;
+
+    flex-shrink: 0;
+
+    box-sizing: border-box;
 }
+
+
+/* =========================================
+   🔍 КРУГ ЛУПИ
+========================================= */
+
+.searchIcon {
+
+    width: 18px;
+    height: 18px;
+
+    border: 2px solid #263746;
+    border-radius: 50%;
+
+    position: relative;
+
+    display: block;
+
+    box-sizing: border-box;
+
+    flex-shrink: 0;
+}
+
+
+/* =========================================
+   🔍 ПАЛИЧКА ЛУПИ
+========================================= */
+
+.searchIcon::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 9px;
+    height: 2px;
+
+    background: #263746;
+
+    border-radius: 4px;
+
+    right: -9px;
+    bottom: -2px;
+
+    transform: rotate(45deg);
+
+    transform-origin: left center;
+}
+
+
+/* =========================================
+   👆 НАТИСКАННЯ
+========================================= */
 
 .coordinatesSearchButton:active {
 
-    transform: scale(0.9);
+    transform: scale(0.92);
 
 }
+
+
+/* =========================================
+   🚫 НЕ ХОВАЄМО КНОПКУ
+========================================= */
+
+.coordinatesSearchButton {
+    visibility: visible;
+    opacity: 1;
+}
+
 
 
 /* =====================================================
@@ -4899,10 +4960,11 @@ color: #93c5fd;
 </button>
 
 <!-- 🔍 ПОШУК ЗА КООРДИНАТАМИ -->
-<button id="coordinatesSearchButton"
+<button type="button"
+        id="coordinatesSearchButton"
         class="coordinatesSearchButton"
         title="Перейти за координатами">
-    🔍
+    <span class="searchIcon"></span>
 </button>
 
 
