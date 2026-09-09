@@ -4710,8 +4710,8 @@ color: #93c5fd;
 
 .coordinatesSearchButton {
 
-    width: 42px;
-    height: 42px;
+    width: 43px;
+    height: 43px;
 
     border: none;
     border-radius: 50%;
@@ -4756,8 +4756,8 @@ left: 10px;
 
 .searchIcon {
 
-    width: 18px;
-    height: 18px;
+    width: 14px;
+    height: 14px;
 
     border: 2px solid #263746;
     border-radius: 50%;
@@ -4782,14 +4782,14 @@ left: 10px;
 
     position: absolute;
 
-    width: 9px;
+    width: 7px;
     height: 2px;
 
     background: #263746;
 
-    border-radius: 4px;
+    border-radius: 6px;
 
-    right: -9px;
+    right: -7px;
     bottom: -2px;
 
     transform: rotate(45deg);
@@ -5328,11 +5328,18 @@ left: 10px;
         </button>
 
 
-        <button
+           <button
             class="subCategoryBtn"
-            onclick="selectCategory(this)"
+            onclick="toggleCafeLunch(this)"
         >
-            Розробляється
+
+            <img
+                src="cafe_map.svg"
+                class="categoryIcon"
+            >
+
+            Кафе та обіди
+
         </button>
 
     </div>
@@ -5521,6 +5528,10 @@ left: 10px;
         Магазин ТІР
     </option>
 
+    <option value="cafe_lunch">
+        Кафе та обіди
+    </option>
+
     <option value="free_parking">
         Паркування безкоштовне
     </option>
@@ -5599,6 +5610,14 @@ left: 10px;
 > 
     <img src="Trucks_Supermarket_map.svg"> 
     <span>Магазини ТІР</span> 
+</div> 
+
+<div 
+    class="categoryOption" 
+    data-value="cafe_lunch" 
+> 
+    <img src="cafe_map.svg"> 
+    <span>Кафе та обіди</span> 
 </div> 
 
 
@@ -5923,6 +5942,13 @@ left: 10px;
     <span>Магазини ТІР</span> 
 </div> 
 
+<div  
+    class="developer-category-option"  
+    data-value="cafe_lunch" 
+> 
+    <img src="cafe_map.svg"> 
+    <span>Кафе та обіди</span> 
+</div>
 
 <div  
     class="developer-category-option"  
@@ -6012,6 +6038,10 @@ left: 10px;
 
     <option value="truck_schop">
         Магазини ТІР
+    </option>
+
+    <option value="cafe_lunch">
+        Кафе та обіди
     </option>
 
     <option value="free_parking">
@@ -6209,6 +6239,7 @@ left: 10px;
     <option value="parking">🅿️ Паркінг</option> 
     <option value="market">🛒 Продуктовий магазин</option> 
     <option value="truck_schop">🛒 Магазин ТІР</option> 
+    <option value="cafe_lunch">🍽️ Кафе та обіди</option> 
     <option value="industrial">🏭 Промислова зона</option> 
     <option value="gas_station">⛽ Заправка</option> 
     <option value="service">🔧 Сервіс</option> 
@@ -6444,6 +6475,16 @@ function getCategoryFromIcon(icon){
         return "truck_schop";
     }
 
+    /* ================================================= 
+   Кафе та обіди
+   Перевіряємо ПЕРШИМИ
+================================================= */
+
+if(
+    name.includes("cafe_map")
+){
+    return "cafe_lunch";
+}
 
     /* =================================================
        Продуктові магазини
@@ -6584,13 +6625,13 @@ function getCategoryFromIcon(icon){
 const points = [
 
 {
-    name: "МІСЦЕ ПРИ ДОРОЗІ",
-    lat: 50.251027 ,
-    lng: 28.785092,
-    author: "Andrii Mochurad",
-    description: "Можна зупинитись при дорозі.",
+    name: "Кафе та обіди",
+    lat: 49.992982,
+    lng: 25.109647,
+    author: "Андрій Мочурад",
+    description: "Смачні пельмені за адикватну ціну.",
     reviews: [],
-    icon: "pocket_map.svg"
+    icon: "cafe_map.svg"
 }
 //Вставити координати точок
 ];
@@ -7645,6 +7686,7 @@ const categories = [
     "wash", 
     "gas_station", 
     "truck_schop", 
+    "cafe_lunch",
     "flea_market", 
     "tire_service",
     "other" 
@@ -8335,6 +8377,9 @@ function getApprovedIcon(category){
 
         truck_schop:
             "Trucks_Supermarket_map.svg",
+
+        cafe_lunch:
+            "cafe_map.svg",    
 
         flea_market:
             "flea_market_map.svg",
@@ -9282,6 +9327,8 @@ const categoryNames = {
 
     truck_schop: "Магазин ТІР",
 
+    cafe_lunch: "Кафе та обіди",
+
     free_parking: "Паркування безкоштовне",
 
     paid_parking: "Паркування платне",
@@ -10034,6 +10081,7 @@ const categoryNames = {
 
     market: "Продуктовий магазин",
     truck_schop: "Магазин ТІР",
+    cafe_lunch: "Кафе та обіди",
     free_parking: "Паркування безкоштовне",
     paid_parking: "Паркування платне",
     road_parking: "Паркування при дорозі",
@@ -13572,6 +13620,35 @@ if (
     container.appendChild(img);
 }
 
+/* =========================
+   КАФЕ ТА ОБІДИ
+========================= */
+
+const cafeLunchButton =
+    document.querySelector(
+        '#shoppingCategories button[onclick*="toggleCafeLunch"]'
+    );
+
+if (
+    cafeLunchButton &&
+    cafeLunchButton.classList.contains("active")
+) {
+
+    const img =
+        document.createElement("img");
+
+    img.src =
+        "cafe_map.svg";
+
+    img.className =
+        "activeMapCategoryIcon";
+
+    img.title =
+        "Кафе та обіди";
+
+    container.appendChild(img);
+}
+
     /* =========================
        ПРОМИСЛОВА ЗОНА
     ========================= */
@@ -14129,6 +14206,28 @@ function getCategoryIcon(category, data = {}){
 
     }
 
+    /* -------------------------
+   КафЕ та обіди
+------------------------- */
+
+if(
+    iconFile.includes("cafe_lunch_map")
+){
+
+    return L.icon({
+
+        iconUrl:"cafe_lunch_map.svg",
+
+        iconSize:[40,40],
+
+        iconAnchor:[20,40],
+
+        popupAnchor:[0,-40]
+
+    });
+
+}
+
 
     /* -------------------------
        Паркування при дорозі
@@ -14288,6 +14387,9 @@ if(
         truck_schop:
             "Trucks_Supermarket_map.svg",
 
+         cafe_lunch:
+            "cafe_map.svg",
+
         road_parking:
             "pocket_map.svg",
 
@@ -14407,6 +14509,19 @@ function isCategoryActive(category){
         );
 
     }
+
+    /* -------------------------
+   Кафе та обіди
+------------------------- */
+
+if(category === "cafe_lunch"){
+
+    return !!(
+        shoppingButtons[2] &&
+        shoppingButtons[2].classList.contains("active")
+    );
+
+}
 
 
     /* -------------------------
@@ -15183,6 +15298,8 @@ async function loadActiveCategories(){
 
     "truck_schop",
 
+    "cafe_lunch",
+
     "flea_market",
 
     "industrial",
@@ -15500,6 +15617,12 @@ function saveActiveCategories(){
         },
 
         {
+    category: "cafe_lunch",
+    selector:
+        '#shoppingCategories .subCategoryBtn[onclick*="toggleCafeLunch"]'
+},
+
+        {
             category: "flea_market",
             selector:
                 '#shoppingCategories .subCategoryBtn[onclick*="toggleFleaMarket"]'
@@ -15731,6 +15854,27 @@ if(
 
 }
 
+/* =========================
+   КАФЕ ТА ОБІДИ
+========================= */
+
+if(
+    saved.includes("cafe_lunch")
+){
+
+    const button =
+        document.querySelector(
+            '#shoppingCategories .subCategoryBtn[onclick*="toggleCafeLunch"]'
+        );
+
+    if(button){
+
+        button.classList.add("active");
+
+    }
+
+}
+
 
     /* =========================
        БЛОШИНИЙ РИНОК
@@ -15949,6 +16093,28 @@ async function toggleShoppingTIR(button){
 
     await reloadCategory(
         "truck_schop"
+    );
+
+
+    saveActiveCategories();
+
+    updateActiveCategoryIcons();
+
+}
+
+/* =====================================================
+   КАФЕ ТА ОБІДИ
+===================================================== */
+
+async function toggleCafeLunch(button){
+
+    button.classList.toggle(
+        "active"
+    );
+
+
+    await reloadCategory(
+        "cafe_lunch"
     );
 
 
