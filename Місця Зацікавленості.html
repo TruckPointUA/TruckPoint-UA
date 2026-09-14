@@ -272,39 +272,17 @@ body.night-mode .sheetHandle{
     z-index:1;
 }
 
-.bottomSheet{
-    position:fixed;
+/* =====================================================
+   📱 БЕЗПЕЧНА НИЖНЯ ОБЛАСТЬ ANDROID / SAMSUNG
+===================================================== */
 
-    left:0;
-    right:0;
-    bottom:var(--android-bottom-inset, 0px);
-
-    width:100%;
-
-    /* ВИСОТА ЗАКРИТОЇ ШТОРКИ */
-    height:60px;
-    min-height:60px;
-
-    box-sizing:border-box;
-
-    background:#eef3f7;
-    color:#263746;
-
-    border-radius:16px 16px 0 0;
-
-    z-index:20000;
-
-    box-shadow:
-        0 -4px 15px rgba(55,71,79,.25);
-
-    border-top:1px solid #d3dde3;
-
-    overflow:hidden;
-
-    transition:height .3s ease;
-
-    touch-action:none;
+:root {
+    --safe-bottom: max(
+        var(--android-bottom-inset, 0px),
+        env(safe-area-inset-bottom, 0px)
+    );
 }
+
 /* =====================================================
    КНОПКИ КАТЕГОРІЙ
    СХОВАНІ, КОЛИ ШТОРКА ЗАКРИТА
@@ -323,14 +301,6 @@ body.night-mode .sheetHandle{
 .bottomSheet.open .categoryScroll{
     opacity:1;
     visibility:visible;
-}
-
-/* =====================================================
-   ANDROID — БЕЗПЕЧНА ЗОНА НИЖНЬОЇ СИСТЕМНОЇ ПАНЕЛІ
-   Значення --android-bottom-inset приходить з MainActivity
-===================================================== */
-.bottomSheet{
-    bottom:var(--android-bottom-inset, 0px);
 }
 
 
@@ -1716,21 +1686,100 @@ body.night-mode .sheetHandle{
     display:flex;
 }
 
-
 /* =====================================================
-   ШТОРКА — СІРО-СИНІ КОЛЬОРИ ЯК У ВІКНІ ТОЧКИ
+   📱 НИЖНЯ ШТОРКА
+   SAMSUNG / ANDROID / SAFE AREA
 ===================================================== */
 
-.bottomSheet{
-    background:#eef3f7;
-    color:#263746;
+.bottomSheet {
+    position: fixed;
+
+    left: 0;
+    right: 0;
+
+    /* Відступ над системною навігацією */
+    bottom: var(--safe-bottom);
+
+    width: 100%;
+
+    /* Закритий стан */
+    height: 60px;
+    min-height: 60px;
+
+    box-sizing: border-box;
+
+    background: #eef3f7;
+    color: #263746;
+
+    border-radius: 16px 16px 0 0;
+
+    z-index: 20000;
 
     box-shadow:
         0 -4px 15px rgba(55,71,79,.25);
 
-    border-top:1px solid #d3dde3;
+    border-top: 1px solid #d3dde3;
+
+    overflow: hidden;
+
+    transition: height .3s ease;
+
+    touch-action: none;
 }
 
+
+/* =====================================================
+   📂 ВІДКРИТА ШТОРКА
+===================================================== */
+
+.bottomSheet.open {
+
+    /*
+       Висота від верхньої частини екрана
+       до верхньої межі системної області
+    */
+    height: calc(
+        100dvh - var(--safe-bottom)
+    );
+
+    bottom: var(--safe-bottom);
+
+    border-radius: 0;
+
+    z-index: 99999;
+
+    transition: height .3s ease;
+}
+
+
+/* =====================================================
+   🔘 КАТЕГОРІЇ
+   ПРИ ЗАКРИТІЙ ШТОРЦІ ПРИХОВАНІ
+===================================================== */
+
+.bottomSheet:not(.open) .categoryScroll {
+
+    opacity: 0;
+
+    visibility: hidden;
+
+    pointer-events: none;
+}
+
+
+/* =====================================================
+   🔘 КАТЕГОРІЇ
+   ПРИ ВІДКРИТІЙ ШТОРЦІ ПОКАЗАНІ
+===================================================== */
+
+.bottomSheet.open .categoryScroll {
+
+    opacity: 1;
+
+    visibility: visible;
+
+    pointer-events: auto;
+}
 
 /* Ручка шторки */
 
@@ -1740,13 +1789,6 @@ body.night-mode .sheetHandle{
     box-shadow:
         0 1px 4px rgba(55,71,79,.25);
 }
-
-
-
-
-
-
-
 
 
 /* =====================================================
