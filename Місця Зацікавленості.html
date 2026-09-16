@@ -286,114 +286,40 @@ body.night-mode .sheetHandle{
    СХОВАНІ, КОЛИ ШТОРКА ЗАКРИТА
 ===================================================== */
 
-/* КОЛИ ШТОРКА ВІДКРИТА */
-.bottomSheet.open .categoryScroll{
-    opacity:1;
-    visibility:visible;
-}
-
-
-.categoryScroll{
-    display:flex;
-    flex-direction:row;
-    flex-wrap:nowrap;
-
-    gap:10px;
-
-    width:100%;
-
-    overflow-x:auto;
-    overflow-y:hidden;
-
-    padding:4px 12px 10px;
-
-    white-space:nowrap;
-
-    scrollbar-width:none;
-
-    -webkit-overflow-scrolling:touch;
-
-    touch-action:pan-x;
-
-    opacity:0;
-    visibility:hidden;
-
-    transition:
-        opacity .2s ease,
-        visibility .2s ease;
-}
-
-.categoryScroll::-webkit-scrollbar{
-    display:none;
-}
-
-.categoryScroll > *{
-    flex:0 0 auto;
-    scroll-snap-align:start;
-}
-
-/* Прибираємо смугу прокрутки Android / Chrome */
-.categoryScroll::-webkit-scrollbar {
-
-    display: none;
-
-}
-
-
-/* Кожна категорія не стискається */
-.categoryScroll > * {
-
-    flex: 0 0 auto;
-
-}
-
-
-.bottomSheet.open .categoryScroll {
-
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-
-}
-
-
-/* =========================================================
-   👆 ГОРТАННЯ КАТЕГОРІЙ ВЛІВО / ВПРАВО
-========================================================= */
-
 .categoryScroll {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 
-    overflow-x: hidden;
-    overflow-y: hidden;
+    gap: 10px;
 
     width: 100%;
+    box-sizing: border-box;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    padding: 4px 12px 10px;
 
     white-space: nowrap;
 
     scrollbar-width: none;
+    -ms-overflow-style: none;
 
     -webkit-overflow-scrolling: touch;
 
-    /* дозволяємо визначати горизонтальний свайп */
-    touch-action: pan-y;
-}
+    /* ДОЗВОЛЯЄМО ГОРИЗОНТАЛЬНИЙ СВАЙП */
+    touch-action: pan-x;
 
-.categoryScroll::-webkit-scrollbar {
-    display: none;
-}
+    scroll-snap-type: x mandatory;
 
-/* =========================================================
-   КНОПКИ КАТЕГОРІЙ
-========================================================= */
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
 
-.categoryScroll > * {
-
-    flex: 0 0 auto;
-
-    scroll-snap-align: start;
+    transition:
+        opacity .2s ease,
+        visibility .2s ease;
 }
 
 
@@ -403,14 +329,27 @@ body.night-mode .sheetHandle{
 }
 
 
-/* Кожна категорія не стискається */
-.categoryScroll > * {
+/* =====================================================
+   ШТОРКА ВІДКРИТА
+===================================================== */
 
-    flex: 0 0 auto;
-
+.bottomSheet.open .categoryScroll {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
 }
 
 
+/* =====================================================
+   КОЖНА КНОПКА
+===================================================== */
+
+.categoryScroll > * {
+    flex: 0 0 auto;
+
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+}
 
 
 
@@ -1481,18 +1420,34 @@ body.night-mode .sheetHandle{
 }
 
 
+/* =========================
+   ВІДГУК
+========================= */
+
 .reviewItem{
+    display:block;
+
+    width:100%;
+    height:auto;
+    min-height:0;
+
+    box-sizing:border-box;
+
     background:#edf2f5;
 
     border-radius:13px;
 
-    padding:12px;
+    padding:8px 10px;
 
-    margin-bottom:10px;
+    margin-bottom:8px;
 
     border:1px solid #d2dce2;
+
+    overflow:visible;
 }
 
+
+/* Автор */
 
 .reviewAuthor{
     font-size:14px;
@@ -1501,27 +1456,54 @@ body.night-mode .sheetHandle{
 
     color:#546e7a;
 
-    margin-bottom:4px;
+    margin:0 0 2px 0;
+
+    line-height:1.2;
 }
 
+
+/* Дата */
 
 .reviewDate{
     font-size:11px;
 
     color:#78909c;
 
-    margin-bottom:7px;
+    margin:0 0 4px 0;
+
+    line-height:1.2;
 }
 
 
-.reviewText{
-    font-size:14px;
+/* =========================================================
+   💬 ТЕКСТ ОПУБЛІКОВАНОГО ВІДГУКУ
+========================================================= */
 
-    line-height:1.45;
+.reviewText {
+    display: block !important;
 
-    color:#455a64;
+    width: 100% !important;
 
-    white-space:pre-wrap;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    box-sizing: border-box !important;
+
+    font-size: 14px !important;
+    line-height: 1.35 !important;
+
+    color: #455a64;
+
+    white-space: pre-wrap !important;
+
+    overflow: visible !important;
+
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
 }
 
 
@@ -1531,10 +1513,15 @@ body.night-mode .sheetHandle{
 
 .reviewTextarea{
     width:100%;
-
     min-height:100px;
 
+    height:auto;
+
     resize:none;
+
+    overflow:hidden;
+
+    box-sizing:border-box;
 
     border:1px solid #c5d2d9;
 
@@ -1546,11 +1533,18 @@ body.night-mode .sheetHandle{
 
     font-size:14px;
 
+    line-height:1.45;
+
     outline:none;
 
     background:#f8fafb;
 
     color:#37474f;
+
+    transition:
+        height .1s ease,
+        border-color .2s ease,
+        box-shadow .2s ease;
 }
 
 
@@ -1560,7 +1554,6 @@ body.night-mode .sheetHandle{
     box-shadow:
         0 0 0 2px rgba(96,125,139,.15);
 }
-
 
 /* =========================
    КНОПКА ВІДГУКУ
@@ -4016,41 +4009,6 @@ color: #93c5fd;
 }
 
 
-/* =========================================================
-   💬 КАРТКА ВІДГУКУ
-========================================================= */
-
-.modernReview {
-
-    padding:14px;
-
-    border-radius:16px;
-
-    background:#ffffff;
-
-    border:
-        1px solid rgba(
-            74,
-            105,
-            94,
-            .12
-        );
-
-    box-shadow:
-        0 4px 14px
-        rgba(
-            35,
-            67,
-            55,
-            .07
-        );
-
-    transition:
-        transform .18s ease,
-        box-shadow .18s ease;
-
-}
-
 
 .modernReview:hover {
 
@@ -4068,9 +4026,8 @@ color: #93c5fd;
 
 }
 
-
 /* =========================================================
-   👤 ШАПКА
+   👤 ШАПКА ВІДГУКУ
 ========================================================= */
 
 .reviewHeader {
@@ -4081,12 +4038,19 @@ color: #93c5fd;
 
     align-items:flex-start;
 
-    gap:10px;
+    gap:8px;
 
-    margin-bottom:11px;
+    margin-bottom:6px;
+
+    height:auto;
+    min-height:0;
 
 }
 
+
+/* =========================================================
+   🧑 КОРИСТУВАЧ
+========================================================= */
 
 .reviewUser {
 
@@ -4094,10 +4058,11 @@ color: #93c5fd;
 
     align-items:center;
 
-    gap:9px;
+    gap:8px;
 
     min-width:0;
 
+    height:auto;
 }
 
 
@@ -4108,15 +4073,14 @@ color: #93c5fd;
 .reviewAvatar {
 
     width:38px;
-
     height:38px;
 
     min-width:38px;
+    min-height:38px;
 
     display:flex;
 
     align-items:center;
-
     justify-content:center;
 
     border-radius:12px;
@@ -4131,10 +4095,90 @@ color: #93c5fd;
     color:#315b4d;
 
     font-size:15px;
-
     font-weight:800;
 
 }
+
+
+/* =========================================================
+   ✏️ / 🗑️ ДІЇ
+========================================================= */
+
+.reviewActions {
+
+    display:flex;
+
+    align-items:flex-start;
+
+    gap:2px;
+
+    flex-wrap:wrap;
+
+    justify-content:flex-end;
+
+    height:auto;
+    min-height:0;
+
+}
+
+
+/* =========================================================
+   📝 ТЕКСТ ВІДГУКУ
+========================================================= */
+
+.reviewText {
+
+    display:block;
+
+    width:100%;
+
+    height:auto;
+    min-height:0;
+
+    margin:0;
+    padding:0;
+
+    box-sizing:border-box;
+
+    font-size:14px;
+
+    line-height:1.4;
+
+    color:#455a64;
+
+    white-space:pre-wrap;
+
+    overflow-wrap:anywhere;
+
+    word-break:break-word;
+}
+
+
+/* =========================================================
+   👍👎 ПАНЕЛЬ
+========================================================= */
+
+.reviewRatingBar {
+
+    display:flex;
+
+    align-items:center;
+
+    gap:7px;
+
+    margin-top:7px;
+
+    padding-top:7px;
+
+    height:auto;
+    min-height:0;
+
+    border-top:
+        1px solid #edf1ef;
+
+}
+
+
 
 
 /* =========================================================
@@ -4175,23 +4219,6 @@ color: #93c5fd;
 }
 
 
-/* =========================================================
-   ✏️ / 🗑️ ДІЇ
-========================================================= */
-
-.reviewActions {
-
-    display:flex;
-
-    align-items:center;
-
-    gap:2px;
-
-    flex-wrap:wrap;
-
-    justify-content:flex-end;
-
-}
 
 
 .reviewActionButton {
@@ -4244,54 +4271,9 @@ color: #93c5fd;
 }
 
 
-/* =========================================================
-   📝 ТЕКСТ
-========================================================= */
-
-.reviewText {
-
-    padding:11px 12px;
-
-    border-radius:11px;
-
-    background:#f7faf9;
-
-    border-left:
-        3px solid #9cc7b6;
-
-    color:#405b52;
-
-    font-size:13px;
-
-    line-height:1.55;
-
-    white-space:pre-wrap;
-
-    word-break:break-word;
-
-}
 
 
-/* =========================================================
-   👍👎 ПАНЕЛЬ
-========================================================= */
 
-.reviewRatingBar {
-
-    display:flex;
-
-    align-items:center;
-
-    gap:7px;
-
-    margin-top:11px;
-
-    padding-top:10px;
-
-    border-top:
-        1px solid #edf1ef;
-
-}
 
 
 /* =========================================================
@@ -4426,13 +4408,6 @@ color: #93c5fd;
 
 @media (max-width:600px) {
 
-    .modernReview {
-
-        padding:12px;
-
-        border-radius:14px;
-
-    }
 
 
     .reviewAvatar {
@@ -4907,8 +4882,599 @@ left: 10px;
     background: #e5e5e5;
 }
 
+/* =========================================================
+   💬 КАРТКА ВІДГУКУ
+========================================================= */
+
+.modernReview {
+
+    display:block;
+
+    width:100%;
+
+    height:auto;
+    min-height:0;
+
+    box-sizing:border-box;
+
+    padding:10px 12px;
+
+    margin:0 0 8px 0;
+
+    border-radius:14px;
+
+    background:#ffffff;
+
+    border:
+        1px solid rgba(
+            74,
+            105,
+            94,
+            .12
+        );
+
+    box-shadow:
+        0 3px 10px
+        rgba(
+            35,
+            67,
+            55,
+            .06
+        );
+
+}
 
 
+/* =========================================================
+   👤 АВТОР
+========================================================= */
+
+.modernReview .reviewAuthor {
+    margin-top: 0;
+    margin-bottom: 3px;
+
+    line-height: 1.2;
+}
+
+
+/* =========================================================
+   📅 ДАТА
+========================================================= */
+
+.modernReview .reviewDate {
+    margin-top: 0;
+    margin-bottom: 5px;
+
+    line-height: 1.2;
+}
+
+
+/* =========================================================
+   💬 ТЕКСТ
+========================================================= */
+
+.modernReview .reviewText {
+    display: block;
+
+    width: 100%;
+
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    margin: 0;
+    padding: 0;
+
+    box-sizing: border-box;
+
+    font-size: 14px;
+    line-height: 1.35;
+
+    white-space: pre-wrap;
+
+    overflow: visible !important;
+
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+
+/* =========================================================
+   📱 МОБІЛЬНИЙ
+========================================================= */
+
+@media (max-width:600px) {
+
+    .modernReview {
+        padding: 9px;
+
+        border-radius: 14px;
+
+        margin-bottom: 7px;
+    }
+
+}
+
+
+/* =========================================================
+   💬 КОМПАКТНІ ОПУБЛІКОВАНІ ВІДГУКИ
+========================================================= */
+
+#pointReviews .modernReview,
+#pointReviews .reviewItem,
+#pointReviews .reviewText {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+}
+
+
+/* Картка */
+
+#pointReviews .modernReview {
+    display: block !important;
+
+    width: 100% !important;
+
+    padding: 8px !important;
+    margin: 0 0 8px 0 !important;
+
+    box-sizing: border-box !important;
+
+    overflow: visible !important;
+}
+
+
+/* Відгук */
+
+#pointReviews .reviewItem {
+    display: block !important;
+
+    width: 100% !important;
+
+    padding: 7px 9px !important;
+    margin: 0 !important;
+
+    box-sizing: border-box !important;
+
+    overflow: visible !important;
+}
+
+
+/* Текст */
+
+#pointReviews .reviewText {
+    display: block !important;
+
+    width: 100% !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    box-sizing: border-box !important;
+
+    line-height: 1.35 !important;
+
+    white-space: pre-wrap !important;
+
+    overflow: visible !important;
+
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+}
+
+
+/* =========================================================
+   💬 КОМПАКТНА КАРТКА ВІДГУКУ
+========================================================= */
+
+#pointReviews .modernReview {
+    display: block !important;
+
+    width: 100% !important;
+
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    box-sizing: border-box !important;
+
+    padding: 10px !important;
+    margin: 0 0 8px 0 !important;
+
+    overflow: visible !important;
+}
+
+
+/* =========================================================
+   👤 ШАПКА
+========================================================= */
+
+#pointReviews .reviewHeader {
+    display: flex;
+
+    width: 100%;
+
+    height: auto !important;
+    min-height: 0 !important;
+
+    box-sizing: border-box;
+
+    margin: 0 0 6px 0;
+
+    align-items: center;
+}
+
+
+/* Користувач */
+
+#pointReviews .reviewUser {
+    display: flex;
+
+    align-items: center;
+
+    height: auto !important;
+    min-height: 0 !important;
+}
+
+
+/* =========================================================
+   👤 АВТОР
+========================================================= */
+
+#pointReviews .reviewAuthor {
+    height: auto !important;
+    min-height: 0 !important;
+
+    margin: 0 0 2px 0 !important;
+
+    line-height: 1.2 !important;
+}
+
+
+/* =========================================================
+   🕐 ДАТА
+========================================================= */
+
+#pointReviews .reviewDate {
+    height: auto !important;
+    min-height: 0 !important;
+
+    margin: 0 !important;
+
+    line-height: 1.2 !important;
+}
+
+
+/* =========================================================
+   📝 ТЕКСТ
+========================================================= */
+
+#pointReviews .reviewText {
+    display: block !important;
+
+    width: 100% !important;
+
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    margin: 0 0 7px 0 !important;
+    padding: 0 !important;
+
+    box-sizing: border-box;
+
+    font-size: 14px;
+    line-height: 1.35;
+
+    white-space: pre-wrap;
+
+    overflow: visible !important;
+
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+
+/* =========================================================
+   👍👎 РЕЙТИНГ
+========================================================= */
+
+#pointReviews .reviewRatingBar {
+    display: flex;
+
+    width: 100%;
+
+    height: auto !important;
+    min-height: 0 !important;
+
+    box-sizing: border-box;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    align-items: center;
+}
+
+/* =========================================================
+   💬 КАРТКА ВІДГУКУ
+========================================================= */
+
+.modernReview {
+
+    display:block;
+
+    width:100%;
+
+    height:auto;
+    min-height:0;
+
+    box-sizing:border-box;
+
+    margin:0 0 10px 0;
+
+    padding:0;
+
+    background:transparent;
+
+}
+
+
+/* =========================================================
+   👤 ОКРЕМЕ ВІКНО АВТОРА
+========================================================= */
+
+.reviewAuthorBox {
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    width:100%;
+
+    box-sizing:border-box;
+
+    padding:9px 11px;
+
+    margin:0 0 6px 0;
+
+    background:#edf2f5;
+
+    border:1px solid #d2dce2;
+
+    border-radius:13px;
+
+}
+
+
+/* =========================================================
+   👤 КОРИСТУВАЧ
+========================================================= */
+
+.reviewUser {
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    min-width:0;
+
+}
+
+
+/* =========================================================
+   🧑 АВАТАР
+========================================================= */
+
+.reviewAvatar {
+
+    width:38px;
+    height:38px;
+
+    min-width:38px;
+    min-height:38px;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    overflow:hidden;
+
+    border-radius:11px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #dcefe7,
+            #c7e2d7
+        );
+
+    color:#315b4d;
+
+    font-size:15px;
+
+    font-weight:800;
+
+}
+
+
+/* =========================================================
+   🖼️ ФОТО АВАТАРА
+========================================================= */
+
+.reviewAvatarImage {
+
+    width:100%;
+    height:100%;
+
+    object-fit:cover;
+
+    border-radius:inherit;
+
+}
+
+
+/* =========================================================
+   🔤 ЛІТЕРА
+========================================================= */
+
+.reviewAvatarFallback {
+
+    width:100%;
+    height:100%;
+
+    align-items:center;
+    justify-content:center;
+
+}
+
+
+/* =========================================================
+   👤 ІМ'Я + ДАТА
+========================================================= */
+
+.reviewAuthorInfo {
+
+    min-width:0;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+}
+
+
+.reviewAuthor {
+
+    font-size:14px;
+
+    line-height:18px;
+
+    font-weight:800;
+
+    color:#546e7a;
+
+}
+
+
+.reviewDate {
+
+    margin-top:2px;
+
+    font-size:11px;
+
+    line-height:14px;
+
+    color:#78909c;
+
+}
+
+
+/* =========================================================
+   ✏️ / 🗑️ ДІЇ
+========================================================= */
+
+.reviewActions {
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:flex-end;
+
+    gap:2px;
+
+    flex-wrap:wrap;
+
+}
+
+
+/* =========================================================
+   📝 КОМПАКТНЕ ВІКНО ВІДГУКУ
+========================================================= */
+
+.reviewTextBox {
+
+    display:block;
+
+    width:100%;
+
+    height:auto;
+    min-height:0;
+
+    box-sizing:border-box;
+
+    padding:15px 25px;
+
+    margin:0;
+
+    background:#ffffff;
+
+    border:1px solid #d2dce2;
+
+    border-radius:12px;
+
+}
+
+
+/* =========================================================
+   📝 ТЕКСТ
+========================================================= */
+
+.reviewText {
+
+    display:block;
+
+    width:100%;
+
+    height:auto;
+    min-height:0;
+
+    margin:0;
+    padding:0;
+
+    box-sizing:border-box;
+
+    font-size:29px;
+
+    line-height:1.4;
+
+    color:#244228;
+
+    white-space:pre-wrap;
+
+    overflow-wrap:anywhere;
+
+    word-break:break-word;
+
+}
+
+/* =========================================================
+   👍👎 РЕЙТИНГ
+========================================================= */
+
+.reviewRatingBar {
+
+    display:flex;
+
+    align-items:center;
+
+    gap:7px;
+
+    margin-top:8px;
+
+    padding-top:7px;
+
+    border-top:1px solid #edf1ef;
+
+}
 </style>
 
 </head>
@@ -12025,6 +12591,8 @@ async function loadPointReviews(pointId) {
                 item.className =
                     "modernReview";
 
+                    
+
 
                 /* =========================================
                    🕐 ДАТА
@@ -12187,151 +12755,137 @@ async function loadPointReviews(pointId) {
                 /* =========================================
                    📝 HTML КАРТКИ
                 ========================================= */
+item.innerHTML = `
 
-                item.innerHTML = `
+    <!-- =========================================
+         👤 ВІКНО АВТОРА
+    ========================================= -->
 
-                    <div class="reviewHeader">
+    <div class="reviewAuthorBox">
 
+        <div class="reviewUser">
 
-                        <div class="reviewUser">
+            <div class="reviewAvatar">
 
+                ${
+                    review.avatar
+                        ? `
+                            <img
+                                src="${escapeHtml(review.avatar)}"
+                                alt="${author}"
+                                class="reviewAvatarImage"
+                                onerror="
+                                    this.style.display='none';
+                                    this.nextElementSibling.style.display='flex';
+                                "
+                            >
+                        `
+                        : ""
+                }
 
-                          <div class="reviewAvatar">
-
-    ${
-        review.avatar
-            ? `
-                <img
-                    src="${escapeHtml(review.avatar)}"
-                    alt="${author}"
-                    class="reviewAvatarImage"
-                    onerror="
-                        this.style.display='none';
-                        this.nextElementSibling.style.display='flex';
+                <div
+                    class="reviewAvatarFallback"
+                    style="
+                        display:${review.avatar ? "none" : "flex"};
                     "
                 >
-            `
-            : ""
-    }
+                    ${avatarLetter}
+                </div>
 
-    <div
-        class="reviewAvatarFallback"
-        style="
-            display:${review.avatar ? "none" : "flex"};
-        "
-    >
-        ${avatarLetter}
+            </div>
+
+            <div class="reviewAuthorInfo">
+
+                <div class="reviewAuthor">
+                    ${author}
+                </div>
+
+                <div class="reviewDate">
+                    🕐 ${escapeHtml(date)}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="reviewActions">
+
+            ${editButton}
+
+            ${deleteButton}
+
+        </div>
+
     </div>
 
-</div>
+
+    <!-- =========================================
+         📝 ОКРЕМЕ ВІКНО ТЕКСТУ
+    ========================================= -->
+
+    <div class="reviewTextBox">
+
+        <div
+            id="reviewText_${pointId}_${review.id}"
+            class="reviewText"
+        >
+            ${escapeHtml(review.text)}
+        </div>
 
 
-                            <div>
+        <!-- =====================================
+             👍👎 РЕЙТИНГ
+        ===================================== -->
 
-                                <div class="reviewAuthor">
+        <div class="reviewRatingBar">
 
-                                    ${author}
-
-                                </div>
-
-
-                                <div class="reviewDate">
-
-                                    🕐 ${escapeHtml(
-                                        date
-                                    )}
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="reviewActions">
-
-                            ${editButton}
-
-                            ${deleteButton}
-
-                        </div>
+            <button
+                type="button"
+                class="
+                    reviewRateButton
+                    ${
+                        currentRating === "like"
+                            ? "activeLike"
+                            : ""
+                    }
+                "
+                onclick="ratePointReview(
+                    '${pointId}',
+                    '${review.id}',
+                    'like'
+                )"
+            >
+                👍
+                <span>${likes}</span>
+            </button>
 
 
-                    </div>
+            <button
+                type="button"
+                class="
+                    reviewRateButton
+                    ${
+                        currentRating === "dislike"
+                            ? "activeDislike"
+                            : ""
+                    }
+                "
+                onclick="ratePointReview(
+                    '${pointId}',
+                    '${review.id}',
+                    'dislike'
+                )"
+            >
+                👎
+                <span>${dislikes}</span>
+            </button>
 
+        </div>
 
-                    <div
-                        id="reviewText_${pointId}_${review.id}"
-                        class="reviewText"
-                    >
+    </div>
 
-                        ${escapeHtml(
-                            review.text
-                        )}
-
-                    </div>
-
-
-                    <div class="reviewRatingBar">
-
-
-                        <button
-                            type="button"
-                            class="
-                                reviewRateButton
-                                ${
-                                    currentRating ===
-                                    "like"
-                                        ? "activeLike"
-                                        : ""
-                                }
-                            "
-                            onclick="ratePointReview(
-                                '${pointId}',
-                                '${review.id}',
-                                'like'
-                            )"
-                        >
-
-                            👍
-
-                            <span>
-                                ${likes}
-                            </span>
-
-                        </button>
-
-
-                        <button
-                            type="button"
-                            class="
-                                reviewRateButton
-                                ${
-                                    currentRating ===
-                                    "dislike"
-                                        ? "activeDislike"
-                                        : ""
-                                }
-                            "
-                            onclick="ratePointReview(
-                                '${pointId}',
-                                '${review.id}',
-                                'dislike'
-                            )"
-                        >
-
-                            👎
-
-                            <span>
-                                ${dislikes}
-                            </span>
-
-                        </button>
-
-
-                    </div>
-
-                `;
+`;
 
 
                 container.appendChild(
@@ -12377,6 +12931,33 @@ async function loadPointReviews(pointId) {
 
 }
 
+
+/* =========================================================
+   📝 АВТОВИСОТА ПОЛЯ ВІДГУКУ
+========================================================= */
+
+function autoResizeReviewTextarea(textarea){
+
+    if(!textarea) return;
+
+    textarea.style.height = "auto";
+
+    textarea.style.height =
+        textarea.scrollHeight + "px";
+}
+
+
+/* Працює для всіх textarea відгуків */
+
+document.addEventListener("input", function(e){
+
+    if(e.target.classList.contains("reviewTextarea")){
+
+        autoResizeReviewTextarea(e.target);
+
+    }
+
+});
 
 /* =====================================================
    🗑️ ВИДАЛЕННЯ ВІДГУКУ ОМ
