@@ -332,13 +332,6 @@ body.night-mode .sheetHandle{
     scroll-snap-align:start;
 }
 
-.bottomSheet:not(.open) .categoryScroll{
-    opacity:0;
-    visibility:hidden;
-    pointer-events:none;
-}
-
-
 /* Прибираємо смугу прокрутки Android / Chrome */
 .categoryScroll::-webkit-scrollbar {
 
@@ -354,17 +347,6 @@ body.night-mode .sheetHandle{
 
 }
 
-/* =========================================================
-   📂 КАТЕГОРІЇ У ШТОРЦІ
-========================================================= */
-
-.bottomSheet:not(.open) .categoryScroll {
-
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-
-}
 
 .bottomSheet.open .categoryScroll {
 
@@ -1654,13 +1636,10 @@ body.night-mode .sheetHandle{
 
     left: 0;
     right: 0;
-
-    /* Відступ над системною навігацією */
     bottom: var(--safe-bottom);
 
     width: 100%;
 
-    /* Закритий стан */
     height: 60px;
     min-height: 60px;
 
@@ -1682,7 +1661,8 @@ body.night-mode .sheetHandle{
 
     transition: height .3s ease;
 
-    touch-action: none;
+    /* НЕ БЛОКУЄМО ЖЕСТИ КАРТИ */
+    touch-action: auto;
 }
 
 
@@ -1716,11 +1696,8 @@ body.night-mode .sheetHandle{
 ===================================================== */
 
 .bottomSheet:not(.open) .categoryScroll {
-
     opacity: 0;
-
     visibility: hidden;
-
     pointer-events: none;
 }
 
@@ -6729,9 +6706,10 @@ const map = L.map('map', {
     6
 );
 
-L.control.zoom({
+const zoomControl = L.control.zoom({
     position: 'topright'
 }).addTo(map);
+
 
 
 /* =================================================
@@ -14570,6 +14548,28 @@ if(category === "cafe_lunch"){
         );
 
     }
+
+
+    /* -------------------------
+   🅿️ Паркування біля фірми
+------------------------- */
+
+if(category === "parking_firma"){
+
+    const button =
+        document.querySelector(
+            '#parkingCategories .subCategoryBtn[onclick*="toggleFirmaParking"]'
+        );
+
+    return !!(
+        button &&
+        button.classList.contains("active")
+    );
+
+}
+
+
+
 /* -------------------------
    Набрати воду
 ------------------------- */
