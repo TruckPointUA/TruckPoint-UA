@@ -1405,198 +1405,6 @@ body.night-mode .sheetHandle{
 }
 
 
-/* =========================
-   ВІДГУКИ
-========================= */
-
-.reviewsTitle{
-    font-size:20px;
-
-    font-weight:800;
-
-    margin-bottom:12px;
-
-    color:#455a64;
-}
-
-
-/* =========================
-   ВІДГУК
-========================= */
-
-.reviewItem{
-    display:block;
-
-    width:100%;
-    height:auto;
-    min-height:0;
-
-    box-sizing:border-box;
-
-    background:#edf2f5;
-
-    border-radius:13px;
-
-    padding:8px 10px;
-
-    margin-bottom:8px;
-
-    border:1px solid #d2dce2;
-
-    overflow:visible;
-}
-
-
-/* Автор */
-
-.reviewAuthor{
-    font-size:14px;
-
-    font-weight:800;
-
-    color:#546e7a;
-
-    margin:0 0 2px 0;
-
-    line-height:1.2;
-}
-
-
-/* Дата */
-
-.reviewDate{
-    font-size:11px;
-
-    color:#78909c;
-
-    margin:0 0 4px 0;
-
-    line-height:1.2;
-}
-
-
-/* =========================================================
-   💬 ТЕКСТ ОПУБЛІКОВАНОГО ВІДГУКУ
-========================================================= */
-
-.reviewText {
-    display: block !important;
-
-    width: 100% !important;
-
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-
-    margin: 0 !important;
-    padding: 0 !important;
-
-    box-sizing: border-box !important;
-
-    font-size: 14px !important;
-    line-height: 1.35 !important;
-
-    color: #455a64;
-
-    white-space: pre-wrap !important;
-
-    overflow: visible !important;
-
-    overflow-wrap: anywhere !important;
-    word-break: break-word !important;
-}
-
-
-/* =========================
-   ПОЛЕ НОВОГО ВІДГУКУ
-========================= */
-
-.reviewTextarea{
-    width:100%;
-    min-height:100px;
-
-    height:auto;
-
-    resize:none;
-
-    overflow:hidden;
-
-    box-sizing:border-box;
-
-    border:1px solid #c5d2d9;
-
-    border-radius:13px;
-
-    padding:12px;
-
-    font-family:'Montserrat',sans-serif;
-
-    font-size:14px;
-
-    line-height:1.45;
-
-    outline:none;
-
-    background:#f8fafb;
-
-    color:#37474f;
-
-    transition:
-        height .1s ease,
-        border-color .2s ease,
-        box-shadow .2s ease;
-}
-
-
-.reviewTextarea:focus{
-    border-color:#78909c;
-
-    box-shadow:
-        0 0 0 2px rgba(96,125,139,.15);
-}
-
-/* =========================
-   КНОПКА ВІДГУКУ
-========================= */
-
-.addReviewButton{
-    width:100%;
-
-    margin-top:10px;
-
-    padding:14px;
-
-    border:none;
-
-    border-radius:13px;
-
-    background:#607d8b;
-
-    color:#ffffff;
-
-    font-family:'Montserrat',sans-serif;
-
-    font-size:15px;
-
-    font-weight:700;
-
-    cursor:pointer;
-}
-
-
-
-.pointInfoCoordinatesRow{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-}
-
-.sharePointButton:active{
-    transform:scale(.94);
-}
-
-
 
 /* =====================================================
    OVERLAY — ПОВНИЙ ЕКРАН
@@ -4123,38 +3931,6 @@ color: #93c5fd;
 
 
 /* =========================================================
-   📝 ТЕКСТ ВІДГУКУ
-========================================================= */
-
-.reviewText {
-
-    display:block;
-
-    width:100%;
-
-    height:auto;
-    min-height:0;
-
-    margin:0;
-    padding:0;
-
-    box-sizing:border-box;
-
-    font-size:14px;
-
-    line-height:1.4;
-
-    color:#455a64;
-
-    white-space:pre-wrap;
-
-    overflow-wrap:anywhere;
-
-    word-break:break-word;
-}
-
-
-/* =========================================================
    👍👎 ПАНЕЛЬ
 ========================================================= */
 
@@ -4202,23 +3978,6 @@ color: #93c5fd;
     white-space:nowrap;
 
 }
-
-
-/* =========================================================
-   🕐 ДАТА
-========================================================= */
-
-.reviewDate {
-
-    margin-top:2px;
-
-    color:#93a39d;
-
-    font-size:10px;
-
-}
-
-
 
 
 .reviewActionButton {
@@ -4422,14 +4181,6 @@ color: #93c5fd;
 
     }
 
-
-    .reviewAuthor {
-
-        font-size:13px;
-
-        max-width:130px;
-
-    }
 
 
     .reviewDate {
@@ -4883,369 +4634,83 @@ left: 10px;
 }
 
 /* =========================================================
-   💬 КАРТКА ВІДГУКУ
+   💬 ВІДГУКИ — КОМПАКТНИЙ СТИЛЬ
 ========================================================= */
 
-.modernReview {
-
-    display:block;
-
+#pointReviews {
     width:100%;
-
-    height:auto;
-    min-height:0;
-
     box-sizing:border-box;
+}
 
-    padding:10px 12px;
+
+/* =========================================================
+   📝 ЗАГОЛОВОК
+========================================================= */
+
+#pointReviews .reviewsTitle {
+
+    font-size:18px;
+    line-height:22px;
+
+    font-weight:800;
 
     margin:0 0 8px 0;
 
-    border-radius:14px;
-
-    background:#ffffff;
-
-    border:
-        1px solid rgba(
-            74,
-            105,
-            94,
-            .12
-        );
-
-    box-shadow:
-        0 3px 10px
-        rgba(
-            35,
-            67,
-            55,
-            .06
-        );
-
+    color:#455a64;
 }
 
 
 /* =========================================================
-   👤 АВТОР
-========================================================= */
-
-.modernReview .reviewAuthor {
-    margin-top: 0;
-    margin-bottom: 3px;
-
-    line-height: 1.2;
-}
-
-
-/* =========================================================
-   📅 ДАТА
-========================================================= */
-
-.modernReview .reviewDate {
-    margin-top: 0;
-    margin-bottom: 5px;
-
-    line-height: 1.2;
-}
-
-
-/* =========================================================
-   💬 ТЕКСТ
-========================================================= */
-
-.modernReview .reviewText {
-    display: block;
-
-    width: 100%;
-
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-
-    margin: 0;
-    padding: 0;
-
-    box-sizing: border-box;
-
-    font-size: 14px;
-    line-height: 1.35;
-
-    white-space: pre-wrap;
-
-    overflow: visible !important;
-
-    overflow-wrap: anywhere;
-    word-break: break-word;
-}
-
-
-/* =========================================================
-   📱 МОБІЛЬНИЙ
-========================================================= */
-
-@media (max-width:600px) {
-
-    .modernReview {
-        padding: 9px;
-
-        border-radius: 14px;
-
-        margin-bottom: 7px;
-    }
-
-}
-
-
-/* =========================================================
-   💬 КОМПАКТНІ ОПУБЛІКОВАНІ ВІДГУКИ
-========================================================= */
-
-#pointReviews .modernReview,
-#pointReviews .reviewItem,
-#pointReviews .reviewText {
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-}
-
-
-/* Картка */
-
-#pointReviews .modernReview {
-    display: block !important;
-
-    width: 100% !important;
-
-    padding: 8px !important;
-    margin: 0 0 8px 0 !important;
-
-    box-sizing: border-box !important;
-
-    overflow: visible !important;
-}
-
-
-/* Відгук */
-
-#pointReviews .reviewItem {
-    display: block !important;
-
-    width: 100% !important;
-
-    padding: 7px 9px !important;
-    margin: 0 !important;
-
-    box-sizing: border-box !important;
-
-    overflow: visible !important;
-}
-
-
-/* Текст */
-
-#pointReviews .reviewText {
-    display: block !important;
-
-    width: 100% !important;
-
-    padding: 0 !important;
-    margin: 0 !important;
-
-    box-sizing: border-box !important;
-
-    line-height: 1.35 !important;
-
-    white-space: pre-wrap !important;
-
-    overflow: visible !important;
-
-    overflow-wrap: anywhere !important;
-    word-break: break-word !important;
-}
-
-
-/* =========================================================
-   💬 КОМПАКТНА КАРТКА ВІДГУКУ
+   💬 ОСНОВНА КАРТКА
 ========================================================= */
 
 #pointReviews .modernReview {
-    display: block !important;
 
-    width: 100% !important;
+    display:block !important;
 
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
+    width:100% !important;
 
-    box-sizing: border-box !important;
+    height:auto !important;
+    min-height:0 !important;
+    max-height:none !important;
 
-    padding: 10px !important;
-    margin: 0 0 8px 0 !important;
+    box-sizing:border-box !important;
 
-    overflow: visible !important;
-}
-
-
-/* =========================================================
-   👤 ШАПКА
-========================================================= */
-
-#pointReviews .reviewHeader {
-    display: flex;
-
-    width: 100%;
-
-    height: auto !important;
-    min-height: 0 !important;
-
-    box-sizing: border-box;
-
-    margin: 0 0 6px 0;
-
-    align-items: center;
-}
-
-
-/* Користувач */
-
-#pointReviews .reviewUser {
-    display: flex;
-
-    align-items: center;
-
-    height: auto !important;
-    min-height: 0 !important;
-}
-
-
-/* =========================================================
-   👤 АВТОР
-========================================================= */
-
-#pointReviews .reviewAuthor {
-    height: auto !important;
-    min-height: 0 !important;
-
-    margin: 0 0 2px 0 !important;
-
-    line-height: 1.2 !important;
-}
-
-
-/* =========================================================
-   🕐 ДАТА
-========================================================= */
-
-#pointReviews .reviewDate {
-    height: auto !important;
-    min-height: 0 !important;
-
-    margin: 0 !important;
-
-    line-height: 1.2 !important;
-}
-
-
-/* =========================================================
-   📝 ТЕКСТ
-========================================================= */
-
-#pointReviews .reviewText {
-    display: block !important;
-
-    width: 100% !important;
-
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-
-    margin: 0 0 7px 0 !important;
-    padding: 0 !important;
-
-    box-sizing: border-box;
-
-    font-size: 14px;
-    line-height: 1.35;
-
-    white-space: pre-wrap;
-
-    overflow: visible !important;
-
-    overflow-wrap: anywhere;
-    word-break: break-word;
-}
-
-
-/* =========================================================
-   👍👎 РЕЙТИНГ
-========================================================= */
-
-#pointReviews .reviewRatingBar {
-    display: flex;
-
-    width: 100%;
-
-    height: auto !important;
-    min-height: 0 !important;
-
-    box-sizing: border-box;
-
-    margin: 0 !important;
-    padding: 0 !important;
-
-    align-items: center;
-}
-
-/* =========================================================
-   💬 КАРТКА ВІДГУКУ
-========================================================= */
-
-.modernReview {
-
-    display:block;
-
-    width:100%;
-
-    height:auto;
-    min-height:0;
-
-    box-sizing:border-box;
-
-    margin:0 0 10px 0;
-
-    padding:0;
+    margin:0 0 7px 0 !important;
+    padding:0 !important;
 
     background:transparent;
 
+    overflow:visible !important;
 }
 
 
 /* =========================================================
-   👤 ОКРЕМЕ ВІКНО АВТОРА
+   👤 ВІКНО АВТОРА
 ========================================================= */
 
-.reviewAuthorBox {
+#pointReviews .reviewAuthorBox {
 
     display:flex;
 
     align-items:center;
-
     justify-content:space-between;
 
     width:100%;
 
+    min-height:0;
+
     box-sizing:border-box;
 
-    padding:9px 11px;
+    padding:6px 8px;
 
-    margin:0 0 6px 0;
+    margin:0 0 4px 0;
 
-    background:#edf2f5;
+    background:#edf3f6;
 
-    border:1px solid #d2dce2;
+    border:1px solid #d5e0e5;
 
-    border-radius:13px;
-
+    border-radius:9px;
 }
 
 
@@ -5253,16 +4718,17 @@ left: 10px;
    👤 КОРИСТУВАЧ
 ========================================================= */
 
-.reviewUser {
+#pointReviews .reviewUser {
 
     display:flex;
 
     align-items:center;
 
-    gap:8px;
+    gap:6px;
 
     min-width:0;
 
+    height:auto;
 }
 
 
@@ -5270,13 +4736,13 @@ left: 10px;
    🧑 АВАТАР
 ========================================================= */
 
-.reviewAvatar {
+#pointReviews .reviewAvatar {
 
-    width:38px;
-    height:38px;
+    width:30px;
+    height:30px;
 
-    min-width:38px;
-    min-height:38px;
+    min-width:30px;
+    min-height:30px;
 
     display:flex;
 
@@ -5285,52 +4751,50 @@ left: 10px;
 
     overflow:hidden;
 
-    border-radius:11px;
+    border-radius:50%;
 
-    background:
-        linear-gradient(
-            135deg,
-            #dcefe7,
-            #c7e2d7
-        );
+    background:linear-gradient(
+        135deg,
+        #dcefe7,
+        #c7e2d7
+    );
 
     color:#315b4d;
 
-    font-size:15px;
+    font-size:12px;
 
     font-weight:800;
-
 }
 
 
 /* =========================================================
-   🖼️ ФОТО АВАТАРА
+   🖼️ ФОТО
 ========================================================= */
 
-.reviewAvatarImage {
+#pointReviews .reviewAvatarImage {
 
     width:100%;
     height:100%;
 
     object-fit:cover;
 
-    border-radius:inherit;
-
+    border-radius:50%;
 }
 
 
 /* =========================================================
-   🔤 ЛІТЕРА
+   🔤 ЛІТЕРА АВАТАРА
 ========================================================= */
 
-.reviewAvatarFallback {
+#pointReviews .reviewAvatarFallback {
 
     width:100%;
     height:100%;
 
+    display:flex;
+
     align-items:center;
     justify-content:center;
-
 }
 
 
@@ -5338,7 +4802,7 @@ left: 10px;
    👤 ІМ'Я + ДАТА
 ========================================================= */
 
-.reviewAuthorInfo {
+#pointReviews .reviewAuthorInfo {
 
     min-width:0;
 
@@ -5347,130 +4811,279 @@ left: 10px;
     flex-direction:column;
 
     justify-content:center;
-
 }
 
 
-.reviewAuthor {
+/* Ім'я */
 
-    font-size:14px;
+#pointReviews .reviewAuthor {
 
-    line-height:18px;
+    height:auto !important;
+    min-height:0 !important;
+
+    margin:0 !important;
+
+    font-size:12px !important;
+
+    line-height:15px !important;
 
     font-weight:800;
 
     color:#546e7a;
 
+    white-space:nowrap;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
 }
 
 
-.reviewDate {
+/* Дата */
 
-    margin-top:2px;
+#pointReviews .reviewDate {
 
-    font-size:11px;
+    height:auto !important;
+    min-height:0 !important;
 
-    line-height:14px;
+    margin:1px 0 0 0 !important;
+
+    font-size:9px !important;
+
+    line-height:11px !important;
 
     color:#78909c;
-
 }
 
 
 /* =========================================================
-   ✏️ / 🗑️ ДІЇ
+   🗑️ ДІЇ АВТОРА
 ========================================================= */
 
-.reviewActions {
+#pointReviews .reviewActions {
 
     display:flex;
 
     align-items:center;
-
     justify-content:flex-end;
 
     gap:2px;
 
-    flex-wrap:wrap;
-
-}
-
-
-/* =========================================================
-   📝 ВІКНО ВІДГУКУ
-========================================================= */
-
-.reviewTextBox {
-
-    display:block;
-
-    width:100%;
-    height:auto;
-    min-height:0;
-
-    box-sizing:border-box;
-
-    padding:2px 6px;
-    margin:0;
-
-    background:#ffffff;
-
-    border:1px solid #d2dce2;
-    border-radius:12px;
-
-}
-
-
-/* =========================================================
-   📝 ТЕКСТ ВІДГУКУ
-========================================================= */
-
-.reviewText {
-
-    display:block;
-
-    width:100%;
-    height:auto;
-    min-height:0;
-
-    box-sizing:border-box;
+    flex-wrap:nowrap;
 
     margin:0;
     padding:0;
+}
 
-    font-size:38px;
-    line-height:1.35;
 
-    color:#244228;
+/* Кнопка видалення */
 
-    text-align:left;
+#pointReviews .reviewActions button {
 
-    white-space:pre-wrap;
+    border:none;
 
-    overflow-wrap:anywhere;
-    word-break:break-word;
+    background:transparent;
 
+    padding:2px 3px;
+
+    margin:0;
+
+    font-size:9px;
+
+    color:#c45b5b;
+
+    cursor:pointer;
+}
+
+
+/* =========================================================
+   💬 ВІКНО ТЕКСТУ ВІДГУКУ
+========================================================= */
+
+#pointReviews .reviewTextBox {
+
+    display:block;
+
+    width:100%;
+
+    height:auto !important;
+    min-height:0 !important;
+    max-height:none !important;
+
+    box-sizing:border-box;
+
+    padding:1px 4px;
+
+    margin:0;
+
+    background:#dae2e2;
+
+    border:1px solid #e9eef0;
+
+    border-radius:12px;
+
+    box-shadow:0 1px 2px rgba(38,55,70,.04);
+
+    overflow:visible !important;
+}
+
+#pointReviews .review {
+    margin: 3px 0 !important;
+    padding: 4px 0 !important;
+}
+
+#pointReviews .reviewHeader {
+    margin: 0 0 2px 0 !important;
+    padding: 0 !important;
 }
 
 /* =========================================================
    👍👎 РЕЙТИНГ
 ========================================================= */
 
-.reviewRatingBar {
+#pointReviews .reviewRatingBar {
 
     display:flex;
 
     align-items:center;
 
-    gap:7px;
+    gap:4px;
 
-    margin-top:8px;
+    width:100%;
 
-    padding-top:7px;
+    height:auto !important;
+    min-height:0 !important;
 
-    border-top:1px solid #edf1ef;
+    box-sizing:border-box;
 
+    margin:4px 0 0 0 !important;
+
+    padding:4px 0 0 0 !important;
+
+    border-top:1px solid #edf1f3;
 }
+
+
+/* Кнопки рейтингу */
+
+#pointReviews .reviewRatingBar button {
+
+    min-width:34px;
+
+    height:20px;
+
+    padding:0 5px;
+
+    border:1px solid #d9e1e5;
+
+    border-radius:6px;
+
+    background:#ffffff;
+
+    color:#52656f;
+
+    font-size:9px;
+
+    cursor:pointer;
+}
+
+
+/* =========================================================
+   ➕ ФОРМА ДОДАВАННЯ
+========================================================= */
+
+#pointReviews .reviewTextarea {
+
+    display:block;
+
+    width:100%;
+
+    min-height:70px;
+
+    height:auto;
+
+    box-sizing:border-box;
+
+    padding:8px 9px;
+
+    resize:none;
+
+    overflow:hidden;
+
+    border:1px solid #cbd7dd;
+
+    border-radius:9px;
+
+    background:#f8fafb;
+
+    color:#37474f;
+
+    font-family:'Montserrat',sans-serif;
+
+    font-size:12px;
+
+    line-height:1.4;
+
+    outline:none;
+
+    transition:
+        height .1s ease,
+        border-color .2s ease,
+        box-shadow .2s ease;
+}
+
+
+#pointReviews .reviewTextarea:focus {
+
+    border-color:#78909c;
+
+    box-shadow:
+        0 0 0 2px rgba(96,125,139,.12);
+}
+
+
+/* =========================================================
+   ➕ КНОПКА ДОДАТИ
+========================================================= */
+
+#pointReviews .addReviewButton {
+
+    width:100%;
+
+    margin-top:7px;
+
+    padding:9px;
+
+    border:none;
+
+    border-radius:9px;
+
+    background:#607d8b;
+
+    color:#ffffff;
+
+    font-family:'Montserrat',sans-serif;
+
+    font-size:12px;
+
+    font-weight:700;
+
+    cursor:pointer;
+}
+
+
+.tankerWashIcon {
+    width:35px !important;
+    height:35px !important;
+    object-fit:contain;
+}
+
+.tankerWashActiveIcon {
+    width:35px !important;
+    height:35px !important;
+    object-fit:contain;
+}
+
 </style>
 
 </head>
@@ -6001,9 +5614,19 @@ left: 10px;
         </button>
 
 
-        <button class="subCategoryBtn">
-            Розробляється
-        </button>
+<!-- 🚿 МИЙКА АВТО-ЦИСТЕРН -->
+
+<button
+    class="subCategoryBtn"
+    onclick="selectTankerWash(this)"
+>
+   <img
+    src="tanker_wash_map.svg"
+    class="categoryIcon tankerWashIcon"
+>
+
+    Мийка авто-цистерн
+</button>
 
 
         <button class="subCategoryBtn">
@@ -6100,6 +5723,10 @@ left: 10px;
 
     <option value="tire_service">
         Шиномонтаж
+    </option>
+
+    <option value="tanker_wash">
+         Мийка авто-цистерн
     </option>
 
     <option value="other">
@@ -6229,6 +5856,15 @@ left: 10px;
     <span>Шиномонтаж</span> 
 </div> 
 
+<!-- 🚿 МИЙКА АВТО-ЦИСТЕРН -->
+
+<div
+    class="categoryOption"
+    data-value="tanker_wash"
+>
+    <img src="tanker_wash_map.svg">
+    <span>Мийка авто-цистерн</span>
+</div>
 
 <!-- ℹ️ ІНШЕ -->
 
@@ -6556,7 +6192,17 @@ left: 10px;
     <img src="sinomontazh_map.svg"> 
     <span>Шиномонтаж</span> 
 </div>
+
+<!-- 🚿 МИЙКА АВТО-ЦИСТЕРН -->
+
+<div
+    class="developer-category-option"
+    data-value="tanker_wash"
+>
+    <img src="tanker_wash_map.svg">
+    <span>Мийка авто-цистерн</span>
 </div>
+
 
 </div>
 
@@ -6613,6 +6259,10 @@ left: 10px;
     <option value="tire_service">
         Шиномонтаж
     </option>
+
+    <option value="tanker_wash">
+    Мийка авто-цистерн
+</option>
 
 </select>
 
@@ -6786,6 +6436,7 @@ left: 10px;
     <option value="gas_station">⛽ Заправка</option> 
     <option value="service">🔧 Сервіс</option> 
     <option value="tire_service">🛞 Шиномонтаж</option>
+    <option value="tanker_wash">🚿 Мийка авто-цистерн</option>
     <option value="water">💧 Набрати воду</option> 
     <option value="paid_parking">💳 Платний паркінг</option> 
     <option value="free_parking">🅿️ Безплатний паркінг</option> 
@@ -7051,6 +6702,16 @@ if(
         return "tire_service";
     }
 
+        /* =================================================
+       МИЙКА АВТО-ЦИСТЕРН
+    ================================================= */
+
+    if(
+        name.includes("tanker_wash_map.svg") ||
+        name.includes("tanker_wash")
+    ){
+        return "tanker_wash";
+    }
 
     /* =================================================
        НАБРАТИ ВОДУ
@@ -8232,6 +7893,7 @@ const categories = [
     "cafe_lunch",
     "flea_market", 
     "tire_service",
+    "tanker_wash",
     "other" 
  
 ];
@@ -8914,6 +8576,9 @@ function getApprovedIcon(category){
 
         tire_service:
              "sinomontazh_map.svg",
+
+        tanker_wash:
+             "tanker_wash_map.svg",
 
         gas_station:
             "gas_map.svg",
@@ -9884,6 +9549,10 @@ const categoryNames = {
 
     water: "Набрати воду",
 
+    tire_service: "Шиномонтаж",
+
+    tanker_wash: "Мийка авто-цистерн",
+
     other: "Інше"
 
 };
@@ -10607,6 +10276,8 @@ const categoryNames = {
     road_parking: "Паркування при дорозі",
     industrial: "Промислова зона",
     parking_firma: "Паркування біля фірми",
+    tire_service: "Шиномонтаж",
+    tanker_wash: "tanker_wash_map.svg",
     water: "Набрати воду",
     other: "Інше"
 
@@ -14378,6 +14049,35 @@ if(tireServiceActive){
     );
 }
 
+ /* =========================
+    🚿 МИЙКА АВТО-ЦИСТЕРН
+ ========================= */
+
+const tankerWashActive =
+    savedCategories.includes("tanker_wash");
+
+console.log(
+    "🚿 TANKER WASH ACTIVE:",
+    tankerWashActive
+);
+
+if(tankerWashActive){
+
+    const img = document.createElement("img");
+
+    img.src = "tanker_wash_map.svg";
+
+    img.className =
+        "activeMapCategoryIcon tankerWashActiveIcon";
+
+    img.title = "Мийка авто-цистерн";
+
+    container.appendChild(img);
+
+    console.log(
+        "🚿 TANKER WASH ICON ADDED"
+    );
+}
 }
 
 function addActiveMapEmojiIcon(icon, title){
@@ -14910,6 +14610,28 @@ if(
 
 }
 
+ /* =========================
+    🚿 МИЙКА АВТО-ЦИСТЕРН
+ ========================= */
+
+if(
+    iconFile.includes("tanker_wash")
+){
+
+    return L.icon({
+
+        iconUrl:"tanker_wash_map.svg",
+
+        iconSize:[35,35],
+
+        iconAnchor:[20,40],
+
+        popupAnchor:[0,-40]
+
+    });
+
+}
+
     /* -------------------------
        Іконка за категорією
     ------------------------- */
@@ -14942,6 +14664,9 @@ if(
 
         tire_service:
              "sinomontazh_map.svg",
+
+             tanker_wash:
+    "tanker_wash_map.svg",
 
         parking_firma:
             "Pfirma_map.svg",
@@ -15166,6 +14891,18 @@ if(category === "tire_service"){
 
     return localStorage.getItem(
         "tireServiceActive"
+    ) === "true";
+
+}
+
+/* -------------------------
+   Мийка авто-цистерн
+------------------------- */
+
+if(category === "tanker_wash"){
+
+    return localStorage.getItem(
+        "tankerWashActive"
     ) === "true";
 
 }
@@ -15883,6 +15620,8 @@ async function loadActiveCategories(){
 
     "tire_service",
 
+    "tanker_wash",
+
     "truck_service"
 
 ];
@@ -16225,7 +15964,13 @@ function saveActiveCategories(){
             category: "tire_service",
             selector:
                 '#servicesCategories .subCategoryBtn[onclick*="selectTireService"]'
-        }
+        },
+
+        {
+    category: "tanker_wash",
+    selector:
+        '#servicesCategories .subCategoryBtn[onclick*="selectTankerWash"]'
+}
 
     ];
 
@@ -16315,6 +16060,29 @@ function saveActiveCategories(){
 
     }
 
+
+    /*
+   =================================================
+   🚿 TANKER WASH
+   =================================================
+
+   Мийка авто-цистерн має окремий стан.
+*/
+
+const tankerWashState =
+    localStorage.getItem("tankerWashActive");
+
+
+if(tankerWashState === "true"){
+
+    activeSet.add("tanker_wash");
+
+}
+else if(tankerWashState === "false"){
+
+    activeSet.delete("tanker_wash");
+
+}
 
     /*
        🔥 ФОРМУЄМО ФІНАЛЬНИЙ СПИСОК
@@ -16591,6 +16359,22 @@ if(saved.includes("tire_service")){
 
     const button = document.querySelector(
         '#servicesCategories .subCategoryBtn[onclick*="selectTireService"]'
+    );
+
+    if(button){
+        button.classList.add("active");
+    }
+
+}
+
+/* =========================
+   🚿 TANKER WASH
+========================= */
+
+if(saved.includes("tanker_wash")){
+
+    const button = document.querySelector(
+        '#servicesCategories .subCategoryBtn[onclick*="selectTankerWash"]'
     );
 
     if(button){
@@ -17577,6 +17361,130 @@ function selectTireService(button){
 
 }
 
+/* =====================================================
+   🚿 МИЙКА АВТО-ЦИСТЕРН
+===================================================== */
+
+function selectTankerWash(button){
+
+    const isActive =
+        button.classList.toggle("active");
+
+
+    localStorage.setItem(
+        "tankerWashActive",
+        isActive ? "true" : "false"
+    );
+
+
+    console.log(
+        "🚿 selectTankerWash:",
+        isActive
+    );
+
+
+    /* =========================
+       ЗАВАНТАЖУЄМО / ВИМИКАЄМО
+    ========================= */
+
+    if(isActive){
+
+        console.log(
+            "🚿 Завантажуємо TANKER WASH..."
+        );
+
+        loadCategoryPoints("tanker_wash");
+
+    }
+
+    else{
+
+        console.log(
+            "🚿 Вимикаємо TANKER WASH..."
+        );
+
+
+        /* =========================
+           ВИДАЛЯЄМО МАРКЕРИ
+        ========================= */
+
+        Object.keys(pointMarkers).forEach(
+            pointId => {
+
+                const point =
+                    pointMarkers[pointId];
+
+                if(
+                    point &&
+                    point.category === "tanker_wash"
+                ){
+
+                    if(point.marker){
+
+                        map.removeLayer(
+                            point.marker
+                        );
+
+                    }
+
+                    delete pointMarkers[
+                        pointId
+                    ];
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =========================
+       💾 ЗБЕРІГАЄМО СТАН
+    ========================= */
+
+    const saved =
+        JSON.parse(
+            localStorage.getItem(
+                ACTIVE_CATEGORIES_STORAGE
+            ) || "[]"
+        );
+
+    const set =
+        new Set(saved);
+
+
+    if(isActive){
+
+        set.add("tanker_wash");
+
+    }
+    else{
+
+        set.delete("tanker_wash");
+
+    }
+
+
+    localStorage.setItem(
+        ACTIVE_CATEGORIES_STORAGE,
+        JSON.stringify([...set])
+    );
+
+
+    console.log(
+        "💾 Збережено:",
+        [...set]
+    );
+
+
+    /* =========================
+       ІКОНКИ АКТИВНИХ КАТЕГОРІЙ
+    ========================= */
+
+    updateActiveCategoryIcons();
+
+}
 
 /* =====================================================
    🌐 GLOBAL
