@@ -4549,53 +4549,6 @@ left: 10px;
 
 
 
-/* =====================================================
-   🗺 ВІКНО КООРДИНАТ
-===================================================== */
-
-.coordinatesModal {
-
-    position: fixed;
-
-    left: 50%;
-    top: 50%;
-
-    transform: translate(-50%, -50%);
-
-    width: min(330px, calc(100vw - 40px));
-
-    background: white;
-
-    border-radius: 18px;
-
-    padding: 20px;
-
-    box-shadow:
-        0 10px 40px rgba(0,0,0,0.4);
-
-    z-index: 20000;
-
-    display: none;
-}
-
-.coordinatesModal.show {
-
-    display: block;
-
-}
-
-
-/* Заголовок */
-
-.coordinatesModalTitle {
-
-    font-size: 19px;
-    font-weight: 700;
-
-    margin-bottom: 15px;
-
-}
-
 
 /* Поля */
 
@@ -4618,45 +4571,183 @@ left: 10px;
 }
 
 
-/* Кнопки */
+
+ /* =====================================================
+    🗺 ВІКНО ПЕРЕХОДУ ЗА КООРДИНАТАМИ
+ ===================================================== */
+
+.coordinatesModal {
+
+    position: fixed !important;
+
+    top: 50% !important;
+    left: 50% !important;
+
+    transform: translate(-50%, -50%) !important;
+
+    width: min(90vw, 380px) !important;
+    height: auto !important;
+    min-height: 0 !important;
+
+    box-sizing: border-box !important;
+
+    padding: 20px !important;
+
+    background: #ffffff !important;
+
+    border-radius: 18px !important;
+
+    box-shadow:
+        0 12px 40px rgba(0, 0, 0, 0.30) !important;
+
+    display: none !important;
+
+    flex-direction: column !important;
+
+    gap: 12px !important;
+
+    z-index: 99999999 !important;
+
+    visibility: hidden !important;
+
+    opacity: 0 !important;
+
+    pointer-events: none !important;
+}
+
+
+/* =====================================================
+   🔓 ВІДКРИТЕ ВІКНО
+===================================================== */
+
+.coordinatesModal.show {
+
+    display: flex !important;
+
+    visibility: visible !important;
+
+    opacity: 1 !important;
+
+    pointer-events: auto !important;
+}
+
+
+/* =====================================================
+   🗺 ЗАГОЛОВОК
+===================================================== */
+
+.coordinatesModalTitle {
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    font-size: 18px;
+
+    font-weight: 700;
+
+    color: #263238;
+
+    text-align: center;
+
+    margin-bottom: 4px;
+}
+
+
+/* =====================================================
+   📍 ПОЛЯ КООРДИНАТ
+===================================================== */
+
+.coordinatesInput {
+
+    width: 100% !important;
+
+    height: 46px !important;
+
+    box-sizing: border-box !important;
+
+    padding: 0 14px !important;
+
+    border: 1px solid #d2dce2 !important;
+
+    border-radius: 10px !important;
+
+    background: #f8fafb !important;
+
+    color: #263238 !important;
+
+    font-size: 15px !important;
+
+    outline: none !important;
+}
+
+.coordinatesInput:focus {
+
+    border-color: #00bcd4 !important;
+
+    background: #ffffff !important;
+}
+
+
+/* =====================================================
+   🔘 КНОПКИ
+===================================================== */
 
 .coordinatesModalButtons {
+
+    width: 100%;
 
     display: flex;
 
     gap: 10px;
 
-    margin-top: 10px;
-
+    margin-top: 4px;
 }
 
-.coordinatesModalButtons button {
+
+.coordinatesGoButton,
+.coordinatesCloseButton {
 
     flex: 1;
 
-    padding: 12px;
+    height: 44px;
 
     border: none;
 
     border-radius: 10px;
 
-    font-size: 16px;
+    font-size: 14px;
+
+    font-weight: 700;
 
     cursor: pointer;
 
+    box-sizing: border-box;
 }
+
 
 .coordinatesGoButton {
 
-    background: #2196f3;
-    color: white;
+    background: #00bcd4;
 
+    color: #ffffff;
 }
+
 
 .coordinatesCloseButton {
 
-    background: #e5e5e5;
+    background: #e9eef1;
+
+    color: #263238;
 }
+
+
+.coordinatesGoButton:active,
+.coordinatesCloseButton:active {
+
+    transform: scale(0.97);
+}
+
 
 /* =========================================================
    💬 ВІДГУКИ — КОМПАКТНИЙ СТИЛЬ
@@ -6653,6 +6744,7 @@ left: 10px;
     </div>
 
 </div>
+</div>
 
 <!-- =====================================================
      🗺 ВІКНО ПЕРЕХОДУ ЗА КООРДИНАТАМИ
@@ -7139,178 +7231,318 @@ setTimeout(function() {
    🔍 ПОШУК ЗА КООРДИНАТАМИ
 ===================================================== */
 
-const coordinatesSearchButton =
-    document.getElementById(
-        "coordinatesSearchButton"
-    );
+document.addEventListener("DOMContentLoaded", () => {
 
-const coordinatesModal =
-    document.getElementById(
-        "coordinatesModal"
-    );
+    const coordinatesSearchButton =
+        document.getElementById("coordinatesSearchButton");
 
-const coordinatesGoButton =
-    document.getElementById(
-        "coordinatesGoButton"
-    );
+    const coordinatesModal =
+        document.getElementById("coordinatesModal");
 
-const coordinatesCloseButton =
-    document.getElementById(
-        "coordinatesCloseButton"
-    );
+    const coordinatesGoButton =
+        document.getElementById("coordinatesGoButton");
 
-const latitudeInput =
-    document.getElementById(
-        "latitudeInput"
-    );
+    const coordinatesCloseButton =
+        document.getElementById("coordinatesCloseButton");
 
-const longitudeInput =
-    document.getElementById(
-        "longitudeInput"
-    );
+    const latitudeInput =
+        document.getElementById("latitudeInput");
+
+    const longitudeInput =
+        document.getElementById("longitudeInput");
 
 
-/* -----------------------------------------------------
-   ВІДКРИТТЯ ВІКНА
------------------------------------------------------ */
+    /* =================================================
+       🔎 ПЕРЕВІРКА ЕЛЕМЕНТІВ
+    ================================================= */
 
-coordinatesSearchButton.addEventListener(
-    "click",
-    () => {
-
-        coordinatesModal.classList.add("show");
-
-        latitudeInput.focus();
-
-    }
-);
+    console.log("🔍 Координати:", {
+        searchButton: coordinatesSearchButton,
+        modal: coordinatesModal,
+        goButton: coordinatesGoButton,
+        closeButton: coordinatesCloseButton,
+        latitudeInput: latitudeInput,
+        longitudeInput: longitudeInput
+    });
 
 
-/* -----------------------------------------------------
-   ЗАКРИТТЯ
------------------------------------------------------ */
-
-coordinatesCloseButton.addEventListener(
-    "click",
-    () => {
-
-        coordinatesModal.classList.remove("show");
-
-    }
-);
-
-
-/* -----------------------------------------------------
-   ПЕРЕХІД
------------------------------------------------------ */
-
-coordinatesGoButton.addEventListener(
-    "click",
-    () => {
-
-        let lat =
-            parseFloat(
-                latitudeInput.value
-                    .trim()
-                    .replace(",", ".")
-            );
-
-        let lng =
-            parseFloat(
-                longitudeInput.value
-                    .trim()
-                    .replace(",", ".")
-            );
-
-
-        /* Перевірка */
-
-        if (
-            !Number.isFinite(lat) ||
-            !Number.isFinite(lng)
-        ) {
-
-            alert(
-                "Введіть правильні координати."
-            );
-
-            return;
-
-        }
-
-
-        /* Перевірка меж */
-
-        if (
-            lat < -90 ||
-            lat > 90 ||
-            lng < -180 ||
-            lng > 180
-        ) {
-
-            alert(
-                "Координати знаходяться поза допустимими межами."
-            );
-
-            return;
-
-        }
-
-
-        console.log(
-            "🗺 Перехід за координатами:",
-            lat,
-            lng
+    if (!coordinatesSearchButton) {
+        console.error(
+            "❌ Не знайдено #coordinatesSearchButton"
         );
+        return;
+    }
+
+    if (!coordinatesModal) {
+        console.error(
+            "❌ Не знайдено #coordinatesModal"
+        );
+        return;
+    }
 
 
-        /* ------------------------------------------------
-           ПЕРЕМІЩЕННЯ КАРТИ
-        ------------------------------------------------ */
+    /* =================================================
+       🔍 ВІДКРИТТЯ ВІКНА
+    ================================================= */
 
-        map.setView(
-            [lat, lng],
-            15,
-            {
-                animate: true
+    coordinatesSearchButton.addEventListener(
+        "click",
+        function (event) {
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            console.log("🔍 Відкриваємо пошук координат");
+
+            coordinatesModal.classList.add("show");
+
+            if (latitudeInput) {
+                setTimeout(() => {
+                    latitudeInput.focus();
+                }, 100);
+            }
+
+        }
+    );
+
+
+    /* =================================================
+       ❌ ЗАКРИТТЯ
+    ================================================= */
+
+    if (coordinatesCloseButton) {
+
+        coordinatesCloseButton.addEventListener(
+            "click",
+            function (event) {
+
+                event.preventDefault();
+
+                coordinatesModal.classList.remove("show");
+
             }
         );
 
-
-        /* ------------------------------------------------
-           ТИМЧАСОВИЙ МАРКЕР
-        ------------------------------------------------ */
-
-        if (
-            window.coordinateSearchMarker
-        ) {
-
-            map.removeLayer(
-                window.coordinateSearchMarker
-            );
-
-        }
+    }
 
 
-        window.coordinateSearchMarker =
-            L.marker(
-                [lat, lng]
-            )
-            .addTo(map)
-            .bindPopup(
-                `📍 ${lat.toFixed(6)}, ${lng.toFixed(6)}`
-            )
-            .openPopup();
+    /* =================================================
+       🗺 ПЕРЕХІД ЗА КООРДИНАТАМИ
+    ================================================= */
+
+    if (coordinatesGoButton) {
+
+        coordinatesGoButton.addEventListener(
+            "click",
+            function (event) {
+
+                event.preventDefault();
+
+                console.log("🗺 Натиснуто «Перейти»");
 
 
-        /* Закриваємо вікно */
+                /* -----------------------------------------
+                   Отримуємо значення
+                ----------------------------------------- */
 
-        coordinatesModal.classList.remove(
-            "show"
+                if (!latitudeInput || !longitudeInput) {
+
+                    console.error(
+                        "❌ Не знайдено поля координат"
+                    );
+
+                    return;
+
+                }
+
+
+                let lat =
+                    parseFloat(
+                        latitudeInput.value
+                            .trim()
+                            .replace(",", ".")
+                    );
+
+                let lng =
+                    parseFloat(
+                        longitudeInput.value
+                            .trim()
+                            .replace(",", ".")
+                    );
+
+
+                /* -----------------------------------------
+                   Перевірка
+                ----------------------------------------- */
+
+                if (
+                    !Number.isFinite(lat) ||
+                    !Number.isFinite(lng)
+                ) {
+
+                    alert(
+                        "Введіть правильні координати."
+                    );
+
+                    return;
+
+                }
+
+
+                /* -----------------------------------------
+                   Перевірка меж
+                ----------------------------------------- */
+
+                if (
+                    lat < -90 ||
+                    lat > 90 ||
+                    lng < -180 ||
+                    lng > 180
+                ) {
+
+                    alert(
+                        "Координати знаходяться поза допустимими межами."
+                    );
+
+                    return;
+
+                }
+
+
+                console.log(
+                    "🗺 Перехід за координатами:",
+                    lat,
+                    lng
+                );
+
+
+                /* -----------------------------------------
+                   Перевіряємо карту
+                ----------------------------------------- */
+
+                if (
+                    typeof map === "undefined" ||
+                    !map
+                ) {
+
+                    console.error(
+                        "❌ Leaflet map ще не створена"
+                    );
+
+                    return;
+
+                }
+
+
+                /* -----------------------------------------
+                   Переміщення карти
+                ----------------------------------------- */
+
+                map.setView(
+                    [lat, lng],
+                    15,
+                    {
+                        animate: true
+                    }
+                );
+
+
+                /* -----------------------------------------
+                   Видаляємо старий маркер
+                ----------------------------------------- */
+
+                if (
+                    window.coordinateSearchMarker
+                ) {
+
+                    try {
+
+                        map.removeLayer(
+                            window.coordinateSearchMarker
+                        );
+
+                    } catch (error) {
+
+                        console.warn(
+                            "⚠️ Не вдалося видалити старий маркер:",
+                            error
+                        );
+
+                    }
+
+                }
+
+
+                /* -----------------------------------------
+                   Створюємо новий маркер
+                ----------------------------------------- */
+
+                window.coordinateSearchMarker =
+                    L.marker(
+                        [lat, lng]
+                    )
+                    .addTo(map)
+                    .bindPopup(
+                        `📍 ${lat.toFixed(6)}, ${lng.toFixed(6)}`
+                    )
+                    .openPopup();
+
+
+                /* -----------------------------------------
+                   Закриваємо вікно
+                ----------------------------------------- */
+
+                coordinatesModal.classList.remove(
+                    "show"
+                );
+
+            }
         );
 
     }
-);
+
+
+    /* =================================================
+       ⌨️ ENTER У ПОЛЯХ КООРДИНАТ
+    ================================================= */
+
+    function coordinateEnterHandler(event) {
+
+        if (event.key === "Enter") {
+
+            event.preventDefault();
+
+            if (coordinatesGoButton) {
+
+                coordinatesGoButton.click();
+
+            }
+
+        }
+
+    }
+
+
+    if (latitudeInput) {
+
+        latitudeInput.addEventListener(
+            "keydown",
+            coordinateEnterHandler
+        );
+
+    }
+
+
+    if (longitudeInput) {
+
+        longitudeInput.addEventListener(
+            "keydown",
+            coordinateEnterHandler
+        );
+
+    }
+
+});
 
 
 
@@ -10392,7 +10624,7 @@ const categoryNames = {
     industrial: "Промислова зона",
     parking_firma: "Паркування біля фірми",
     tire_service: "Шиномонтаж",
-    tanker_wash: "tanker_wash_map.svg",
+    tanker_wash: "Мийка авто-цистерн",
     water: "Набрати воду",
     other: "Інше"
 
@@ -14783,7 +15015,7 @@ if(
              "sinomontazh_map.svg",
 
              tanker_wash:
-    "tanker_wash_map.svg",
+        "tanker_wash_map.svg",
 
         parking_firma:
             "Pfirma_map.svg",
