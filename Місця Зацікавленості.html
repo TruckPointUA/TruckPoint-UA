@@ -5291,6 +5291,26 @@ left: 10px;
     margin: 0 !important;
 }
 
+
+/* =====================================================
+   ✏️ ПОВНЕ РЕДАГУВАННЯ ТОЧКИ
+===================================================== */
+
+#developerEditPointOverlay {
+    position: fixed !important;
+    inset: 0 !important;
+
+    width: 100vw !important;
+    height: 100dvh !important;
+
+    min-width: 100vw !important;
+    min-height: 100dvh !important;
+
+    z-index: 99999999 !important;
+
+    align-items: center;
+    justify-content: center;
+}
 </style>
 
 </head>
@@ -5638,9 +5658,21 @@ left: 10px;
         </button>
 
 
-        <button class="subCategoryBtn">
-            Розробляється
-        </button>
+<!-- 🚿 ДУШ -->
+
+<button 
+    class="subCategoryBtn" 
+    onclick="selectShower(this)" 
+>
+
+    <img 
+        src="dush_map.svg" 
+        class="categoryIcon" 
+    >
+
+    Душ
+
+</button>
 
 
         <button class="subCategoryBtn">
@@ -5928,6 +5960,10 @@ left: 10px;
         Набрати воду
     </option>
 
+    <option value="dush">
+        Душ
+    </option>
+
     <option value="tire_service">
         Шиномонтаж
     </option>
@@ -6052,6 +6088,15 @@ left: 10px;
     <span>Набрати воду</span> 
 </div> 
 
+<!-- 🚿 ДУШ -->
+
+<div  
+    class="categoryOption"  
+    data-value="dush"  
+>  
+    <img src="dush_map.svg">  
+    <span>Душ</span>  
+</div>
 
 <!-- 🛞 ШИНОМОНТАЖ -->
 
@@ -6132,6 +6177,7 @@ left: 10px;
             </div>
 
         </div>
+        
 
 
         <!-- ІНФОРМАЦІЯ ПРО ІКОНКУ -->
@@ -6389,6 +6435,14 @@ left: 10px;
     <span>Набрати воду</span> 
 </div> 
 
+<!-- 🚿 ДУШ -->  
+<div   
+    class="developer-category-option"   
+    data-value="dush"  
+>  
+    <img src="dush_map.svg">  
+    <span>Душ</span>  
+</div>
 
 <!-- 🛞 ШИНОМОНТАЖ --> 
 <div  
@@ -6462,6 +6516,10 @@ left: 10px;
         Набрати воду
     </option>
 
+    <option value="dush">
+         Душ
+    </option>
+
     <option value="tire_service">
         Шиномонтаж
     </option>
@@ -6471,6 +6529,8 @@ left: 10px;
 </option>
 
 </select>
+
+</div> 
 
 
     <!-- =================================================
@@ -6552,6 +6612,7 @@ left: 10px;
     </div>
 
 
+
     <!-- =================================================
          ПОКАЗАТИ НА КАРТІ
     ================================================== -->
@@ -6595,7 +6656,8 @@ left: 10px;
     id="newPointsAdminMessage"
     class="new-points-admin-message"
 ></div>
-```
+
+
 
 <!-- =========================================================
      🛠️ ВІКНО ПОВНОГО РЕДАГУВАННЯ ТОЧКИ РОЗРОБНИКОМ
@@ -6631,23 +6693,24 @@ left: 10px;
 
         <label>Категорія</label>
 
-<select id="developerEditPointCategory"> 
- 
-    <option value="wash">🚿 Мийка</option> 
-    <option value="parking">🅿️ Паркінг</option> 
-    <option value="market">🛒 Продуктовий магазин</option> 
-    <option value="truck_schop">🛒 Магазин ТІР</option> 
-    <option value="cafe_lunch">🍽️ Кафе та обіди</option> 
-    <option value="industrial">🏭 Промислова зона</option> 
-    <option value="gas_station">⛽ Заправка</option> 
-    <option value="service">🔧 Сервіс</option> 
-    <option value="tire_service">🛞 Шиномонтаж</option>
-    <option value="tanker_wash">🚿 Мийка авто-цистерн</option>
-    <option value="water">💧 Набрати воду</option> 
-    <option value="paid_parking">💳 Платний паркінг</option> 
-    <option value="free_parking">🅿️ Безплатний паркінг</option> 
- 
-</select>
+        <select id="developerEditPointCategory">
+
+            <option value="wash">🚿 Мийка</option>
+            <option value="parking">🅿️ Паркінг</option>
+            <option value="market">🛒 Продуктовий магазин</option>
+            <option value="truck_schop">🛒 Магазин ТІР</option>
+            <option value="cafe_lunch">🍽️ Кафе та обіди</option>
+            <option value="industrial">🏭 Промислова зона</option>
+            <option value="gas_station">⛽ Заправка</option>
+            <option value="service">🔧 Сервіс</option>
+            <option value="tire_service">🛞 Шиномонтаж</option>
+            <option value="tanker_wash">🚿 Мийка авто-цистерн</option>
+            <option value="water">💧 Набрати воду</option>
+            <option value="dush">🚿 Душ</option>
+            <option value="paid_parking">💳 Платний паркінг</option>
+            <option value="free_parking">🅿️ Безплатний паркінг</option>
+
+        </select>
 
 
         <label>Назва точки</label>
@@ -6743,7 +6806,6 @@ left: 10px;
 
     </div>
 
-</div>
 </div>
 
 <!-- =====================================================
@@ -6931,6 +6993,16 @@ if(
         return "water";
     }
 
+    /* =================================================
+   🚿 ДУШ
+================================================= */
+
+if(
+    name.includes("dush_map") ||
+    name.includes("dush")
+){
+    return "dush";
+}
 
     /* =================================================
        Паркування при дорозі
@@ -8235,6 +8307,7 @@ const categories = [
     "water", 
     "road_parking", 
     "wash", 
+    "dush",
     "gas_station", 
     "truck_schop", 
     "cafe_lunch",
@@ -8912,6 +8985,9 @@ function getApprovedIcon(category){
         water:
             "water_map.svg",
 
+        dush:
+             "dush_map.svg",
+
         parking_firma:
             "Pfirma_map.svg",
 
@@ -8941,9 +9017,6 @@ function getApprovedIcon(category){
 
         other:
             "info_marker.svg",
-
-        water: 
-            "water_map.svg",
 
 
 
@@ -9896,6 +9969,8 @@ const categoryNames = {
 
     water: "Набрати воду",
 
+    dush: "Душ",
+
     tire_service: "Шиномонтаж",
 
     tanker_wash: "Мийка авто-цистерн",
@@ -10626,6 +10701,7 @@ const categoryNames = {
     tire_service: "Шиномонтаж",
     tanker_wash: "Мийка авто-цистерн",
     water: "Набрати воду",
+    dush: "Душ",
     other: "Інше"
 
 };
@@ -11210,6 +11286,12 @@ if (isDeveloper()) {
 
     developerPanel.innerHTML = `
 
+    <div style="
+        position:relative;
+        z-index:999999;
+        pointer-events:auto;
+    ">
+
         <div style="
             font-weight:700;
             margin-bottom:10px;
@@ -11218,7 +11300,6 @@ if (isDeveloper()) {
         ">
             🛠️ Панель розробника
         </div>
-
 
         <button
             type="button"
@@ -11236,19 +11317,22 @@ if (isDeveloper()) {
                 );
 
                 color:white;
-
                 font-size:16px;
                 font-weight:700;
-
                 cursor:pointer;
 
                 margin-bottom:8px;
+
+                position:relative;
+                z-index:1000000;
+
+                pointer-events:auto;
             "
         >
             ✏️ Повністю редагувати
         </button>
-
-
+        
+      
         <button
             type="button"
             id="developerDeletePointButton"
@@ -11278,41 +11362,60 @@ if (isDeveloper()) {
     `;
 
 
-    /* =====================================================
-       ✏️ КНОПКА РЕДАГУВАННЯ
-    ===================================================== */
+ /* ===================================================== 
+   ✏️ ПОВНІСТЮ РЕДАГУВАТИ ПОТОЧНУ ТОЧКУ 
+===================================================== */ 
+ 
+const editButton = document.getElementById( 
+    "developerEditPointButton" 
+); 
+ 
+if (editButton) { 
+ 
+    editButton.onclick = function(event) { 
+ 
+        event.preventDefault(); 
+        event.stopPropagation(); 
+ 
+        console.log("✏️ Редагування точки:", currentPointId); 
+ 
+        if (!currentPointId || !currentPointData) { 
+ 
+            alert("❌ Дані поточної точки не знайдені."); 
+ 
+            return; 
+        } 
+ 
+        /* 🔒 Зберігаємо дані ДО закриття вікна опису */
+        const pointId = currentPointId;
+        const pointData = currentPointData;
 
-    const editButton =
-        developerPanel.querySelector(
-            "#developerEditPointButton"
-        );
+        const category = 
+            pointData.category || 
+            pointData.type || 
+            ""; 
+ 
+        if (!category) { 
+ 
+            alert("❌ Не визначена категорія точки."); 
+ 
+            return; 
+ 
+        } 
+ 
+        /* 🔴 Закриваємо вікно опису */
+        closePointInfo();
 
-
-    if (editButton) {
-
-        editButton.onclick = function(){
-
-            const pointCategory =
-                currentPointData.category ||
-                currentPointData.type ||
-                "";
-
-
-            openDeveloperEditPoint(
-
-                currentPointId,
-
-                pointCategory,
-
-                currentPointData
-
-            );
-
-        };
-
-    }
-
-
+        /* ✏️ Відкриваємо редактор */
+        openDeveloperEditPoint( 
+            pointId, 
+            category, 
+            pointData 
+        ); 
+ 
+    }; 
+ 
+}
     /* =====================================================
        🗑️ КНОПКА ВИДАЛЕННЯ
     ===================================================== */
@@ -12704,28 +12807,14 @@ async function loadPointReviews(pointId) {
                 );
 
 
-                /* =========================================
-                   ✏️ РЕДАГУВАННЯ
-                ========================================= */
+                   /* =====================================================
+       ✏️ КНОПКА ПОВНОГО РЕДАГУВАННЯ
+    ===================================================== */
 
-                const editButton =
-                    isOwner
-                        ? `
-
-                            <button
-                                type="button"
-                                class="reviewActionButton reviewEditButton"
-                                onclick="editPointReview(
-                                    '${pointId}',
-                                    '${review.id}'
-                                )"
-                            >
-                                ✏️ Редагувати
-                            </button>
-
-                        `
-                        : "";
-
+    const editButton =
+        developerPanel.querySelector(
+            "#developerEditPointButton"
+        );
 
                 /* =========================================
                    🗑️ ВИДАЛЕННЯ
@@ -14369,6 +14458,36 @@ if(waterActive){
 }
 
 /* =========================
+   🚿 ДУШ
+========================= */
+
+const dushActive =
+    savedCategories.includes("dush");
+
+console.log(
+    "🚿 DUSH ACTIVE:",
+    dushActive
+);
+
+if(dushActive){
+
+    const img = document.createElement("img");
+
+    img.src = "dush_map.svg";
+
+    img.className =
+        "activeMapCategoryIcon dushActiveIcon";
+
+    img.title = "Душ";
+
+    container.appendChild(img);
+
+    console.log(
+        "🚿 DUSH ICON ADDED"
+    );
+}
+
+/* =========================
    🛞 ШИНОМОНТАЖ
 ========================= */
 
@@ -14937,6 +15056,24 @@ if(
 
 }
 
+if(
+    iconFile.includes("dush")
+){
+
+    return L.icon({
+
+        iconUrl:"dush_map.svg",
+
+        iconSize:[40,40],
+
+        iconAnchor:[20,40],
+
+        popupAnchor:[0,-40]
+
+    });
+
+}
+
 /* =========================
    ШИНОМОНТАЖ
 ========================= */
@@ -15023,6 +15160,9 @@ if(
         wash:
             "wash_map.svg",
 
+        dush: 
+            "dush_map.svg",
+
         gas_station:
             "gas_map.svg",
 
@@ -15041,8 +15181,6 @@ if(
         truck_service:
             "truck_service_map.svg",
 
-        water: 
-            "water_map.svg",
 
     };
 
@@ -15232,6 +15370,19 @@ if(category === "water"){
     ) === "true";
 
 }
+
+ /* ------------------------- 
+    Душ
+ ------------------------- */
+
+if(category === "dush"){ 
+ 
+    return localStorage.getItem( 
+        "dushActive" 
+    ) === "true"; 
+ 
+}
+
 /* -------------------------
    Шиномонтаж
 ------------------------- */
@@ -15957,6 +16108,8 @@ async function loadActiveCategories(){
 
     "water",
 
+    "dush",
+
     "wash",
 
     "gas_station",
@@ -16308,7 +16461,11 @@ function saveActiveCategories(){
     selector:
         '#driverLifeCategories .subCategoryBtn[onclick*="selectWater"]'
 },
-
+{
+    category: "dush",
+    selector:
+        '#driverLifeCategories .subCategoryBtn[onclick*="selectShower"]'
+},
         {
             category: "tire_service",
             selector:
@@ -16699,6 +16856,35 @@ if(saved.includes("water")){
     }
 
 }
+
+ /* =========================
+    🚿 DUSH
+ ========================= */
+
+if(saved.includes("dush")){ 
+ 
+    const button = document.querySelector( 
+        '#driverLifeCategories .subCategoryBtn[onclick*="selectShower"]' 
+    ); 
+ 
+    if(button){ 
+ 
+        button.classList.add("active"); 
+ 
+        console.log( 
+            "🚿 DUSH BUTTON ACTIVATED" 
+        ); 
+ 
+    } else { 
+ 
+        console.warn( 
+            "⚠️ Кнопку Душ не знайдено" 
+        ); 
+ 
+    } 
+ 
+}
+
 
 /* =========================
    🛞 TIRE SERVICE
@@ -18026,6 +18212,107 @@ async function selectWater(button){
 
 }
 
+/* =========================
+               Душ
+    ========================= */
+
+async function selectShower(button){
+
+    const isActive =
+        button.classList.toggle("active");
+
+
+    localStorage.setItem(
+        "dushActive",
+        isActive ? "true" : "false"
+    );
+
+
+    console.log(
+        "🚿 selectShower:",
+        isActive
+    );
+
+
+    if(isActive){
+
+        console.log(
+            "🚿 Завантажуємо DUSH..."
+        );
+
+        await reloadCategory("dush");
+
+    }
+
+    else {
+
+        console.log("🚿 Вимикаємо DUSH...");
+
+        Object.keys(pointMarkers).forEach(pointId => {
+
+            const point = pointMarkers[pointId];
+
+            if (
+                point &&
+                (
+                    point.category === "dush" ||
+                    point.type === "dush"
+                )
+            ) {
+
+                if (point.marker) {
+
+                    if (map.hasLayer(point.marker)) {
+                        map.removeLayer(point.marker);
+                    }
+
+                }
+
+                delete pointMarkers[pointId];
+            }
+
+        });
+
+
+        /* =====================================
+           🚿 ЯКЩО Є ОКРЕМИЙ DUSH LAYER
+        ===================================== */
+
+        if (typeof dushLayer !== "undefined" && dushLayer) {
+
+            if (map.hasLayer(dushLayer)) {
+                map.removeLayer(dushLayer);
+            }
+
+            dushLayer.clearLayers();
+        }
+
+
+        /* =====================================
+           🔄 ОНОВЛЮЄМО ІКОНКИ
+        ===================================== */
+
+        updateActiveCategoryIcons();
+
+        console.log("🚿 DUSH ПОВНІСТЮ ВИМКНЕНО");
+    }
+
+
+    /* =========================
+       💾 ЗБЕРІГАЄМО СТАН
+    ========================= */
+
+    saveActiveCategories();
+
+
+    /* =========================
+       🔄 ОНОВЛЮЄМО ІКОНКИ
+    ========================= */
+
+    updateActiveCategoryIcons();
+
+}
+
 /* =====================================================
    ВІДНОВИТИ ТОЧКИ ПІСЛЯ ЗАВАНТАЖЕННЯ СТОРІНКИ
 ===================================================== */
@@ -18770,10 +19057,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 
-/* =========================================================
-   🛠️ РОЗРОБНИК — ПОВНЕ РЕДАГУВАННЯ ТОЧКИ
-========================================================= */
-
 
 /* =========================================================
    🔐 ПЕРЕВІРКА РОЗРОБНИКА
@@ -18799,7 +19082,7 @@ function checkDeveloperAccess() {
 
 
 /* =========================================================
-   ✏️ ВІДКРИТИ РЕДАГУВАННЯ
+   ✏️ ВІДКРИТИ РЕДАГУВАННЯ ТОЧКИ
 ========================================================= */
 
 function openDeveloperEditPoint(
@@ -18808,7 +19091,22 @@ function openDeveloperEditPoint(
     data
 ) {
 
+    console.log("✏️ openDeveloperEditPoint() ЗАПУЩЕНО");
+
+    console.log("🆔 pointId:", pointId);
+    console.log("📂 category:", category);
+    console.log("📍 data:", data);
+
+
+    /* =====================================================
+       🔐 ПЕРЕВІРКА РОЗРОБНИКА
+    ===================================================== */
+
     if (!checkDeveloperAccess()) {
+
+        console.error(
+            "⛔ checkDeveloperAccess() = FALSE"
+        );
 
         alert(
             "⛔ Редагувати точки може тільки розробник."
@@ -18818,9 +19116,19 @@ function openDeveloperEditPoint(
     }
 
 
+    /* =====================================================
+       🆔 ПЕРЕВІРКА ID
+    ===================================================== */
+
     if (!pointId) {
 
-        alert("❌ Не знайдено ID точки.");
+        console.error(
+            "❌ pointId відсутній"
+        );
+
+        alert(
+            "❌ Не знайдено ID точки."
+        );
 
         return;
     }
@@ -18829,10 +19137,90 @@ function openDeveloperEditPoint(
     data = data || {};
 
 
+    /* =====================================================
+       🪟 ЗНАХОДИМО ВІКНО РЕДАГУВАННЯ
+    ===================================================== */
+
+    const overlay =
+        document.getElementById(
+            "developerEditPointOverlay"
+        );
+
+
+    if (!overlay) {
+
+        console.error(
+            "❌ НЕ ЗНАЙДЕНО #developerEditPointOverlay"
+        );
+
+        alert(
+            "❌ Вікно редагування не знайдено в HTML."
+        );
+
+        return;
+    }
+
+
+    /* =====================================================
+       📋 ЗАПОВНЮЄМО ПОЛЯ
+    ===================================================== */
+
+    const fieldId = [
+        "developerEditPointId",
+        "developerEditPointOldCategory",
+        "developerEditPointCategory",
+        "developerEditPointName",
+        "developerEditPointDescription",
+        "developerEditPointAuthor",
+        "developerEditPointPhone",
+        "developerEditPointLat",
+        "developerEditPointLng",
+        "developerEditPointApproved"
+    ];
+
+
+    const missingFields = [];
+
+
+    fieldId.forEach(function(id) {
+
+        if (!document.getElementById(id)) {
+
+            missingFields.push(id);
+
+        }
+
+    });
+
+
+    if (missingFields.length) {
+
+        console.error(
+            "❌ Відсутні поля редактора:",
+            missingFields
+        );
+
+        alert(
+            "❌ У вікні редагування відсутні поля:\n\n" +
+            missingFields.join("\n")
+        );
+
+        return;
+    }
+
+
+    /* =====================================================
+       🆔 ID
+    ===================================================== */
+
     document.getElementById(
         "developerEditPointId"
     ).value = pointId;
 
+
+    /* =====================================================
+       📂 КАТЕГОРІЯ
+    ===================================================== */
 
     document.getElementById(
         "developerEditPointOldCategory"
@@ -18841,18 +19229,33 @@ function openDeveloperEditPoint(
 
     document.getElementById(
         "developerEditPointCategory"
-    ).value = category || "wash";
+    ).value =
+        category || "wash";
 
+
+    /* =====================================================
+       📝 НАЗВА
+    ===================================================== */
 
     document.getElementById(
         "developerEditPointName"
-    ).value = data.name || "";
+    ).value =
+        data.name || "";
 
+
+    /* =====================================================
+       📄 ОПИС
+    ===================================================== */
 
     document.getElementById(
         "developerEditPointDescription"
-    ).value = data.description || "";
+    ).value =
+        data.description || "";
 
+
+    /* =====================================================
+       👤 АВТОР
+    ===================================================== */
 
     document.getElementById(
         "developerEditPointAuthor"
@@ -18862,6 +19265,10 @@ function openDeveloperEditPoint(
         "";
 
 
+    /* =====================================================
+       📞 ТЕЛЕФОН
+    ===================================================== */
+
     document.getElementById(
         "developerEditPointPhone"
     ).value =
@@ -18869,6 +19276,10 @@ function openDeveloperEditPoint(
         data.phoneNumber ||
         "";
 
+
+    /* =====================================================
+       📍 LAT
+    ===================================================== */
 
     document.getElementById(
         "developerEditPointLat"
@@ -18878,6 +19289,10 @@ function openDeveloperEditPoint(
         "";
 
 
+    /* =====================================================
+       📍 LNG
+    ===================================================== */
+
     document.getElementById(
         "developerEditPointLng"
     ).value =
@@ -18885,6 +19300,10 @@ function openDeveloperEditPoint(
         data.longitude ??
         "";
 
+
+    /* =====================================================
+       ✅ APPROVED
+    ===================================================== */
 
     document.getElementById(
         "developerEditPointApproved"
@@ -18894,9 +19313,32 @@ function openDeveloperEditPoint(
             : "true";
 
 
-    document.getElementById(
-        "developerEditPointOverlay"
-    ).style.display = "flex";
+    /* =====================================================
+   🪟 ВІДКРИВАЄМО РЕДАКТОР
+===================================================== */
+overlay.style.cssText += `
+    display: flex !important;
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    min-width: 100vw !important;
+    min-height: 100dvh !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    z-index: 99999999 !important;
+`;
+
+overlay.classList.add("show");
+
+console.log(
+    "✅ Вікно повного редагування ВІДКРИТО"
+);
+
 }
 
 
