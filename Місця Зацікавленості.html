@@ -5735,6 +5735,20 @@ left: 10px;
 
         </button>
 
+        <button 
+    class="subCategoryBtn" 
+    onclick="toggleFleaMarket(this)" 
+>
+
+    <img 
+        src="flea_market_map.svg" 
+        class="categoryIcon" 
+    >
+
+    Блошиний ринок
+
+</button>
+
     </div>
 
 
@@ -5935,6 +5949,10 @@ left: 10px;
         Кафе та обіди
     </option>
 
+    <option value="flea_market">
+        Блошиний ринок
+    </option>
+
     <option value="free_parking">
         Паркування безкоштовне
     </option>
@@ -6031,6 +6049,21 @@ left: 10px;
     <span>Кафе та обіди</span> 
 </div> 
 
+<div  
+    class="categoryOption"  
+    data-value="flea_market"  
+>  
+    <img src="flea_market_map.svg">  
+    <span>Блошиний ринок</span>  
+</div>
+
+<div  
+    class="categoryOption"  
+    data-value="flea_market"  
+>  
+    <img src="flea_market_map.svg">  
+    <span>Блошиний ринок</span>  
+</div>
 
 <div 
     class="categoryOption" 
@@ -6379,6 +6412,14 @@ left: 10px;
     <span>Кафе та обіди</span> 
 </div>
 
+<div   
+    class="developer-category-option"   
+    data-value="flea_market"  
+>  
+    <img src="flea_market_map.svg">  
+    <span>Блошиний ринок</span>  
+</div>
+
 <div  
     class="developer-category-option"  
     data-value="free_parking" 
@@ -6490,6 +6531,10 @@ left: 10px;
     <option value="cafe_lunch">
         Кафе та обіди
     </option>
+
+    <option value="flea_market">
+         Блошиний ринок
+     </option>
 
     <option value="free_parking">
         Паркінг безкоштовний
@@ -6699,6 +6744,7 @@ left: 10px;
             <option value="market">🛒 Продуктовий магазин</option>
             <option value="truck_schop">🛒 Магазин ТІР</option>
             <option value="cafe_lunch">🍽️ Кафе та обіди</option>
+            <option value="flea_market">🛍️ Блошиний ринок</option>
             <option value="industrial">🏭 Промислова зона</option>
             <option value="gas_station">⛽ Заправка</option>
             <option value="service">🔧 Сервіс</option>
@@ -6947,6 +6993,16 @@ if(
     return "cafe_lunch";
 }
 
+/* =================================================
+   Блошиний ринок
+   Перевіряємо ПЕРШИМИ
+================================================= */
+
+if(
+    name.includes("flea_market_map")
+){
+    return "flea_market";
+}
     /* =================================================
        Продуктові магазини
     ================================================= */
@@ -9012,7 +9068,9 @@ function getApprovedIcon(category){
             "cafe_map.svg",    
 
         flea_market:
+
             "flea_market_map.svg",
+
 
         other:
             "info_marker.svg",
@@ -9956,6 +10014,8 @@ const categoryNames = {
 
     cafe_lunch: "Кафе та обіди",
 
+    flea_market: "Блошиний ринок",
+
     free_parking: "Паркування безкоштовне",
 
     paid_parking: "Паркування платне",
@@ -10692,6 +10752,7 @@ const categoryNames = {
     market: "Продуктовий магазин",
     truck_schop: "Магазин ТІР",
     cafe_lunch: "Кафе та обіди",
+    flea_market: "Блошиний ринок",
     free_parking: "Паркування безкоштовне",
     paid_parking: "Паркування платне",
     road_parking: "Паркування при дорозі",
@@ -14292,6 +14353,35 @@ if (
     container.appendChild(img);
 }
 
+ /* =========================
+    БЛОШИНИЙ РИНОК
+ ========================= */
+
+const fleaMarketButton =
+    document.querySelector(
+        '#shoppingCategories button[onclick*="toggleFleaMarket"]'
+    );
+
+if (
+    fleaMarketButton &&
+    fleaMarketButton.classList.contains("active")
+) {
+
+    const img =
+        document.createElement("img");
+
+    img.src =
+        "flea_market_map.svg";
+
+    img.className =
+        "activeMapCategoryIcon";
+
+    img.title =
+        "Блошиний ринок";
+
+    container.appendChild(img);
+}
+
     /* =========================
        ПРОМИСЛОВА ЗОНА
     ========================= */
@@ -14930,6 +15020,27 @@ if(
 
 }
 
+/* -------------------------
+   Блошиний ринок
+------------------------- */
+
+if(
+    iconFile.includes("flea_market_map")
+){
+
+    return L.icon({
+
+        iconUrl:"flea_market_map.svg",
+
+        iconSize:[40,40],
+
+        iconAnchor:[20,40],
+
+        popupAnchor:[0,-40]
+
+    });
+
+}
 
     /* -------------------------
        Паркування при дорозі
@@ -15131,6 +15242,10 @@ if(
 
          cafe_lunch:
             "cafe_map.svg",
+
+         flea_market:
+
+            "flea_market_map.svg",
 
         road_parking:
             "pocket_map.svg",
@@ -16990,6 +17105,28 @@ async function toggleCafeLunch(button){
 
     await reloadCategory(
         "cafe_lunch"
+    );
+
+
+    saveActiveCategories();
+
+    updateActiveCategoryIcons();
+
+}
+
+/* =====================================================
+   БЛОШИНИЙ РИНОК
+===================================================== */
+
+async function toggleFleaMarket(button){
+
+    button.classList.toggle(
+        "active"
+    );
+
+
+    await reloadCategory(
+        "flea_market"
     );
 
 
