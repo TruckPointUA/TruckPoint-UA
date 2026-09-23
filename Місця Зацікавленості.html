@@ -4302,7 +4302,7 @@ color: #93c5fd;
     align-items: center;
     justify-content: flex-start;
 
-    gap: 8px;
+    gap: 0px;
 
     font-size: 17px;
     font-weight: 600;
@@ -4318,6 +4318,10 @@ color: #93c5fd;
     box-sizing: border-box;
 
     overflow: hidden;
+}
+
+.subCategoryBtn .categoryName {
+    margin-left: -5px;
 }
 
 .subCategoryBtn .categoryIcon {
@@ -5310,6 +5314,143 @@ left: 10px;
     align-items: center;
     justify-content: center;
 }
+
+
+/* =====================================================
+   🔢 ЛІЧИЛЬНИКИ КІЛЬКОСТІ ТОЧОК У КАТЕГОРІЯХ
+===================================================== */
+
+.subCategoryBtn {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* Назва категорії */
+.subCategoryBtn .categoryName {
+    flex: 1;
+    min-width: 0;
+}
+
+/* =====================================================
+   🔢 ЦИФРА СПРАВА
+===================================================== */
+
+.categoryCount {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-width: 28px;
+    height: 24px;
+
+    margin-left: auto;
+    padding: 0 7px;
+
+    border-radius: 12px;
+
+    background: rgba(0, 212, 255, 0.14);
+    border: 1px solid rgba(37, 39, 39, 0.3);
+
+    color: #00d4ff;
+
+    font-family: "Montserrat", sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+
+    line-height: 1;
+
+    flex-shrink: 0;
+}
+
+/* =====================================================
+   🌙 NIGHT MODE
+===================================================== */
+
+.night-mode .categoryCount {
+    background: rgba(0, 212, 255, 0.14);
+    border-color: rgba(0, 212, 255, 0.30);
+    color: #00d4ff;
+}
+
+
+/* =====================================================
+   ☀️ DAY MODE
+===================================================== */
+
+.day-mode .categoryCount {
+    background: rgba(0, 150, 190, 0.10);
+    border-color: rgba(0, 150, 190, 0.25);
+    color: #0088aa;
+}
+
+
+/* =====================================================
+   📱 MOBILE
+===================================================== */
+
+@media (max-width: 600px) {
+
+    .categoryCount {
+        min-width: 27px;
+        height: 23px;
+
+        padding: 0 6px;
+
+        font-size: 11px;
+    }
+
+}
+
+
+/* =====================================================
+   🔄 СТАН ЗАВАНТАЖЕННЯ
+===================================================== */
+
+.categoryCount.loading {
+    min-width: 28px;
+
+    color: transparent;
+
+    position: relative;
+}
+
+
+/* маленька крапка під час завантаження */
+
+.categoryCount.loading::after {
+    content: "";
+
+    position: absolute;
+
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: currentColor;
+
+    animation: categoryCountPulse 1s infinite ease-in-out;
+}
+
+
+@keyframes categoryCountPulse {
+
+    0%,
+    100% {
+        opacity: 0.25;
+        transform: scale(0.8);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+}
+
+
 </style>
 
 </head>
@@ -5652,26 +5793,40 @@ left: 10px;
                 class="categoryIcon"
             >
 
-            Набрати воду
+            <span class="categoryName">
+                Набрати воду
+            </span>
+
+            <span
+                class="categoryCount"
+                id="count-water"
+            >0</span>
 
         </button>
 
 
-<!-- 🚿 ДУШ -->
+        <!-- 🚿 ДУШ -->
 
-<button 
-    class="subCategoryBtn" 
-    onclick="selectShower(this)" 
->
+        <button
+            class="subCategoryBtn"
+            onclick="selectShower(this)"
+        >
 
-    <img 
-        src="dush_map.svg" 
-        class="categoryIcon" 
-    >
+            <img
+                src="dush_map.svg"
+                class="categoryIcon"
+            >
 
-    Душ
+            <span class="categoryName">
+                Душ
+            </span>
 
-</button>
+            <span
+                class="categoryCount"
+                id="count-dush"
+            >0</span>
+
+        </button>
 
 
         <button class="subCategoryBtn">
@@ -5691,6 +5846,8 @@ left: 10px;
         class="subCategories"
     >
 
+        <!-- 🛒 ПРОДУКТОВІ МАГАЗИНИ -->
+
         <button
             class="subCategoryBtn"
             onclick="toggleGroceryStores(this)"
@@ -5701,10 +5858,19 @@ left: 10px;
                 class="categoryIcon"
             >
 
-            Продуктові магазини
+            <span class="categoryName">
+                Продуктові магазини
+            </span>
+
+            <span
+                class="categoryCount"
+                id="count-market"
+            >0</span>
 
         </button>
 
+
+        <!-- 🚛 МАГАЗИНИ ТІР -->
 
         <button
             class="subCategoryBtn"
@@ -5716,12 +5882,21 @@ left: 10px;
                 class="categoryIcon"
             >
 
-            Магазини ТІР
+            <span class="categoryName">
+                Магазини ТІР
+            </span>
+
+            <span
+                class="categoryCount"
+                id="count-truck_schop"
+            >0</span>
 
         </button>
 
 
-           <button
+        <!-- 🍽️ КАФЕ ТА ОБІДИ -->
+
+        <button
             class="subCategoryBtn"
             onclick="toggleCafeLunch(this)"
         >
@@ -5731,23 +5906,40 @@ left: 10px;
                 class="categoryIcon"
             >
 
-            Кафе та обіди
+            <span class="categoryName">
+                Кафе та обіди
+            </span>
+
+            <span
+                class="categoryCount"
+                id="count-cafe_lunch"
+            >0</span>
 
         </button>
 
-        <button 
-    class="subCategoryBtn" 
-    onclick="toggleFleaMarket(this)" 
->
 
-    <img 
-        src="flea_market_map.svg" 
-        class="categoryIcon" 
-    >
+        <!-- 🧺 БЛОШИНИЙ РИНОК -->
 
-    Блошиний ринок
+        <button
+            class="subCategoryBtn"
+            onclick="toggleFleaMarket(this)"
+        >
 
-</button>
+            <img
+                src="flea_market_map.svg"
+                class="categoryIcon"
+            >
+
+            <span class="categoryName">
+                Блошиний ринок
+            </span>
+
+            <span
+                class="categoryCount"
+                id="count-flea_market"
+            >0</span>
+
+        </button>
 
     </div>
 
@@ -5762,6 +5954,8 @@ left: 10px;
         class="subCategories"
     >
 
+        <!-- 🏭 ПРОМИСЛОВА ЗОНА -->
+
         <button
             class="subCategoryBtn"
             onclick="selectParking(this)"
@@ -5772,10 +5966,19 @@ left: 10px;
                 class="categoryIcon"
             >
 
-            Промислова зона
+            <span class="categoryName">
+                Промислова зона
+            </span>
+
+            <span
+                class="categoryCount"
+                id="count-industrial"
+            >0</span>
 
         </button>
 
+
+        <!-- 🅿️ ПАРКУВАННЯ ПРИ ДОРОЗІ -->
 
         <button
             class="subCategoryBtn"
@@ -5787,10 +5990,19 @@ left: 10px;
                 class="categoryIcon"
             >
 
-            Паркування при дорозі
+            <span class="categoryName">
+                Паркування при дорозі
+            </span>
+
+            <span
+                class="categoryCount"
+                id="count-road_parking"
+            >0</span>
 
         </button>
 
+
+        <!-- 🅿️ ПАРКУВАННЯ БЕЗКОШТОВНЕ -->
 
         <button
             class="subCategoryBtn"
@@ -5802,10 +6014,19 @@ left: 10px;
                 class="categoryIcon"
             >
 
-            Паркування безкоштовне
+            <span class="categoryName">
+                Паркінг безкоштовний
+            </span>
+
+            <span
+                class="categoryCount"
+                id="count-free_parking"
+            >0</span>
 
         </button>
 
+
+        <!-- 💳 ПАРКУВАННЯ ПЛАТНЕ -->
 
         <button
             class="subCategoryBtn"
@@ -5817,10 +6038,19 @@ left: 10px;
                 class="categoryIcon"
             >
 
-            Паркування платне
+            <span class="categoryName">
+                Паркування платне
+            </span>
+
+            <span
+                class="categoryCount"
+                id="count-paid_parking"
+            >0</span>
 
         </button>
 
+
+        <!-- 🏢 ПАРКУВАННЯ БІЛЯ ФІРМИ -->
 
         <button
             class="subCategoryBtn"
@@ -5832,7 +6062,14 @@ left: 10px;
                 class="categoryIcon"
             >
 
-            Паркування біля фірми
+            <span class="categoryName">
+                Паркування біля фірми
+            </span>
+
+            <span
+                class="categoryCount"
+                id="count-parking_firma"
+            >0</span>
 
         </button>
 
@@ -5861,24 +6098,40 @@ left: 10px;
                 class="categoryIcon"
             >
 
-            Шиномонтаж ТІР
+            <span class="categoryName">
+                Шиномонтаж ТІР
+            </span>
+
+            <span
+                class="categoryCount"
+                id="count-tire_service"
+            >0</span>
 
         </button>
 
 
-<!-- 🚿 МИЙКА АВТО-ЦИСТЕРН -->
+        <!-- 🚿 МИЙКА АВТО-ЦИСТЕРН -->
 
-<button
-    class="subCategoryBtn"
-    onclick="selectTankerWash(this)"
->
-   <img
-    src="tanker_wash_map.svg"
-    class="categoryIcon"
->
+        <button
+            class="subCategoryBtn"
+            onclick="selectTankerWash(this)"
+        >
 
-    Мийка авто-цистерн
-</button>
+            <img
+                src="tanker_wash_map.svg"
+                class="categoryIcon"
+            >
+
+            <span class="categoryName">
+                Мийка авто-цистерн
+            </span>
+
+            <span
+                class="categoryCount"
+                id="count-tanker_wash"
+            >0</span>
+
+        </button>
 
 
         <button class="subCategoryBtn">
@@ -5889,6 +6142,8 @@ left: 10px;
 
 
 </div>
+
+
 <button
     type="button"
     id="openDeveloperCoordinatesBtn"
@@ -7178,7 +7433,7 @@ const points = [
 //              ОДНОРАЗОВИЙ ІМПОРТ У FIREBASE
 // ======================================================
 
-async function importPointsToFirebase(){
+async function importPointsTo(){
 
     console.log("🚀 Початок імпорту точок...");
 
@@ -20048,6 +20303,365 @@ map.on("load", function() {
     updateMapPointsCounter();
 
 });
+
+async function updateCategoryCounts() {
+
+    const categories = [
+        "market",
+        "truck_schop",
+        "cafe_lunch",
+        "flea_market",
+        "industrial",
+        "road_parking",
+        "free_parking",
+        "paid_parking",
+        "parking_firma",
+        "water",
+        "dush",
+        "tire_service",
+        "tanker_wash"
+    ];
+
+    for (const category of categories) {
+
+        const snapshot = await db
+            .ref(`points/${category}`)
+            .once("value");
+
+        let count = 0;
+
+        if (snapshot.exists()) {
+
+            const points = snapshot.val();
+
+            Object.values(points).forEach(point => {
+
+                if (point.approved !== false) {
+                    count++;
+                }
+
+            });
+        }
+
+        const element = document.getElementById(
+            `count-${category}`
+        );
+
+        if (element) {
+            element.textContent = count;
+        }
+    }
+}
+
+
+
+/* =====================================================
+   🔢 КІЛЬКІСТЬ ТОЧОК ПО КАТЕГОРІЯХ
+===================================================== */
+
+/*
+   Firebase структура:
+
+   points/
+       market/
+       truck_schop/
+       cafe_lunch/
+       flea_market/
+       industrial/
+       road_parking/
+       free_parking/
+       paid_parking/
+       parking_firma/
+       water/
+       dush/
+       tire_service/
+       tanker_wash/
+*/
+
+
+const CATEGORY_COUNT_LIST = [
+
+    "market",
+    "truck_schop",
+    "cafe_lunch",
+    "flea_market",
+
+    "industrial",
+    "road_parking",
+    "free_parking",
+    "paid_parking",
+    "parking_firma",
+
+    "water",
+    "dush",
+
+    "tire_service",
+    "tanker_wash"
+
+];
+
+
+/* =====================================================
+   🔢 ОТРИМАТИ КІЛЬКІСТЬ ТОЧОК
+===================================================== */
+
+async function getCategoryPointCount(category) {
+
+    try {
+
+        const snapshot = await db
+            .ref(`points/${category}`)
+            .once("value");
+
+
+        if (!snapshot.exists()) {
+            return 0;
+        }
+
+
+        const points = snapshot.val();
+
+
+        let count = 0;
+
+
+        Object.values(points).forEach(point => {
+
+            /*
+               Якщо approved === false,
+               точка ще не схвалена і
+               в загальну кількість не входить.
+            */
+
+            if (
+                point &&
+                point.approved !== false
+            ) {
+
+                count++;
+
+            }
+
+        });
+
+
+        return count;
+
+
+    } catch (error) {
+
+        console.error(
+            `Помилка підрахунку категорії ${category}:`,
+            error
+        );
+
+        return 0;
+
+    }
+
+}
+
+
+/* =====================================================
+   🔢 ОНОВИТИ ОДИН ЛІЧИЛЬНИК
+===================================================== */
+
+async function updateCategoryCount(category) {
+
+    const element =
+        document.getElementById(
+            `count-${category}`
+        );
+
+
+    if (!element) {
+        return;
+    }
+
+
+    /*
+       Показуємо стан завантаження
+    */
+
+    element.classList.add("loading");
+
+
+    const count =
+        await getCategoryPointCount(category);
+
+
+    /*
+       Виводимо число
+    */
+
+    element.textContent = count.toLocaleString("uk-UA");
+
+
+    element.classList.remove("loading");
+
+}
+
+
+/* =====================================================
+   🔢 ОНОВИТИ ВСІ 13 КАТЕГОРІЙ
+===================================================== */
+
+async function updateAllCategoryCounts() {
+
+    console.log(
+        "🔢 Оновлення кількості точок..."
+    );
+
+
+    /*
+       Завантажуємо всі категорії паралельно,
+       щоб не чекати кожну по черзі.
+    */
+
+    await Promise.all(
+
+        CATEGORY_COUNT_LIST.map(
+            category =>
+                updateCategoryCount(category)
+        )
+
+    );
+
+
+    console.log(
+        "✅ Кількість точок оновлена"
+    );
+
+}
+
+
+/* =====================================================
+   🔄 АВТОМАТИЧНЕ ОНОВЛЕННЯ
+===================================================== */
+
+function listenCategoryCount(category) {
+
+    const ref =
+        db.ref(`points/${category}`);
+
+
+    ref.on("value", snapshot => {
+
+        let count = 0;
+
+
+        if (snapshot.exists()) {
+
+            const points =
+                snapshot.val();
+
+
+            Object.values(points).forEach(point => {
+
+                if (
+                    point &&
+                    point.approved !== false
+                ) {
+
+                    count++;
+
+                }
+
+            });
+
+        }
+
+
+        const element =
+            document.getElementById(
+                `count-${category}`
+            );
+
+
+        if (element) {
+
+            element.textContent =
+                count.toLocaleString("uk-UA");
+
+            element.classList.remove(
+                "loading"
+            );
+
+        }
+
+    });
+
+}
+
+
+/* =====================================================
+   🚀 ЗАПУСК ЛІЧИЛЬНИКІВ
+===================================================== */
+
+function startCategoryCounters() {
+
+    /*
+       Спочатку показуємо завантаження
+    */
+
+    CATEGORY_COUNT_LIST.forEach(category => {
+
+        const element =
+            document.getElementById(
+                `count-${category}`
+            );
+
+
+        if (element) {
+
+            element.classList.add(
+                "loading"
+            );
+
+        }
+
+    });
+
+
+    /*
+       Встановлюємо постійне слухання Firebase.
+       
+       Тому якщо:
+       - додали точку
+       - видалили точку
+       - змінили approved
+       
+       цифра автоматично зміниться.
+    */
+
+    CATEGORY_COUNT_LIST.forEach(category => {
+
+        listenCategoryCount(category);
+
+    });
+
+}
+
+
+/* =====================================================
+   ▶️ ЗАПУСК ПІСЛЯ ЗАВАНТАЖЕННЯ HTML
+===================================================== */
+
+if (
+    document.readyState === "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        startCategoryCounters
+    );
+
+} else {
+
+    startCategoryCounters();
+
+}
+
 </script>
 
 </body>
